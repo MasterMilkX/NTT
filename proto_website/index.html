@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPC Turing Test - Fantasy World [PROTOTYPE]</title>
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+     <style>
+        body {
+            font-family: Arial, sans-serif;     /* change this later */
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        #container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 90vw;
+            height: 45vw;
+            border: 2px solid #ccc;
+            margin: max(1%, calc(45vh - 25vw)) auto 0 auto;  /* keep in the middle */
+            position: relative;
+        }
+        #game-screen {
+            border: 1px solid #000;
+            background-color: #fff;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2; /* Ensure UI is above the game screen */
+        }
+
+        /* Popup styles */
+        .ui-popup{
+            background-color: #ffffffcc; /* Semi-transparent white */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none; /* Hidden by default */
+            justify-content: center;
+        }
+        .pop-contents{
+            margin:5%;
+            padding: 2%;
+            text-align: center;
+            border: 2px dashed #333;
+        }
+        .pop-header {
+            font-size: 3vw;
+            margin-bottom: 10px;
+            text-decoration: underline;
+        }
+        .pop-body {
+            font-size: 1.75vw;
+            margin-bottom: 20px;
+            width:80%;
+            margin: auto;
+        }
+        .pop-footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .pop-btn {
+            padding: 10px 20px;
+            font-size: 1.5vw;
+            background-color: #e2e2e2; /* Green */
+            color: rgb(73, 73, 73);
+            border: 1px solid #666;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+
+        /* general styles */
+        .bold {
+            font-weight: bold;
+        }
+
+     </style>
+</head> 
+<body onload="init()">
+    <div id="container">
+        <canvas id="game-screen"></canvas>
+
+        <div id="ui-overlay">
+
+
+
+
+
+
+
+
+            <!-- ---- POP UP SCREENS ---- -->
+
+
+            <!-- WELCOME SCREEN -->
+            <div class="ui-popup" id="welcome-popup">
+                <div class="pop-contents">
+                    <div class="pop-header">
+                        Welcome to the NPC Turing Test!
+                    </div>
+                    <div class="pop-body">
+                        <p>In this prototype, you will interact with a fantasy world and you are given a role</p>
+                        <p>Try to determine if the NPC is a human or an AI.</p>
+                        <p>Click "Continue" to select your role.</p>
+                    </div>
+                    <div class="pop-footer">
+                        <button id="char-sel-btn" class="pop-btn" onclick="showPopup('char-sel')">Continue</button>
+                    </div>  
+                </div>
+            </div>
+
+            <!-- CHARACTER SELECTION -->
+            <div class="ui-popup" id="char-sel-popup">
+                <div class="pop-contents">
+                    <div class="pop-header">
+                        Character Selection
+                    </div>
+                    <div class="pop-body">
+                        <p><span class="bold">Active Participant (AP): </span> <br>You are determining who is human and who is an AI</p>
+                        <p><span class="bold">Non-player Participant (AP): </span> <br>A human role-playing as an NPC pretending to be an AI</p>
+                    </div>
+                    <div class="pop-footer" style="flex-direction: column; margin-top:10%">
+                        <span class="bold">Select your role:</span>
+                        <div style="display: block; margin-top: 10px;">
+                            <button class="pop-btn" onclick="selectRole('AP')">AP</button>
+                            <button class="pop-btn" onclick="selectRole('NPC')">NPP</button>
+                        </div>
+                    </div>  
+                </div>
+            </div>
+
+            <!-- ROLE ASSIGNMENT -->
+            <div class="ui-popup" id="role-ass-popup" >
+                <div class="pop-contents" style="width:100%;">
+                    <div class="pop-header">
+                        Role Assignment - Chicken
+                    </div>
+                    <div class="pop-body">
+                        <!-- TODO: turn this into class based structure for easy replacement and formatting -->
+                        <p><span class="bold">You are a chicken! <br>Whether a normal chicken or a magical chicken, that's for you to decide.</span></p>
+
+                        <p>1. Make a chicken noise near an AP
+                        <br>2. Find the wizard
+                        <br>3. Go to the plaza</p>
+
+                        <p>Please be respectful in any and all interactions. Assume they are human!
+                        <br>Click EXIT when you want to leave and have fun!</p>
+                    </div>
+                    <div class="pop-footer">
+                        <button id="start-button" class="pop-btn" onclick="startGame()">Enter the Game</button>
+                    </div>  
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <script src="js/main.js"></script>
+</body>
+</html>
