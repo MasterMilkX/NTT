@@ -17,8 +17,17 @@ var map3_IMG = new Image();
 map3_IMG.src = 'assets/tmp/forest.jpg';         // https://www.freepik.com/free-photos-vectors/cartoon-forest
 
 // UI imports
+var check_IMG = new Image();
+check_IMG.src = 'assets/ui/check.png';         // <a href="https://www.flaticon.com/free-icons/tick" title="tick icons">Tick icons created by Freepik - Flaticon</a>
 
+var cross_IMG = new Image();
+cross_IMG.src = 'assets/ui/cancel.png';         // <a href="https://www.flaticon.com/free-icons/cross" title="cross icons">Cross icons created by Freepik - Flaticon</a>
 
+var map_IMG = new Image();
+map_IMG.src = 'assets/ui/map.png';           // <a href="https://www.flaticon.com/free-icons/fantasy" title="fantasy icons">Fantasy icons created by Freepik - Flaticon</a>
+
+var exit_IMG = new Image();
+exit_IMG.src = 'assets/ui/exit.png';           // <a href="https://www.flaticon.com/free-icons/exit-door" title="exit door icons">Exit door icons created by Freepik - Flaticon</a>
 
 
 
@@ -60,6 +69,7 @@ function render(){
 
 
 //// EVENT HANDLERS ////
+
 
 // CHANGE MAP FUNCTION
 function changeMap(newMap) {
@@ -108,17 +118,47 @@ function startGame(){
     }
 
     changeMap(2); // change to plaza map
+    document.getElementById("game-ui").style.display = "block"; // show the game screen
 }
 
 
 
+// -- GAME UI
 
+// toggle the task list
+function toggleTasks(){
+    if (document.getElementById("task-list").style.display === "none") {
+        document.getElementById("task-list").style.display = "block";
+    }else {
+        document.getElementById("task-list").style.display = "none";
+    }
+}
+
+function submitVote(vote){
+    // TODO: implement vote submission logic to the database
+    // userID, votedUserID, voteType, confidence
+
+    document.getElementById("vote-confirm").innerHTML = "Vote submitted!"
+    setTimeout(function() {
+        document.getElementById("vote-confirm").innerHTML = "";
+    },5000); // clear the confirmation message after 2 seconds
+    
+
+}
+
+
+function updateConfidence(conf_val){
+    // TODO: implement confidence update logic
+
+    
+}
 
 
 
 // INITIALIZATION FUNCTION 
 function init(){
-    showPopup("welcome")
+    //showPopup("welcome")
+    startGame(); // start the game immediately for testing purposes
 }
 
 // MAIN GAME LOOP
