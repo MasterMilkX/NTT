@@ -43,7 +43,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 2; /* Ensure UI is above the game screen */
+            /* z-index: 2; Ensure UI is above the game screen */
         }
 
         /* Popup styles */
@@ -55,12 +55,16 @@
             height: 100%;
             display: none; /* Hidden by default */
             justify-content: center;
+            z-index: 3;
+            position: absolute;
         }
         .pop-contents{
             margin:5%;
             padding: 2%;
             text-align: center;
-            border: 2px dashed #333;
+            /* border: 2px dashed #333; */
+            height:auto;
+            position:relative;
         }
         .pop-header {
             font-size: 3vw;
@@ -79,7 +83,7 @@
             justify-content: center;
         }
         .pop-btn {
-            padding: 10px 20px;
+            padding: 1vw 2vw;
             font-size: 1.5vw;
             background-color: #e2e2e2; /* Green */
             color: rgb(73, 73, 73);
@@ -87,6 +91,50 @@
             border-radius: 5px;
             cursor: pointer;
             margin: 0 10px;
+        }
+        .pop-warning{
+            border: 5px dashed red;
+            padding: 10px;
+        }
+
+        #map-popup {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #000000cc; /* Semi-transparent black */
+        }
+        #map-grid{
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            width: 100%;
+        }
+        .map-cell {
+            background-color: #b0b0b0; /* Light gray */
+            padding: 10px;
+            text-align: center;
+            font-size: 1.5vw;
+            border-radius: 5px;
+            cursor: pointer;
+            border:4px solid #00000000;
+        }
+        .map-cell:hover {
+            background-color: #e2e2e2; /* Darker gray on hover */
+        }
+        .cur-pos{
+            border:4px solid #00ff00; /* Green border for current position */
+        }
+
+        .map-cell img{
+            width: 7vw;
+            height: 7vw;
+            vertical-align: middle;
+        }
+        #map-label {
+            font-size: 2vw;
+            color: #fff;
+            margin-top: 5%;
         }
 
         /* --------- Game UI ----------- */
@@ -97,6 +145,7 @@
             height: 100%;
             display: none; /* Hidden by default */
             justify-content: center;
+            z-index: 2;
         }
 
         /* TASK UI */
@@ -341,24 +390,26 @@
                         </div>   
                     </div>
                 </div>
+
+                <!-- BOTTOM UI -->
+                <div id="bottom-ui">
+                    
+                    <div id="exit-game-btn" style="margin-left:10px;">
+                        <button class="game-btn" onclick="showPopup('exit')"><img src="assets/tmp/exit.png"></button>
+                    </div>  
+
+                    <div id="chat-box">
+                        <input type="text" id="chat-input" placeholder="Type your message here..." onkeydown="if(event.key === 'Enter') sendMessage()">
+                        <button id="send-msg-btn" onclick="sendMessage()">Send</button>
+                    </div>
+
+                    <div id="map-btn" style="margin-right:10px;">
+                        <button class="game-btn" onclick="showPopup('map')"><img src="assets/tmp/map.png"></button>   
+                    </div>
+                </div>
             </div>
 
-            <!-- BOTTOM UI -->
-            <div id="bottom-ui">
-                
-                <div id="exit-game-btn" style="margin-left:10px;">
-                    <button class="game-btn" onclick="exitGame()"><img src="assets/tmp/exit.png"></button>
-                </div>  
-
-                <div id="chat-box">
-                    <input type="text" id="chat-input" placeholder="Type your message here..." onkeydown="if(event.key === 'Enter') sendMessage()">
-                    <button id="send-msg-btn" onclick="sendMessage()">Send</button>
-                </div>
-
-                <div id="map-btn" style="margin-right:10px;">
-                    <button class="game-btn" onclick="showMap()"><img src="assets/tmp/map.png"></button>   
-                </div>
-            </div>
+            
 
 
 
@@ -423,6 +474,45 @@
                     <div class="pop-footer">
                         <button id="start-button" class="pop-btn" onclick="startGame()">Enter the Game</button>
                     </div>  
+                </div>
+            </div>
+
+
+            <!-- EXIT GAME POPUP -->
+            <div class="ui-popup" id="exit-popup">
+                <div class="pop-contents">
+                    <div class="pop-warning">
+                        <div class="pop-header" style="font-size: 3vw; color: red;">
+                            WARNING
+                        </div>
+                        <div class="pop-body">
+                            <p>Once you leave the game, any unfinished tasks are lost</p>
+                            <p>Are you sure you would like to quit?</p>
+                        </div>
+                    </div>
+                    <div class="pop-footer">
+                        <button class="pop-btn" onclick="exitGame()">Exit Game</button>
+                        <button class="pop-btn" onclick="closePopups()">Return to Game</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAP SELECTION POPUP -->
+            <div class="ui-popup" id="map-popup">
+                <div class="pop-contents" style="margin:1%;">
+                    <div id="map-grid">
+                        <div class="map-cell" onclick="selectMap('plaza')">Plaza</div>
+                        <div class="map-cell" onclick="selectMap('forest')">Forest</div>
+                        <div class="map-cell" onclick="selectMap('castle')">Castle</div>
+                        <div class="map-cell" onclick="selectMap('bar')">Bar</div>
+                        <div class="map-cell" onclick="selectMap('dungeon')">Dungeon</div>
+                        <div class="map-cell" onclick="selectMap('beach')">Beach</div>
+                        <div class="map-cell" onclick="selectMap('mountain')">Mountain</div>
+                        <div class="map-cell" onclick="selectMap('wizard_tower')">Wizard Tower</div>
+                        <div class="map-cell" onclick="selectMap('grocer')">Grocer</div>
+                    </div>
+                    <p id="map-label">Plaza</p>
+                    <button class="pop-btn" onclick="closePopups()">Close Map</button>
                 </div>
             </div>
 

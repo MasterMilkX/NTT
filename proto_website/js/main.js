@@ -6,6 +6,23 @@ var ctx = canvas.getContext('2d');
 canvas.width = 1600;
 canvas.height = 900;
 
+
+
+// UI imports
+var check_IMG = new Image();
+check_IMG.src = 'assets/tmp/check.png';         // <a href="https://www.flaticon.com/free-icons/tick" title="tick icons">Tick icons created by Freepik - Flaticon</a>
+
+var cross_IMG = new Image();
+cross_IMG.src = 'assets/tmp/cancel.png';         // <a href="https://www.flaticon.com/free-icons/cross" title="cross icons">Cross icons created by Freepik - Flaticon</a>
+
+var map_IMG = new Image();
+map_IMG.src = 'assets/tmp/map.png';           // <a href="https://www.flaticon.com/free-icons/fantasy" title="fantasy icons">Fantasy icons created by Freepik - Flaticon</a>
+
+var exit_IMG = new Image();
+exit_IMG.src = 'assets/tmp/exit.png';           // <a href="https://www.flaticon.com/free-icons/exit-door" title="exit door icons">Exit door icons created by Freepik - Flaticon</a>
+
+
+
 // background image imports
 var map1_IMG = new Image();
 map1_IMG.src = 'assets/tmp/battlefield.jpg';    // https://gamebanana.com/mods/369805
@@ -16,23 +33,32 @@ map2_IMG.src = 'assets/tmp/plaza.jpg';          // https://www.deviantart.com/ja
 var map3_IMG = new Image();
 map3_IMG.src = 'assets/tmp/forest.jpg';         // https://www.freepik.com/free-photos-vectors/cartoon-forest
 
-// UI imports
-var check_IMG = new Image();
-check_IMG.src = 'assets/ui/check.png';         // <a href="https://www.flaticon.com/free-icons/tick" title="tick icons">Tick icons created by Freepik - Flaticon</a>
 
-var cross_IMG = new Image();
-cross_IMG.src = 'assets/ui/cancel.png';         // <a href="https://www.flaticon.com/free-icons/cross" title="cross icons">Cross icons created by Freepik - Flaticon</a>
+var cur_location = "";
+var MAP_IMG_SET = {
+    "plaza" : map2_IMG,
+    "battlefield" : map1_IMG,
+    "forest" : map3_IMG,
+    "A" : null, // placeholder images for unknown locations
+    "B" : null, // placeholder images for unknown locations
+    "C" : null, // placeholder images for unknown locations
+    "D" : null, // placeholder images for unknown locations
+    "E" : null, // placeholder images for unknown locations
+    "F" : null, // placeholder images for unknown locations
+}
+var MAP_ICON_SET = {
+    "plaza" : "assets/tmp/point.png",
+    "battlefield" : "assets/tmp/point.png",
+    "forest" : "assets/tmp/point.png",
+    "A" : "assets/tmp/point.png",
+    "B" : "assets/tmp/point.png",
+    "C" : "assets/tmp/point.png",
+    "D" : "assets/tmp/point.png",
+    "E" : "assets/tmp/point.png",
+    "F" : "assets/tmp/point.png"
+}
 
-var map_IMG = new Image();
-map_IMG.src = 'assets/ui/map.png';           // <a href="https://www.flaticon.com/free-icons/fantasy" title="fantasy icons">Fantasy icons created by Freepik - Flaticon</a>
-
-var exit_IMG = new Image();
-exit_IMG.src = 'assets/ui/exit.png';           // <a href="https://www.flaticon.com/free-icons/exit-door" title="exit door icons">Exit door icons created by Freepik - Flaticon</a>
-
-
-
-
-var map_num = 2; // current map number
+var MAP_CELL_LIST = ["A", "B", "C", "forest", "plaza", "battlefield", "D", "E", "F"]; // list of all map cells
 
 
 
@@ -55,13 +81,11 @@ function render(){
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // draw a temporary world
-    if (map_num === 1) {
-        ctx.drawImage(map1_IMG, 0, 0, canvas.width, canvas.height);
-    } else if (map_num === 2) {
-        ctx.drawImage(map2_IMG, 0, 0, canvas.width, canvas.height);
-    } else if (map_num === 3) {
-        ctx.drawImage(map3_IMG, 0, 0, canvas.width, canvas.height);
-    }
+    if (cur_location == "" || !MAP_IMG_SET[cur_location]) {
+        ctx.fillStyle = "#000"; // black void background for unknown locations
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }else
+        ctx.drawImage(MAP_IMG_SET[cur_location], 0, 0, canvas.width, canvas.height);
 
 
     ctx.restore();
@@ -71,23 +95,19 @@ function render(){
 //// EVENT HANDLERS ////
 
 
-// CHANGE MAP FUNCTION
-function changeMap(newMap) {
-    if (newMap >= 1 && newMap <= 3) {
-        map_num = newMap;
-        render(); // re-render the game with the new map
-    } else {
-        console.error("Invalid map number. Please choose between 1 and 3.");
-    }
-}
 
-// SHOW POPUPS
-function showPopup(id){
+// CLOSE POPUPS
+function closePopups(){
     // hide all current popups
     var all_pops = document.getElementsByClassName("ui-popup");
     for (var i = 0; i < all_pops.length; i++) {
         all_pops[i].style.display = "none";
     }
+}
+
+// SHOW POPUPS
+function showPopup(id){
+    closePopups(); // close all current popups
 
     // show the selected popup
     var popup = document.getElementById(id+"-popup");
@@ -111,16 +131,56 @@ function selectRole(){
 // START THE GAME
 // insert the player into the plaza
 function startGame(){
-    // hide all current popups
-    var all_pops = document.getElementsByClassName("ui-popup");
-    for (var i = 0; i < all_pops.length; i++) {
-        all_pops[i].style.display = "none";
-    }
+    closePopups(); // close all current popups
 
-    changeMap(2); // change to plaza map
+    changeMap("plaza"); // change to plaza map
     document.getElementById("game-ui").style.display = "block"; // show the game screen
 }
 
+// CHANGE THE PLAYER'S LOCATION
+function changeMap(location){
+    // TODO: implement location change logic
+
+    let all_map_icons = document.getElementsByClassName("map-cell");
+    for (let i = 0; i < all_map_icons.length; i++) {
+        all_map_icons[i].classList.remove("cur-pos");
+    }
+
+    // highlight the new location
+    let new_location = document.getElementById("map-loc-"+location);
+    new_location.classList.add("cur-pos");
+
+    // set the background image
+    cur_location = location;
+    render();
+}
+
+// populate the map cells of the pop up menu
+function setMapCells(){
+    let map_grid = document.getElementById("map-grid");
+    map_grid.innerHTML = ""; // clear the container
+
+    // create map cell elements
+    for (let i = 0; i < MAP_CELL_LIST.length; i++) {
+        let cell = document.createElement("div");
+        cell.className = "map-cell";
+        cell.id = "map-loc-" + MAP_CELL_LIST[i];
+        let img = document.createElement("img");
+        img.src = MAP_ICON_SET[MAP_CELL_LIST[i]];
+        cell.appendChild(img);
+        // cell.style.backgroundImage = "url('" + MAP_ICON_SET[MAP_CELL_LIST[i]] + "')";
+        cell.onclick = function() { changeMap(MAP_CELL_LIST[i]); };
+        cell.onmouseover = function() { setMapLabel(MAP_CELL_LIST[i].toUpperCase()); };
+        cell.onmouseout = function() { setMapLabel("&nbsp;"); }; // clear label on mouse out
+        map_grid.appendChild(cell);
+    }
+}
+
+function setMapLabel(loc){
+    // set the map label to the current location
+    let map_label = document.getElementById("map-label");
+    map_label.innerHTML = loc; // display the location in uppercase
+}
 
 
 // -- GAME UI
@@ -153,10 +213,21 @@ function updateConfidence(conf_val){
     
 }
 
+function resetGame(){
+    // reset the game state
+    cur_location = "";
+    document.getElementById("game-ui").style.display = "none"; // hide the game screen
+    closePopups(); // close all current popups
+    document.getElementById("vote-confirm").innerHTML = ""; // clear the vote confirmation message
+    setMapCells(); // reset the map cells in the popup menu
+    showPopup("welcome"); // show the welcome popup
+}
+
 
 
 // INITIALIZATION FUNCTION 
 function init(){
+    setMapCells(); // populate the map cells in the popup menu
     //showPopup("welcome")
     startGame(); // start the game immediately for testing purposes
 }
