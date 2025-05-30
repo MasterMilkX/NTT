@@ -194,6 +194,19 @@ function toggleTasks(){
     }
 }
 
+function voteChar(username){
+    var vote_window = document.getElementById("vote-ui");
+    vote_window.style.display = "block"; // show the vote UI
+    if(!username)
+        username = "TotallyChicken3"; // set a default username if none is provided
+    vote_window.querySelector("#vote-user").innerHTML = username; // set the voted user name
+}
+
+function closeVoteUI(){
+    var vote_window = document.getElementById("vote-ui");
+    vote_window.style.display = "none"; // hide the vote UI
+}
+
 function submitVote(vote){
     // TODO: implement vote submission logic to the database
     // userID, votedUserID, voteType, confidence
@@ -213,6 +226,7 @@ function updateConfidence(conf_val){
     
 }
 
+// show the start up screen to select role again
 function resetGame(){
     // reset the game state
     cur_location = "";

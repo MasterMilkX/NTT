@@ -173,8 +173,9 @@
         }
         #task-list {
             margin-top: 5px;
+            font-size: 1.5vw;
             overflow-y: auto;
-            max-height: 20vh; /* Limit height for scrolling */
+            max-height: 15vh; /* Limit height for scrolling */
         }
 
         /* VOTE UI */
@@ -373,7 +374,7 @@
                 <!-- VOTE UI -->
                  <div id="vote-ui">
                     <div id="vote-header">
-                        Is <span class='userTxt'>TotallyChicken21</span> human?
+                        Is <span class='userTxt' id="vote-user">TotallyChicken21</span> human?
                     </div>
                     <div id="vote-options">
                         <button class="vote-btn" id='vote-yea' onclick="submitVote('human')"><img src="assets/tmp/check.png"> Yea</button>
@@ -491,7 +492,7 @@
                         </div>
                     </div>
                     <div class="pop-footer">
-                        <button class="pop-btn" onclick="exitGame()">Exit Game</button>
+                        <button class="pop-btn" onclick="resetGame()">Exit Game</button>
                         <button class="pop-btn" onclick="closePopups()">Return to Game</button>
                     </div>
                 </div>
@@ -501,15 +502,7 @@
             <div class="ui-popup" id="map-popup">
                 <div class="pop-contents" style="margin:1%;">
                     <div id="map-grid">
-                        <div class="map-cell" onclick="selectMap('plaza')">Plaza</div>
-                        <div class="map-cell" onclick="selectMap('forest')">Forest</div>
-                        <div class="map-cell" onclick="selectMap('castle')">Castle</div>
-                        <div class="map-cell" onclick="selectMap('bar')">Bar</div>
-                        <div class="map-cell" onclick="selectMap('dungeon')">Dungeon</div>
-                        <div class="map-cell" onclick="selectMap('beach')">Beach</div>
-                        <div class="map-cell" onclick="selectMap('mountain')">Mountain</div>
-                        <div class="map-cell" onclick="selectMap('wizard_tower')">Wizard Tower</div>
-                        <div class="map-cell" onclick="selectMap('grocer')">Grocer</div>
+                        <!-- Add grid cells here -->
                     </div>
                     <p id="map-label">Plaza</p>
                     <button class="pop-btn" onclick="closePopups()">Close Map</button>
