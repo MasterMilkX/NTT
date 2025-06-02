@@ -6,60 +6,11 @@ var ctx = canvas.getContext('2d');
 canvas.width = 1600;
 canvas.height = 900;
 
+// TODO: Keep track of avatars via the server
+var avatar_list = []; // list of all avatars in the game
+var USERNAME = "TotallyChicken3"; // default username for testing purposes
 
-
-// UI imports
-var check_IMG = new Image();
-check_IMG.src = 'assets/tmp/check.png';         // <a href="https://www.flaticon.com/free-icons/tick" title="tick icons">Tick icons created by Freepik - Flaticon</a>
-
-var cross_IMG = new Image();
-cross_IMG.src = 'assets/tmp/cancel.png';         // <a href="https://www.flaticon.com/free-icons/cross" title="cross icons">Cross icons created by Freepik - Flaticon</a>
-
-var map_IMG = new Image();
-map_IMG.src = 'assets/tmp/map.png';           // <a href="https://www.flaticon.com/free-icons/fantasy" title="fantasy icons">Fantasy icons created by Freepik - Flaticon</a>
-
-var exit_IMG = new Image();
-exit_IMG.src = 'assets/tmp/exit.png';           // <a href="https://www.flaticon.com/free-icons/exit-door" title="exit door icons">Exit door icons created by Freepik - Flaticon</a>
-
-
-
-// background image imports
-var map1_IMG = new Image();
-map1_IMG.src = 'assets/tmp/battlefield.jpg';    // https://gamebanana.com/mods/369805
-
-var map2_IMG = new Image(); 
-map2_IMG.src = 'assets/tmp/plaza.jpg';          // https://www.deviantart.com/jakebowkett/art/Fantasy-Town-Plaza-689235345
-
-var map3_IMG = new Image();
-map3_IMG.src = 'assets/tmp/forest.jpg';         // https://www.freepik.com/free-photos-vectors/cartoon-forest
-
-
-var cur_location = "";
-var MAP_IMG_SET = {
-    "plaza" : map2_IMG,
-    "battlefield" : map1_IMG,
-    "forest" : map3_IMG,
-    "A" : null, // placeholder images for unknown locations
-    "B" : null, // placeholder images for unknown locations
-    "C" : null, // placeholder images for unknown locations
-    "D" : null, // placeholder images for unknown locations
-    "E" : null, // placeholder images for unknown locations
-    "F" : null, // placeholder images for unknown locations
-}
-var MAP_ICON_SET = {
-    "plaza" : "assets/tmp/point.png",
-    "battlefield" : "assets/tmp/point.png",
-    "forest" : "assets/tmp/point.png",
-    "A" : "assets/tmp/point.png",
-    "B" : "assets/tmp/point.png",
-    "C" : "assets/tmp/point.png",
-    "D" : "assets/tmp/point.png",
-    "E" : "assets/tmp/point.png",
-    "F" : "assets/tmp/point.png"
-}
-
-var MAP_CELL_LIST = ["A", "B", "C", "forest", "plaza", "battlefield", "D", "E", "F"]; // list of all map cells
-
+var ui_overlay = document.getElementById("game-ui"); // the game UI overlay
 
 
 //////////////////////////      FUNCTIONS      //////////////////////////
@@ -88,153 +39,209 @@ function render(){
         ctx.drawImage(MAP_IMG_SET[cur_location], 0, 0, canvas.width, canvas.height);
 
 
+    // draw the avatars
+    for (var i = 0; i < avatar_list.length; i++) {
+        var avatar = avatar_list[i];
+        if (avatar && avatar.show) {
+            avatar.render(ctx); // render the avatar on the canvas
+        }
+    }
+
     ctx.restore();
 }
+
+//// UPDATE LOOP ////
+
+function update() {
+    for (var i = 0; i < avatar_list.length; i++) {
+        var avatar = avatar_list[i];
+        if (avatar && avatar.show) {
+            // update the avatar's position and other properties
+            avatar.update(); // assuming the avatar class has an update method
+        }
+    }
+}
+
+
 
 
 //// EVENT HANDLERS ////
 
 
+// remove all avatars from the game
+// TODO: remove just the one avatar of the current user
+function removeAvatar(){
+    avatar_list = []; // clear the avatar list
+    render(); // re-render the game screen
+}
 
-// CLOSE POPUPS
-function closePopups(){
-    // hide all current popups
-    var all_pops = document.getElementsByClassName("ui-popup");
-    for (var i = 0; i < all_pops.length; i++) {
-        all_pops[i].style.display = "none";
+// add a new avatar to the game
+function addAvatar(location){
+    var new_avatar = new Avatar(USERNAME, "chicken", "chicken", "AP"); // create a new avatar instance
+    new_avatar.setPos(800, 450); // set the initial position of the avatar
+    avatar_list.push(new_avatar); // add the avatar to the list
+}
+
+function getAvatar(username){
+    // find the avatar with the given username
+    for (var i = 0; i < avatar_list.length; i++) {
+        var avatar = avatar_list[i];
+        if (avatar && avatar.show && avatar.username === username) {
+            return avatar; // return the avatar if found
+        }
     }
+    return null; // return null if no avatar with the given username is found
 }
 
-// SHOW POPUPS
-function showPopup(id){
-    closePopups(); // close all current popups
 
-    // show the selected popup
-    var popup = document.getElementById(id+"-popup");
-    if (popup) {
-        popup.style.display = "flex";
-    } else {
-        console.error("Popup with id " + id + "-popup does not exist.");
+// Change relative position of the cursor
+function getCursorPos(e){
+    let curs = {offx:0, offy:0};
+    let rect = {left:0, top:0, width:canvas.width, height:canvas.height}; // default rect for canvas
+
+    //mouse
+    if(e instanceof MouseEvent){
+        rect = e.target.getBoundingClientRect();
+        curs.offx = e.offsetX;
+        curs.offy = e.offsetY;
     }
-}
-
-function selectRole(){
-    // give the player a random role
-    // TODO: implement role selection logic
-
-
-
-    // bring up the role assignment popup
-    showPopup("role-ass");
-}
-
-// START THE GAME
-// insert the player into the plaza
-function startGame(){
-    closePopups(); // close all current popups
-
-    changeMap("plaza"); // change to plaza map
-    document.getElementById("game-ui").style.display = "block"; // show the game screen
-}
-
-// CHANGE THE PLAYER'S LOCATION
-function changeMap(location){
-    // TODO: implement location change logic
-
-    let all_map_icons = document.getElementsByClassName("map-cell");
-    for (let i = 0; i < all_map_icons.length; i++) {
-        all_map_icons[i].classList.remove("cur-pos");
+    //touch
+    else if(e instanceof TouchEvent){
+        rect = e.target.getBoundingClientRect();
+        let touch = e.touches[0] || e.changedTouches[0];
+        curs.offx = touch.pageX - rect.left;
+        curs.offy = touch.pageY - rect.top;
     }
 
-    // highlight the new location
-    let new_location = document.getElementById("map-loc-"+location);
-    new_location.classList.add("cur-pos");
+    curs.offx = Math.floor(curs.offx * (canvas.width / rect.width));
+    curs.offy = Math.floor(curs.offy * (canvas.height / rect.height));
 
-    // set the background image
-    cur_location = location;
-    render();
+    return curs;
 }
 
-// populate the map cells of the pop up menu
-function setMapCells(){
-    let map_grid = document.getElementById("map-grid");
-    map_grid.innerHTML = ""; // clear the container
 
-    // create map cell elements
-    for (let i = 0; i < MAP_CELL_LIST.length; i++) {
-        let cell = document.createElement("div");
-        cell.className = "map-cell";
-        cell.id = "map-loc-" + MAP_CELL_LIST[i];
-        let img = document.createElement("img");
-        img.src = MAP_ICON_SET[MAP_CELL_LIST[i]];
-        cell.appendChild(img);
-        // cell.style.backgroundImage = "url('" + MAP_ICON_SET[MAP_CELL_LIST[i]] + "')";
-        cell.onclick = function() { changeMap(MAP_CELL_LIST[i]); };
-        cell.onmouseover = function() { setMapLabel(MAP_CELL_LIST[i].toUpperCase()); };
-        cell.onmouseout = function() { setMapLabel("&nbsp;"); }; // clear label on mouse out
-        map_grid.appendChild(cell);
+function gameClick(e){
+    let target = e.target.id; // get the target element id or unknown if not available
+
+    if (!target || target !== "game-ui") {
+        return; // ignore clicks outside the game UI
     }
-}
 
-function setMapLabel(loc){
-    // set the map label to the current location
-    let map_label = document.getElementById("map-label");
-    map_label.innerHTML = loc; // display the location in uppercase
-}
-
-
-// -- GAME UI
-
-// toggle the task list
-function toggleTasks(){
-    if (document.getElementById("task-list").style.display === "none") {
-        document.getElementById("task-list").style.display = "block";
-    }else {
-        document.getElementById("task-list").style.display = "none";
-    }
-}
-
-function voteChar(username){
-    var vote_window = document.getElementById("vote-ui");
-    vote_window.style.display = "block"; // show the vote UI
-    if(!username)
-        username = "TotallyChicken3"; // set a default username if none is provided
-    vote_window.querySelector("#vote-user").innerHTML = username; // set the voted user name
-}
-
-function closeVoteUI(){
-    var vote_window = document.getElementById("vote-ui");
-    vote_window.style.display = "none"; // hide the vote UI
-}
-
-function submitVote(vote){
-    // TODO: implement vote submission logic to the database
-    // userID, votedUserID, voteType, confidence
-
-    document.getElementById("vote-confirm").innerHTML = "Vote submitted!"
-    setTimeout(function() {
-        document.getElementById("vote-confirm").innerHTML = "";
-    },5000); // clear the confirmation message after 2 seconds
     
 
+    // check if the click is on an avatar
+    if (clickAvatar(e)) {
+        return; // if an avatar was clicked, do not proceed further
+    }else if (document.getElementById("vote-ui").style.display === "block") {
+        hideVoteUI(); // hide the vote UI if it is open and no avatar was clicked
+        return; // do not proceed further if the vote UI is open
+    }
+    let curs = getCursorPos(e); // get the cursor offset
+    let x = curs.offx;
+    let y = curs.offy;
+    console.log(`Click at (${x}, ${y}) on ${target}.`);
+
+    // move the avatar to the clicked position
+    var avatar = getAvatar(USERNAME); // get the avatar of the current user
+    if (avatar) {
+        avatar.setNextPos(x, y); // set the next position of the avatar to the clicked position
+        avatar.gotoPos(); // start moving the avatar towards the next position
+    }
+
+    // handle other game UI interactions here
+
 }
 
 
-function updateConfidence(conf_val){
-    // TODO: implement confidence update logic
+// check if the click is on an avatar
+function clickAvatar(e){
+    let curs = getCursorPos(e); // get the cursor offset
+    let x = curs.offx;
+    let y = curs.offy;
 
+    // check if the click is on an avatar
+    for (var i = 0; i < avatar_list.length; i++) {
+        var avatar = avatar_list[i];
+        if (avatar.wasClicked(x, y)) { 
+            // handle avatar click
+            console.log("Avatar clicked:", avatar.username);
+            avatar.highlight = true; // highlight the clicked avatar
+            voteChar(avatar.username); // open the vote UI with the clicked avatar's username
+            return true;
+        }else {
+            avatar.highlight = false; // remove highlight if not clicked
+        }
+    }
+    //hideVoteUI(); // hide the vote UI if no avatar was clicked
+    return false; // no avatar was clicked
+}
+
+function sendMessage(){
+    var msg = document.getElementById("chat-input").value; // get the chat message from the input field
+    if (!msg || msg.trim() === "") {
+        return; // do not send empty messages
+    }
+
+    // send a chat message to the server
+    var avatar = getAvatar(USERNAME); // get the avatar of the current user
+    if (avatar) { // check if the avatar exists and the message is not empty
+        avatar.setChatMsg(msg); // set the chat message for the avatar
+        document.getElementById("chat-input").value = ""; // clear the input field after sending the message
+        console.log(`Message sent: ${msg}`); // log the message to the console
+    }
+}
+
+
+function showClickPos(e){
+    let target = e.target.id; // get the target element id or unknown if not available
+
+    if (!target || target !== "game-ui") {
+        return;
+    }
+
+    let curs = getCursorPos(e); // get the cursor offset
+    let x = curs.offx;
+    let y = curs.offy;
+
+    console.log(`Click at (${x}, ${y}) on ${target}.`);
+
+    // hidde the vote UI if the click is not on the game UI
+    hideVoteUI();
+}
+
+// mouse + touch event listeners for the "canvas" (really just the ui-overlay on top)
+ui_overlay.addEventListener('click', gameClick);
+ui_overlay.addEventListener('touchstart', gameClick);
+
+// shortcuts
+window.onkeydown = function(e) {
     
-}
-
-// show the start up screen to select role again
-function resetGame(){
-    // reset the game state
-    cur_location = "";
-    document.getElementById("game-ui").style.display = "none"; // hide the game screen
-    closePopups(); // close all current popups
-    document.getElementById("vote-confirm").innerHTML = ""; // clear the vote confirmation message
-    setMapCells(); // reset the map cells in the popup menu
-    showPopup("welcome"); // show the welcome popup
+    
+    if(!document.activeElement || document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault(); // prevent default behavior of the key press
+        if(e.key == 't'){
+            toggleTasks(); // toggle the task list when T is pressed
+        }else if(e.key == 'Escape'){
+            if(document.getElementById("vote-ui").style.display === "block")
+                hideVoteUI(); // hide the vote UI when Escape is pressed
+        }
+        else if(e.key == 'm'){
+            if(document.getElementById("map-popup").style.display !== "none")
+                closePopups(); // hide the map popup when M is pressed
+            else
+                showPopup("map"); // show the map popup when M is pressed
+        }
+        else if(e.key == 'Tab'){
+            document.getElementById("chat-input").focus(); // focus the chat input when Left Shift is pressed
+        }
+    }else{
+        if (e.key === 'Enter') {
+            sendMessage(); // send the chat message when Enter is pressed
+        }else if (e.key === 'Escape') {
+            document.activeElement.blur(); // remove focus from the input field when Escape is pressed
+        }
+    }
+    
 }
 
 
@@ -249,6 +256,7 @@ function init(){
 // MAIN GAME LOOP
 function main() {
     render();
+    update(); // update the game state
     requestAnimationFrame(main);
 }
 
