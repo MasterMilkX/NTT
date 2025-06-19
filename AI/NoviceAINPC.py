@@ -8,7 +8,7 @@ import time
 ####### GLOBAL VARIABLES #######
 
 BOT_NAME = "Chuck Bartowski"   # This will be changed based on NPC generation in game
-TALK_INTERVAL = 60             # Seconds between lines (use smaller number like 5 for testing)
+TALK_INTERVAL = 5             # Seconds between lines (use smaller number like 5 for testing)
 
 dialogue_lines = [
     "Sorry, can you repeat that?",

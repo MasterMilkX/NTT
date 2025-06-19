@@ -36,7 +36,7 @@ roles_data = {
     },
     "Baker": {
         "role_keywords": {
-            "Freshly baked bread coming right up!",
+            "bread": "Freshly baked bread coming right up!",
             "cake": "Looking for a special cake? I can make anything from chocolate to fruit-filled delights.",
             "sweet": "Try our honey-glazed pastries, they're sweet and perfect with tea.",
             "pie": "Ah, our berry pies are famous throughout the town!",
@@ -126,8 +126,8 @@ roles_data = {
             "sale": "There’s a special sale today, don’t miss out!",
             "trade": "I’m always open to trades, if you have something interesting.",
             "stock": "My stock changes frequently, so come back often.",
-            "return": "Yes, you can return that if it’s unused."
-            "potion": "We don’t sell potions — try the apothecary.",
+            "return": "Yes, you can return that if it’s unused.",
+            "potion": "We don’t sell potions — try the apothecary."
         },
         "ambient_lines": [
             "Need anything? Just let me know.",
@@ -217,7 +217,7 @@ def main():
     role = input("Choose an NPC role (Apothecary, Baker, Barmaid, Blacksmith, Butcher, General Goods Shopkeeper, Knight Trainer, Librarian): ")
     if role not in roles_data:
         print("Role not found.")
-        role = null
+        role = None
 
     # Start the ambient speech in a separate thread
     thread = threading.Thread(target=ambient_speech, args=(role,), daemon=True)

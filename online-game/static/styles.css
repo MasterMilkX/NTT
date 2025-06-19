@@ -1,0 +1,335 @@
+body {
+    font-family: Arial, sans-serif;     /* change this later */
+    background-color: #f0f0f0;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+/* TODO: Make it fit to screen and test on mobile */
+#container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90vw;
+    height: 50vw;
+    max-height:800px;
+    border: 2px solid #ccc;
+    margin: max(0%, calc(50vh - 28vw)) auto 0 auto;  /* keep in the middle */
+    position: relative;
+}
+#game-screen {
+    border: 1px solid #000;
+    background-color: #fff;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+}
+
+#ui-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* z-index: 2; Ensure UI is above the game screen */
+}
+
+/* Popup styles */
+.ui-popup{
+    background-color: #ffffffcc; /* Semi-transparent white */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none; /* Hidden by default */
+    justify-content: center;
+    z-index: 3;
+    position: absolute;
+}
+.pop-contents{
+    margin:5%;
+    padding: 2%;
+    text-align: center;
+    /* border: 2px dashed #333; */
+    height:auto;
+    position:relative;
+}
+.pop-header {
+    font-size: 3vw;
+    margin-bottom: 10px;
+    text-decoration: underline;
+}
+.pop-body {
+    font-size: 1.75vw;
+    margin-bottom: 20px;
+    width:80%;
+    margin: auto;
+}
+.pop-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+.pop-btn {
+    padding: 1vw 2vw;
+    font-size: 1.5vw;
+    background-color: #e2e2e2; /* Green */
+    color: rgb(73, 73, 73);
+    border: 1px solid #666;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 10px;
+}
+.pop-warning{
+    border: 5px dashed red;
+    padding: 10px;
+}
+
+#map-popup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #000000cc; /* Semi-transparent black */
+}
+#map-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    width: 100%;
+}
+.map-cell {
+    background-color: #b0b0b0; /* Light gray */
+    padding: 10px;
+    text-align: center;
+    font-size: 1.5vw;
+    border-radius: 5px;
+    cursor: pointer;
+    border:4px solid #00000000;
+}
+.map-cell:hover {
+    background-color: #e2e2e2; /* Darker gray on hover */
+}
+.cur-pos{
+    border:4px solid #00ff00; /* Green border for current position */
+}
+
+.map-cell img{
+    width: 7vw;
+    height: 7vw;
+    vertical-align: middle;
+}
+#map-label {
+    font-size: 2vw;
+    color: #fff;
+    margin-top: 5%;
+}
+
+/* --------- Game UI ----------- */
+#game-ui {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none; /* Hidden by default */
+    justify-content: center;
+    z-index: 2;
+}
+
+/* TASK UI */
+#task-ui {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    max-width: 20%;
+    max-height: 30%;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+    padding: 10px;
+    border-radius: 10px;
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+}
+#task-header {
+    font-size: 2vw;
+    font-weight:bold;
+    text-decoration: underline;
+    text-align: center;
+}
+#task-header:hover{
+    background-color: #00000033;
+    cursor: pointer;
+    border-radius: 5px;
+}
+#task-list {
+    margin-top: 5px;
+    font-size: 1.5vw;
+    overflow-y: auto;
+    max-height: 15vh; /* Limit height for scrolling */
+}
+
+/* VOTE UI */
+#vote-ui {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    max-width: 25%;
+    background-color: #777777dd; /* Semi-transparent white */
+    padding: 5px;
+    border-radius: 10px;
+    text-align: center;
+    font-size:1.5vw;
+    color:black;
+    border: 2px solid #222;
+    display:none; /* Hidden by default */
+
+}
+#vote-header {
+    font-size: 2vw;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+.vote-btn{
+    width:40%;
+    height: auto;
+    padding: 10px;
+    margin: 2px 4px;
+    cursor: pointer;
+    background-color: #00000000;
+}
+.vote-btn:hover {
+    background-color: #ffffff88;
+    border-radius: 5px;
+}
+.vote-btn img {
+    width: 6vw;
+    height: 6vw;
+    vertical-align: middle;
+}
+.vote-btn .selected{
+    background-color: #00ff0033;
+    border-radius: 5px;
+}
+
+#vote-conf{
+    margin-top: 10px;
+    display: block;
+    justify-content: center;
+    align-items: center;
+}
+#confidence-slider {
+    width: 50%;
+    margin: 10px 5px;
+}
+
+#vote-footer {
+    margin: 10px 0 2px 0;
+    display: block;
+    justify-content: center;
+    align-items: center;
+}
+#vote-submit{
+    width: 60%;
+    height: auto;
+    padding: 5px;
+    margin: 2px;
+    font-size: 1.5vw;
+    background-color: #e2e2e2; /* Green */
+    color: rgb(73, 73, 73);
+    border: 1px solid #666;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#vote-confirm {
+    margin-top: 5px;
+    font-size: 1.75vw;
+    color: #37bd0e;
+    font-weight: bold;
+}
+
+/* BOTTOM UI */
+
+#bottom-ui {
+    position: absolute;
+    bottom: 1%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* border: 2px dashed cyan; */
+}
+
+.game-btn{
+    width: 6vw;
+    height: 6vw;
+    padding: 8px;
+    background-color: #cdcdcd; 
+    color: rgb(73, 73, 73);
+    border: 1px solid #666;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.game-btn img {
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+}
+.game-btn:hover {
+    background-color: #ffffff;
+    border-radius: 5px;
+}
+
+#chat-box{
+    width: 70%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding:10px;
+    /* border:3px dashed red; */
+}
+
+#chat-input {
+    width: 75%;
+    padding: 5px;
+    font-size: 1.5vw;
+    border: 3px solid #00000000;
+    color: #333;
+}
+#chat-input:focus {
+    outline: none;
+    border: 3px solid #666;
+}
+#chat-input::placeholder {
+    color: #cdcdcd;
+}
+
+#send-msg-btn {
+    padding: 3px 7px;
+    font-size: 1.5vw;
+    background-color: #000;
+    color: #dedede;
+    border: 1px solid #666;
+    cursor: pointer;
+    margin-left: 10px;
+    border: 1px solid #00000000;
+}
+#send-msg-btn:focus {
+    outline: none;
+    border: 1px solid #666;
+}
+#send-msg-btn:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+/* ------- GENERAL STYLES -------- */
+.bold {
+    font-weight: bold;
+}
+
+.userTxt{
+    color: #00ffea; /* Blue color for user text */
+    font-weight: bold;
+}

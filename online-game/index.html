@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPC Turing Test - Fantasy World [PROTOTYPE]</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- extra styles -->
+     <style>
+        
+
+     </style>
+     <script src="js/avatar.js"></script>
+</head> 
+<body onload="init()">
+    <div id="container">
+        <canvas id="game-canvas"></canvas>
+
+        <div id="ui-overlay">
+
+
+            <!-- ---- GAME UI OVERLAY ---- -->
+            <div id="game-ui">
+
+                <!-- TASK UI BOX -->
+                <div id="task-ui">
+                    <div id="task-header" onclick="toggleTasks()">
+                        Tasks
+                    </div>
+                    <div id="task-list" style="display: none;">
+                        <input type="checkbox" id="task1" class="task-item" disabled>
+                        <label for="task1">Make a chicken noise near an AP</label><br>
+                        
+                        <input type="checkbox" id="task2" class="task-item" disabled>
+                        <label for="task2">Find the wizard</label><br>
+                        
+                        <input type="checkbox" id="task3" class="task-item" disabled>
+                        <label for="task3">Go to the plaza</label><br>
+                    </div>
+                </div>
+
+                <!-- VOTE UI -->
+                 <div id="vote-ui">
+                    <div id="vote-header">
+                        Is <span class='userTxt' id="vote-user">TotallyChicken21</span> human?
+                    </div>
+                    <div id="vote-options">
+                        <button class="vote-btn" id='vote-yea' onclick="submitVote('human')"><img src="assets/tmp/check.png"> Yea</button>
+                        <button class="vote-btn" id='vote-nay' onclick="submitVote('ai')"><img src="assets/tmp/cancel.png">Nay</button>
+                    </div>
+                    <div id="vote-conf">
+                        <span class="bold">Confidence</span><br>
+                        Low <input type="range" id="confidence-slider" min="1" max="5" oninput="updateConfidence(this.value)"> High
+                    </div>
+                    <div id="vote-footer">
+                        <!-- <button class="pop-btn" id="vote-submit" onclick="submitVote()">Submit Vote</button>  -->
+                        <div id="vote-confirm">
+                            <!-- shows 'Vote submitted' -->
+                        </div>   
+                    </div>
+                </div>
+
+                <!-- BOTTOM UI -->
+                <div id="bottom-ui">
+                    
+                    <div id="exit-game-btn" style="margin-left:10px;">
+                        <button class="game-btn" onclick="showPopup('exit')"><img src="assets/tmp/exit.png"></button>
+                    </div>  
+
+                    <div id="chat-box">
+                        <input type="text" id="chat-input" placeholder="Type your message here..." onkeydown="if(event.key === 'Enter') sendMessage()">
+                        <button id="send-msg-btn" onclick="sendMessage()">Send</button>
+                    </div>
+
+                    <div id="map-btn" style="margin-right:10px;">
+                        <button class="game-btn" onclick="showPopup('map')"><img src="assets/tmp/map.png"></button>   
+                    </div>
+                </div>
+            </div>
+
+            
+
+
+
+
+            <!-- ---- POP UP SCREENS ---- -->
+
+
+            <!-- WELCOME SCREEN -->
+            <div class="ui-popup" id="welcome-popup">
+                <div class="pop-contents">
+                    <div class="pop-header">
+                        Welcome to the NPC Turing Test!
+                    </div>
+                    <div class="pop-body">
+                        <p>In this prototype, you will interact with a fantasy world and you are given a role</p>
+                        <p>Try to determine if the NPC is a human or an AI.</p>
+                        <p>Click "Continue" to select your role.</p>
+                    </div>
+                    <div class="pop-footer">
+                        <button id="char-sel-btn" class="pop-btn" onclick="showPopup('char-sel')">Continue</button>
+                    </div>  
+                </div>
+            </div>
+
+            <!-- CHARACTER SELECTION -->
+            <div class="ui-popup" id="char-sel-popup">
+                <div class="pop-contents">
+                    <div class="pop-header">
+                        Character Selection
+                    </div>
+                    <div class="pop-body">
+                        <p><span class="bold">Active Participant (AP): </span> <br>You are determining who is human and who is an AI</p>
+                        <p><span class="bold">Non-player Participant (AP): </span> <br>A human role-playing as an NPC pretending to be an AI</p>
+                    </div>
+                    <div class="pop-footer" style="flex-direction: column; margin-top:10%">
+                        <span class="bold">Select your role:</span>
+                        <div style="display: block; margin-top: 10px;">
+                            <button class="pop-btn" onclick="selectRole('AP')">AP</button>
+                            <button class="pop-btn" onclick="selectRole('NPC')">NPP</button>
+                        </div>
+                    </div>  
+                </div>
+            </div>
+
+            <!-- ROLE ASSIGNMENT -->
+            <div class="ui-popup" id="role-ass-popup" >
+                <div class="pop-contents" style="width:100%;">
+                    <div class="pop-header">
+                        Role Assignment - Chicken
+                    </div>
+                    <div class="pop-body">
+                        <!-- TODO: turn this into class based structure for easy replacement and formatting -->
+                        <p><span class="bold">You are a chicken! <br>Whether a normal chicken or a magical chicken, that's for you to decide.</span></p>
+
+                        <p>1. Make a chicken noise near an AP
+                        <br>2. Find the wizard
+                        <br>3. Go to the plaza</p>
+
+                        <p>Please be respectful in any and all interactions. Assume they are human!
+                        <br>Click EXIT when you want to leave and have fun!</p>
+                    </div>
+                    <div class="pop-footer">
+                        <button id="start-button" class="pop-btn" onclick="startGame()">Enter the Game</button>
+                    </div>  
+                </div>
+            </div>
+
+
+            <!-- EXIT GAME POPUP -->
+            <div class="ui-popup" id="exit-popup">
+                <div class="pop-contents">
+                    <div class="pop-warning">
+                        <div class="pop-header" style="font-size: 3vw; color: red;">
+                            WARNING
+                        </div>
+                        <div class="pop-body">
+                            <p>Once you leave the game, any unfinished tasks are lost</p>
+                            <p>Are you sure you would like to quit?</p>
+                        </div>
+                    </div>
+                    <div class="pop-footer">
+                        <button class="pop-btn" onclick="resetGame()">Exit Game</button>
+                        <button class="pop-btn" onclick="closePopups()">Return to Game</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAP SELECTION POPUP -->
+            <div class="ui-popup" id="map-popup">
+                <div class="pop-contents" style="margin:1%;">
+                    <div id="map-grid">
+                        <!-- Add grid cells here -->
+                    </div>
+                    <p id="map-label">Plaza</p>
+                    <button class="pop-btn" onclick="closePopups()">Close Map</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
