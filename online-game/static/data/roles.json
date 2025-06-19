@@ -1,0 +1,73 @@
+{
+    "apothecary":{
+        "description":"You have been chosen as a gold star employee of the Apothecary! Your duty to our glorious village is to sort herbs, brew potions, handle customers, protect our storefront, and whatever your heart leads you towards in the valiant strive towards safety and soundness. Don't forget, all employees are given a lunch break, so feel free to take a short trip around town to enjoy the sights and perhaps some delicious bread from our bakery!",
+        "tasks":["Stack boxes","Sweep the store","Greet (3) customers","Fetch new herbs","Read potion brewing manual","Sell (5) items","Brew potion of invisibility","Brew potion of health regeneration","Brew potion of stamina","Brew potion of fire resistence","Brew potion of water breathing"],
+        "dialog":["What ailment brings you to my shop today?","Looking to mend the body or cloud the mind?","The right mixture can heal\u2026 or harm. Choose wisely.","Ah, searching for fire resistance? I\u2019d recommend fire salts, bone meal, and a touch of snowberry.","For vitality, try vampire dust, juniper berries, and luna moth wings \u2014 just a pinch!","I\u2019m in the middle of a delicate infusion \u2014 speak quickly.","Interested in something... more elusive? Our invisibility tonic lasts up to ten minutes, if brewed properly.","The duration depends on the strength of your will\u2026 and the purity of the reagents.","You\u2019d be surprised what secrets lie within common herbs."]
+    },
+    "baker":{
+        "description":"You have been chosen as a gold star employee of the Bakery! Your duty to our glorious village is to prepare ingredients, bake goods, handle customers, protect our storefront, and whatever your heart leads you towards in the valiant strive towards safety and soundness. Don't forget, all employees are given a lunch break, so feel free to take a short trip around town to enjoy the sights and perhaps grab a snack from the butcher to make a perfect lunch!",
+        "tasks":["Stack boxes","Sweep the store","Greet (3) customers","Fetch new ingredients","Read cookbook","Sell (5) items","Clean counters","Rearrange baked goods ","Bake a cake","Bake some bread","Decorate the sales case","Make cookies","Taste test new recipes"],
+        "dialog":["Fresh bread just came out of the oven!","Would you like something sweet? I recommend the honey tarts.","All our pastries are made fresh every morning.","The chocolate cake is a favorite around here.","Oops! I think I burnt the muffins again...","My secret? A pinch of cinnamon in everything.","We're running low on flour; might need to grind more soon.","Careful! The oven's still hot.","Need help choosing something? Just ask!"]
+    },
+    "bard":{
+        "description":"You have been chosen to be our local bard! Your task is to share the good words of our blossoming country with these fine town-folk through the blessing of song and dance. We hope you can move hearts (and maybe make a coin or two) whilst keeping spirits up. You are free to move about the town at your leisure, but keep in mind that many stores may not want you to disturb the other customers. The town square and bar are always joyful to hear a good song, though, so fret not and sing to share the love!",
+        "tasks":["Develop a new poem","Get (3) requests from listeners","Sing a song in the town square","Sing a song in the bar","Sing a song of love","Sing a song of adventure","Get (3) tips *convince them if you must ;D*"],
+        "dialog":[]
+    },
+    "barmaid":{
+        "description":"You have been chosen as a gold star employee of the Tavern! Your duty to our glorious village is to prepare drinks, chat with customers, protect our storefront, and whatever your heart leads you towards in the valiant strive towards safety and soundness. Don't forget, all employees are given a lunch break, so feel free to take a short trip around town to enjoy the sights and perhaps grab a snack from the butcher to make a perfect lunch! Thinkgs really kick up in the evening at the tavern, so be prepared for that after-dinner rush!",
+        "tasks":["Stack boxes","Sweep the store","Greet (3) customers","Fetch new stock","Read complaint tabs","Sell (5) drinks","Clean counters","Hire a bard","Kick out the local drunk"],
+        "dialog":["What'll it be? Ale, cider, or something stronger?","Looking for a room? We\u2019ve got one available upstairs.","You\u2019d be surprised what you hear working behind the bar...","Hear any good rumors lately?","Break it up, you two! Not in my tavern!","One moment, love, I\u2019ll be right with you.","No coin, no drink. That's the rule.","Thanks for the tip!","Our bard starts playing at sundown!"]
+    },
+    "blacksmith":{
+        "description":"You have been chosen as a gold star employee of the Blacksmith! Your duty to our glorious village is to sort ores, smith weapons, handle customers, protect our storefront, and whatever your heart leads you towards in the valiant strive towards safety and soundness. Don't forget, all employees are given a lunch break, so feel free to take a short trip around town to enjoy the sights and perhaps some delicious bread from our bakery!",
+        "tasks":["Stack boxes","Sweep the store","Greet (3) customers","Fetch materials","Read tool manual","Sell (5) items","Clean counters","Craft a sword","Man the furnaces","Sort ores"],
+        "dialog":["Looking for a new sword? I just finished forging one.","Armor needs mending? Let me take a look.","I\u2019ve got plenty of iron, but good steel\u2019s harder to come by.","This forge\u2019s been in my family for generations.","I can repair that \u2014 give me a few hours.","Careful! That blade\u2019s still red hot.","I lost my favorite hammer again...","Got a special commission? I\u2019ll need a down payment.","Blades dull with time. Always keep them sharp."]
+    },
+    "butcher":{
+        "description":"You have been chosen as a gold star employee of the Butcher! Your duty to our glorious village is to sort meats, break down new stock, handle customers, protect our storefront, and whatever your heart leads you towards in the valiant strive towards safety and soundness. Don't forget, all employees are given a lunch break, so feel free to take a short trip around town to enjoy the sights and perhaps some delicious bread from our bakery!",
+        "tasks":["Stack boxes","Sweep the store","Greet (3) customers","Fetch ","Read tool manual","Sell (5) items","Clean counters","Defeather a Chicken","Convince a customer to buy a whole pig","Catch the *Chuck* if one appears"],
+        "dialog":["Fresh meat! Just butchered this morning.","What cut are you looking for?","Try the spiced sausages \u2014 they\u2019re my specialty.","The smell of blood doesn\u2019t bother me anymore.","Never work without your cleaver. Rule number one.","Caught it myself \u2014 out near the edge of the woods.","I keep the good stuff in the cold cellar.","I can debone that for you if you\u2019d like.","Perfect roast starts with the right cut."]
+    },
+    "drunk":{
+        "description":"You have been chosen as our very own town drunk! What exactly does a town drunk do? Well, follow your imagination! Belidgerent, loud, angry, begging, joking, whatever suits your fancy, just make sure people know exactly who you are! You're free to move about town, but be prepared to get kicked out of busy spaces if you're too loud *wink*; the bar most definitely would be a second home, but perhaps you can swindle some money for poor little you from some kindhearted passers-by. Fret not, your day may come! Just... maybe not today...",
+        "tasks":["Tell a story of day's past","Convince a passerby that you were once a noble","Beg for spare change","Get kicked out of (2) stores","Buy a few rounds from the bar","Get into a drinking contest","Try to out-sing the bard"],
+        "dialog":[]
+    },
+    "chuck":{
+        "description":"You have been chosen to be the Chuck. You are a mix between a chicken, a duck, a dinosaur, and pure malice. You are magical. You are special. No one is quite like you. Everything in this world goes from Talos, to Jerry, to you. Live the life you know you must live. Where are you from? Do you cross any streets? Have you ever been around the sky falling? Are you made from rubber? Who knows? WhO kNoWs?! You are whatever you say you are. Now go, my child, wreak havoc!",
+        "tasks":["Develop a backstory","Quack in (3) locations","Quack alongside a bard's song","Convince a passerby that you are a lizard","Storm into the butcher and cry for help","Run around in circles","Visit every location on the map","Sit in the town square fountain"],
+        "dialog":[]
+    },
+    "general_goods":{
+        "description":"You have been chosen as a gold star employee of the Apothecary! Your duty to our glorious village is to sort new product, handle ledgers, handle customers, protect our storefront, and whatever your heart leads you towards in the valiant strive towards safety and soundness. Don't forget, all employees are given a lunch break, so feel free to take a short trip around town to enjoy the sights and perhaps some delicious bread from our bakery!",
+        "tasks":["Stack boxes","Sweep the store","Greet (3) customers","Fetch new shipment","Read ledger","Sell (5) items","Convince a customer to make a trade","Buy (3) items from customers"],
+        "dialog":["Need supplies? I\u2019ve got everything from rope to candles.","New stock just came in from the capital.","Some items are on sale \u2014 take a look.","Maps? Right over there, by the door.","We don\u2019t sell potions \u2014 try the apothecary.","Careful, that lantern leaks a little oil.","Yes, you can return that if it\u2019s unused.","Buying in bulk? I\u2019ll give you a discount.","Looking for something special?"]
+    },
+    "gossip":{
+        "description":"You have been chosen to be our small town's gossip. What chaos can you create? What storys can you fabricate? Information spreading all over town and yet all events hit your ears. You may not be all-knowing, but you sure do get around. Hitting up the bar or town square for some of the craziest tea wouldn't be a bad idea, but listening isn't all the fun. You must go and tell the good word of our neighbors cheating and getting thrown out of the house, of the orcs and wolfmen fighting in the butcher, of all the new travelers who visit this small town. There's so much to see and yet so little time... go forth and do the good work.",
+        "tasks":["Ask the Chuck for a secret","Tell the bard a story they can sing about","Listen in on (3) conversations","Visit the bar","Visit the town square","Listen for whispers in the library","Tell (4) other people secrets you've heard","Convince the drunk of a *story* you heard","Tell the barmaid to watch out for a *certain somebody*"],
+        "dialog":[]
+    },
+    "knight_trainer":{
+        "description":"You have been chosen as a gold star employee of the Apothecary! Your duty to our glorious village is to train knights, develop your strengths, handle students, protect our nation, and whatever your heart leads you towards in the valiant strive towards safety and soundness. Don't forget, all employees are given a lunch break, so feel free to take a short trip around town to enjoy the sights and perhaps some delicious bread from our bakery!",
+        "tasks":["Stack equipment","Set up a training schedule","Greet (3) students","Fetch weapons","Read out the knight's writ","Train (3) new knights","Explain the training regimen to onlookers"],
+        "dialog":["Discipline and repetition \u2014 that\u2019s the key.","Hold your sword with both hands. Tight, but not stiff.","You can\u2019t fight if you can\u2019t move \u2014 find armor that fits.","Shield up! Always keep your guard!","Training reflexes takes time. Start with drills.","A knight\u2019s strength is his honor, not his sword.","You want a duel? Prove you're worthy.","Your stance is sloppy. Start over.","Earn your rank. Don\u2019t ask for it."]
+    },
+    "librarian":{
+        "description":"You have been chosen as a gold star employee of the Apothecary! Your duty to our glorious village is to sort books, engage the youth, protect our community, and whatever your heart leads you towards in the valiant strive towards safety and soundness. Don't forget, all employees are given a lunch break, so feel free to take a short trip around town to enjoy the sights and perhaps some delicious bread from our bakery!",
+        "tasks":["Stack books","Sweep the library","Greet (3) customers","Fetch new books","Read a book aloud to other patrons","Loan (5) books out","Teach someone the dewey decimal system *you can make it up*","Make a book recommendation to a patron"],
+        "dialog":["Please be quiet. This is a library.","Have you returned your books on time?","Our history section is down the hall to the left.","Books on magic are restricted \u2014 special permission required.","Ancient scrolls must be handled with gloves.","No loud talking, please.","Use the catalog to search by title or author.","We offer copying services for a small fee.","That book is rare \u2014 please don\u2019t damage it."]
+    },
+    "mercenary":{
+        "description":"",
+        "tasks":[],
+        "dialog":[]
+    },
+    "wizard":{
+        "description":"",
+        "tasks":[],
+        "dialog":[]
+    }
+
+}

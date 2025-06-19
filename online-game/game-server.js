@@ -30,16 +30,49 @@ server.listen(app.get('port'), function() {
 });
 
 
-// handle game state
+// set up the role associations
+var MAX_ROLES = 3;
+var player_role_ct = {};
+for(let occ in playerjs.AVATAR_OCC) {
+    player_role_ct[occ] = 0; // initialize the role count to 0
+}
+
+
+
+
+// handle player game state
 var players = {};
 var playerTxtTime = {};
-const MAX_PLAYERS = 25;
+//const MAX_PLAYERS = 25;
 
-/*
 
-// TODO: implement mutliplayer interaction
+// creates a player with a random role (as needed) and class
+// gives a description and list of tasks
+function newRole(){
+    let race = playerjs.getRandomRace();
+
+    // get a random occupation based on need
+    let avail_occ = [];
+    for (let occ in playerjs.AVATAR_OCC) {
+        if (player_role_ct[occ] < MAX_ROLES) {
+            for(let i=0;i<MAX_ROLES-player_role_ct[occ];i++)
+                avail_occ.push(occ);
+        }
+    }
+    let occ = avail_occ[Math.floor(Math.random() * avail_occ.length)]; // pick a random occupation from the available ones
+    player_role_ct[occ]++; // increment the role count for the occupation
+
+
+}
+
 
 io.on('connection', function(socket) {
+    socket.on('assign-role', function(){
+        let char_dat = newRole();
+        socket.emit('role-assigned', char_dat); // send the assigned role to the client
+    })
+
+    /*
     socket.on('join', function(name) {
         if (Object.keys(players).length >= MAX_PLAYERS) {
             socket.emit('message', 'reject');
@@ -88,8 +121,9 @@ io.on('connection', function(socket) {
         
         //io.emit('updatePlayers', players);
     });
+    */
 });
-*/
+
 
 
 process.on('SIGINT', function() {

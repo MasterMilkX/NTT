@@ -8,6 +8,10 @@ function randomPos(w,h){
     };
 }
 
+function randomRace(){
+    return Math.floor(Math.random() * Object.keys(AVATAR_RACE).length);
+}
+
 
 // player class definition
 class Avatar {
@@ -67,5 +71,6 @@ class Avatar {
 module.exports = {
     Avatar: Avatar,
     AVATAR_CLASS : AVATAR_CLASS,
-    AVATAR_RACE : AVATAR_RACE
+    AVATAR_RACE : AVATAR_RACE,
+    randomRace : randomRace
 };

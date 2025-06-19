@@ -1,0 +1,32 @@
+{
+    "dialog":[
+        "Sorry, can you repeat that?",
+        "I'm not sure.",
+        "Hello!",
+        "Nice to meet you!",
+        "Can I help you?",
+        "What was that?",
+        "Excuse me...",
+        "You see...",
+        "Well...",
+        "Do you need something?",
+        "Haven't seen you around here before.",
+        "Are you new to town?",
+        "Glad to make your acquaintance.",
+        "Hey!",
+        "Isn't this town beautiful?",
+        "The weather is just divine.",
+        "Lovely to chat with you!",
+        "Good afternoon. How may I help you?",
+        "Thank you for choosing our store. What can I get for you today?",
+        "How much would you like?",
+        "How many would you like?",
+        "I'm sorry, we've run out of that, may I help you choose something different?",
+        "Are there any particular items I can help you find?",
+        "I am currently engaged and will help you momentarily.",
+        "Thank you for visiting!",
+        "Please come back again!"
+    ],
+    "AP_Tasks":["Visit (4) areas","Talk to (8) people","Order an item from a shop","Engage a Bard for a song","Engage a Mercenary for a job","Listen to the newest gossip around town","Offer a person in need some change","Make (3) requests","Learn wise knowledge from the Duck"],
+    "Role_Tasks":["Greet (3) customers","Walk around the store","Convince a customer to buy [an] item","Tell customers about a sale you have","Sell (5) items","Visit a non-assigned area"]
+}

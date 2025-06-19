@@ -1,28 +1,28 @@
 
 // UI imports
 var check_IMG = new Image();
-check_IMG.src = 'assets/tmp/check.png';         // <a href="https://www.flaticon.com/free-icons/tick" title="tick icons">Tick icons created by Freepik - Flaticon</a>
+check_IMG.src = './static/assets/check.png';         // <a href="https://www.flaticon.com/free-icons/tick" title="tick icons">Tick icons created by Freepik - Flaticon</a>
 
 var cross_IMG = new Image();
-cross_IMG.src = 'assets/tmp/cancel.png';         // <a href="https://www.flaticon.com/free-icons/cross" title="cross icons">Cross icons created by Freepik - Flaticon</a>
+cross_IMG.src = './static/assets/cancel.png';         // <a href="https://www.flaticon.com/free-icons/cross" title="cross icons">Cross icons created by Freepik - Flaticon</a>
 
 var map_IMG = new Image();
-map_IMG.src = 'assets/tmp/map.png';           // <a href="https://www.flaticon.com/free-icons/fantasy" title="fantasy icons">Fantasy icons created by Freepik - Flaticon</a>
+map_IMG.src = './static/assets/map.png';           // <a href="https://www.flaticon.com/free-icons/fantasy" title="fantasy icons">Fantasy icons created by Freepik - Flaticon</a>
 
 var exit_IMG = new Image();
-exit_IMG.src = 'assets/tmp/exit.png';           // <a href="https://www.flaticon.com/free-icons/exit-door" title="exit door icons">Exit door icons created by Freepik - Flaticon</a>
+exit_IMG.src = './static/assets/exit.png';           // <a href="https://www.flaticon.com/free-icons/exit-door" title="exit door icons">Exit door icons created by Freepik - Flaticon</a>
 
 
 
 // background image imports
 var map1_IMG = new Image();
-map1_IMG.src = 'assets/tmp/battlefield.jpg';    // https://gamebanana.com/mods/369805
+map1_IMG.src = './static/assets/battlefield.jpg';    // https://gamebanana.com/mods/369805
 
 var map2_IMG = new Image(); 
-map2_IMG.src = 'assets/tmp/plaza.jpg';          // https://www.deviantart.com/jakebowkett/art/Fantasy-Town-Plaza-689235345
+map2_IMG.src = './static/assets/plaza.jpg';          // https://www.deviantart.com/jakebowkett/art/Fantasy-Town-Plaza-689235345
 
 var map3_IMG = new Image();
-map3_IMG.src = 'assets/tmp/forest.jpg';         // https://www.freepik.com/free-photos-vectors/cartoon-forest
+map3_IMG.src = './static/assets/forest.jpg';         // https://www.freepik.com/free-photos-vectors/cartoon-forest
 
 
 var cur_location = "";
@@ -38,21 +38,21 @@ var MAP_IMG_SET = {
     "F" : null, // placeholder images for unknown locations
 }
 var MAP_ICON_SET = {
-    "plaza" : "assets/tmp/point.png",
-    "battlefield" : "assets/tmp/point.png",
-    "forest" : "assets/tmp/point.png",
-    "A" : "assets/tmp/point.png",
-    "B" : "assets/tmp/point.png",
-    "C" : "assets/tmp/point.png",
-    "D" : "assets/tmp/point.png",
-    "E" : "assets/tmp/point.png",
-    "F" : "assets/tmp/point.png"
+    "plaza" : "./static/assets/plaza.jpg",
+    "battlefield" : "./static/assets/battlefield.jpg",
+    "forest" : "./static/assets/forest.jpg",
+    "A" : "./static/assets/point.png",
+    "B" : "./static/assets/point.png",
+    "C" : "./static/assets/point.png",
+    "D" : "./static/assets/point.png",
+    "E" : "./static/assets/point.png",
+    "F" : "./static/assets/point.png"
 }
 
 var MAP_CELL_LIST = ["A", "B", "C", "forest", "plaza", "battlefield", "D", "E", "F"]; // list of all map cells
 
 
-
+var cur_screen = "welcome";
 
 
 // CLOSE POPUPS
@@ -67,6 +67,7 @@ function closePopups(){
 // SHOW POPUPS
 function showPopup(id){
     closePopups(); // close all current popups
+    cur_screen = id;
 
     // show the selected popup
     var popup = document.getElementById(id+"-popup");
@@ -83,6 +84,7 @@ function selectRole(){
 
 
 
+
     // bring up the role assignment popup
     showPopup("role-ass");
 }
@@ -91,6 +93,8 @@ function selectRole(){
 // insert the player into the plaza
 function startGame(){
     closePopups(); // close all current popups
+    cur_screen = "game"; // set the current screen to game
+    cur_location = "plaza"; // set the current location to plaza
 
     changeMap("plaza"); // change to plaza map
     addAvatar("plaza")
@@ -202,3 +206,8 @@ function resetGame(){
     showPopup("welcome"); // show the welcome popup
     removeAvatar(); // remove all avatars from the game
 }
+
+
+window.onbeforeunload = function() {
+  return "You will not be able to return as the same character. Once you leave, the experiment is over<br>Do you wish to leave?";
+};

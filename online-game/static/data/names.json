@@ -1,0 +1,27 @@
+{
+    "elf":{
+        "firstname":["Aerendyl","Beluar","Cornaith","Delsaran","Eucho\u00e9","Faelyn","Glarald","Halueth","Ivran","Jhaeros","Keletheryl","Llarm","Myriil","Nremyn","Ornvyr","Pyrder","Quynn","Rhistyll","Sudryl","Thalanir","Uevareth","Vesryn","Wylym","Xhalh","Yalathanil","Zulae"],
+        "lastname":["Aelar","Beiqirelle","Crathyra","Dastina","Erhana","Farxina","Glynydark","Holarieth","Ilixisys","Joro","Keybalar","Lorawraek","Miralynn","Naeyra","Olamenor","Presfina","Quimenor","Reymenor","Sarmoira","Torqen","Umefiel","Vahana","Wysamaer","Xyrlana","Yelwarin","Zyltumal"]
+    },
+    "beastman":{
+        "firstname":["Abdel","Balfour","Cordea","Deja","Emron","Fenris","Gatrie","Hegir","Ivan","Jude","Kashgar","Lope","Marion","Nadine","Osald","Pico","Quintus","Rashida","Shiba","Tauroneo","Ulfur","Valenth","Wynon","Xevier","Yovel","Zenesha"],
+        "lastname":["Arnhein","Baraek","Chadlix","Dreven","Elstan","Faolan","Greil","Hrodwulf","Ingolfr","Jatix","Karn","Lupus","Montenegro","Norrix","Ouragan","Percival","Qaentes","Ronan","Sebrione","Thrain","Ulric","Valentine","Wolfgrimm","Xanthe","Yarnethe","Zolfren"]
+    },
+    "lizard":{
+        "firstname":["Aecourtux","Baozdaeti","Chursoass","Dor'qeth","Exonith","Falthra","Gixugrak","Hsylthra","Iknicixl","Jhulik","Kryssix","Lythrqrin","Merak","Noxlith","Otleqe","Pylarth","Qelthir","Rhask","Serinax","Thra'ak","Ucokzus","Varnak","Wyrzaka","Xalorack","Yiss","Zar'kesh"],
+        "lastname":["Alzurik","B'drath","Chetlisk","Dragonis","Esk","Fengil","Gravun","H'zulahi","Ildarith","Jexath","Keth'raza","Lylphars","Marsh","N'zari","Ozaecu","Praketh","Quorun","Rotao","Sol'balik","Thrishk","Urothe","Vorzhek","Wylzith","Xyn'tal","Yaxl","Zyxath"]
+    },
+    "orc":{
+        "firstname":["Arob","Burul","Cabugbu","Dulug","Epkagut","Fogugh","Gaturn","Horknuth","Igug","Jugag","Koughat","Lazgar","Mog","Nargol","Orbul","Parhbub","Quugug","Rurbag","Shamob","Tulgan","Uloth","Varfu","Woghuglat","Xnaurl","Yargug","Zorhgigoth"],
+        "lastname":["Abbas","Bugdurash","Crothu","Durz","Ewkbanok","Farghed","Gul","Homraz","Igmut","Jukha","Klapdud","Largakh","Murbol","Nogugh","Orpigig","Pofhug","Quilge","Rulfim","Soughat","Torug","Urulg","Varkgorim","Wudhagh","Xurukk","Yazgash","Zugbu"]
+    },
+    "nord":{
+        "firstname":["Arrerth","Betestris","Creigfruss","Daghardt","Erlilling","Frethe","Grjeif ","Horithor","Isttiarco","Jurny","Knudald","Larnen ","Mikrmar","Nysrvar","Odfermir","Pettrilith","Quinby","Ramrknir","Sarrik","Temdrika","Ulfbarn","Vigvaar","Wulimar","Xrandril","Yngnaldr","Zynfibar"],
+        "lastname":["Argansdottir","the Benevolent","the Candle","Dragon-Heart","Eastern-Sky","Fenraldesson","Gray-Nail","Highlander","Ironhand","Jorgehrsen","Knot-Burner","Laggard","Maiden-Lute","Nine-Spires","the Outcast","the Peacock","the Quiet","Red-Blade","Storm-Tail","Tear-storm","the Unwavering","the Valient","War-Skinner","Xenoforth","the Yearner","Zygandersen"]
+    },
+    "chuck":{
+        "firstname":["Chuck"],
+        "lastname":["Anderson","Bartowski","Clark","Davis","Evans","Forrest","Green","Harris","Inna","Johnson","King","Lewis","Miller","Nelson","Orris","Peterson","Quicks","Roberts","Smith","Taylor","Upton","Vanders","Williams","Xena","Young","Ze Ripper"]
+    }
+
+}

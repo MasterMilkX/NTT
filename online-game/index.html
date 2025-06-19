@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NPC Turing Test - Fantasy World [PROTOTYPE]</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="./static/styles.css">
     <!-- extra styles -->
      <style>
         
 
      </style>
-     <script src="js/avatar.js"></script>
+     <script src="./static/js/avatar.js"></script>
+     <script src="./static/js/game-client.js"></script>
 </head> 
 <body onload="init()">
     <div id="container">
@@ -45,8 +46,8 @@
                         Is <span class='userTxt' id="vote-user">TotallyChicken21</span> human?
                     </div>
                     <div id="vote-options">
-                        <button class="vote-btn" id='vote-yea' onclick="submitVote('human')"><img src="assets/tmp/check.png"> Yea</button>
-                        <button class="vote-btn" id='vote-nay' onclick="submitVote('ai')"><img src="assets/tmp/cancel.png">Nay</button>
+                        <button class="vote-btn" id='vote-yea' onclick="submitVote('human')"><img src="./static/assets/check.png"> Yea</button>
+                        <button class="vote-btn" id='vote-nay' onclick="submitVote('ai')"><img src="./static/assets/cancel.png">Nay</button>
                     </div>
                     <div id="vote-conf">
                         <span class="bold">Confidence</span><br>
@@ -64,7 +65,7 @@
                 <div id="bottom-ui">
                     
                     <div id="exit-game-btn" style="margin-left:10px;">
-                        <button class="game-btn" onclick="showPopup('exit')"><img src="assets/tmp/exit.png"></button>
+                        <button class="game-btn" onclick="showPopup('exit')"><img src="./static/assets/exit.png"></button>
                     </div>  
 
                     <div id="chat-box">
@@ -73,7 +74,7 @@
                     </div>
 
                     <div id="map-btn" style="margin-right:10px;">
-                        <button class="game-btn" onclick="showPopup('map')"><img src="assets/tmp/map.png"></button>   
+                        <button class="game-btn" onclick="showPopup('map')"><img src="./static/assets/map.png"></button>   
                     </div>
                 </div>
             </div>
@@ -179,7 +180,7 @@
 
         </div>
     </div>
-    <script src="js/ui.js"></script>
-    <script src="js/main.js"></script>
+    <script src="./static/js/ui.js"></script>
+    <script src="./static/js/main.js"></script>
 </body>
 </html>
