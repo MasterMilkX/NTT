@@ -1,4 +1,10 @@
+
 {
+    "hero":{
+        "description":"Do hero stuff! Interpret that however you'd like.",
+        "tasks":["Visit (4) areas","Talk to (8) people","Order an item from a shop","Engage a Bard for a song","Engage a Mercenary for a job","Listen to the newest gossip around town","Offer a person in need some change","Make (3) requests","Learn wise knowledge from the Duck"],
+        "dialog":[]
+    },
     "apothecary":{
         "description":"You have been chosen as a gold star employee of the Apothecary! Your duty to our glorious village is to sort herbs, brew potions, handle customers, protect our storefront, and whatever your heart leads you towards in the valiant strive towards safety and soundness. Don't forget, all employees are given a lunch break, so feel free to take a short trip around town to enjoy the sights and perhaps some delicious bread from our bakery!",
         "tasks":["Stack boxes","Sweep the store","Greet (3) customers","Fetch new herbs","Read potion brewing manual","Sell (5) items","Brew potion of invisibility","Brew potion of health regeneration","Brew potion of stamina","Brew potion of fire resistence","Brew potion of water breathing"],

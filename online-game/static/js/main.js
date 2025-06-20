@@ -8,7 +8,10 @@ canvas.height = 900;
 
 // PLAYER PROPERTIES
 var username = ""; // default username for testing purposes
+var char_dat = {}; // character data for the player
+var cur_location = "";      // current location of the player out of the 9 areas
 var has_joined = false;
+var role_type = ""; // default role type for testing purposes
 
 var ui_overlay = document.getElementById("game-ui"); // the game UI overlay
 
@@ -78,7 +81,7 @@ function renderAvatar(p){
 
 
 // DRAWS THE GAME
-function render(){
+function render(avatar_list){
     ctx.save();
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -106,37 +109,12 @@ function render(){
     ctx.restore();
 }
 
-//// UPDATE LOOP ////
-
-function update(avatars) {
-    for (var i = 0; i < avatars.length; i++) {
-        var avatar = avatars[i];
-        if (avatar && avatar.show) {
-            // update the avatar's position and other properties
-            avatar.update(); // assuming the avatar class has an update method
-        }
-    }
-}
-
 
 
 
 //// EVENT HANDLERS ////
 
-
-// remove all avatars from the game
-// TODO: remove just the one avatar of the current user
-function removeAvatar(){
-    avatar_list = []; // clear the avatar list
-    render(); // re-render the game screen
-}
-
-// add a new avatar to the game
-function addAvatar(location){
-    var new_avatar = new Avatar(USERNAME, "chicken", "chicken", "AP"); // create a new avatar instance
-    new_avatar.setPos(800, 450); // set the initial position of the avatar
-    avatar_list.push(new_avatar); // add the avatar to the list
-}
+/*
 
 function getAvatar(username){
     // find the avatar with the given username
@@ -148,6 +126,8 @@ function getAvatar(username){
     }
     return null; // return null if no avatar with the given username is found
 }
+
+*/
 
 
 // Change relative position of the cursor
@@ -208,7 +188,7 @@ function gameClick(e){
 
 }
 
-
+/*
 // check if the click is on an avatar
 function clickAvatar(e){
     let curs = getCursorPos(e); // get the cursor offset
@@ -231,6 +211,8 @@ function clickAvatar(e){
     //hideVoteUI(); // hide the vote UI if no avatar was clicked
     return false; // no avatar was clicked
 }
+
+*/
 
 // chat features
 function sendMessage(){
@@ -303,11 +285,11 @@ function init(){
     //startGame(); // start the game immediately for testing purposes
 }
 
+/*
 // MAIN GAME LOOP
 function main() {
-    render();
-    update(); // update the game state
     requestAnimationFrame(main);
 }
 
 main();
+*/

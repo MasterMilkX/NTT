@@ -33,7 +33,7 @@ server.listen(app.get('port'), function() {
 // set up the role associations
 var MAX_ROLES = 3;
 var player_role_ct = {};
-for(let occ in playerjs.AVATAR_OCC) {
+for(let occ in playerjs.AVATAR_CLASS) {
     player_role_ct[occ] = 0; // initialize the role count to 0
 }
 
@@ -51,37 +51,46 @@ var playerTxtTime = {};
 // creates a player with a random role (as needed) and class
 // gives a description and list of tasks
 function newChar(role){
-    let race = playerjs.getRandomRace();
+    let race = playerjs.randomRace();
 
     // get a random occupation based on need
-    let avail_occ = [];
-    for (let occ in playerjs.AVATAR_OCC) {
-        if (player_role_ct[occ] < MAX_ROLES) {
-            for(let i=0;i<MAX_ROLES-player_role_ct[occ];i++)
-                avail_occ.push(occ);
+    let occ = "";
+    if(role === 'AP'){
+        occ = "hero"  // all players in AP are heroes
+    }else{
+        let avail_occ = [];
+        for (let occs in playerjs.AVATAR_CLASS) {
+            if (player_role_ct[occs] < MAX_ROLES) {
+                for(let i=0;i<MAX_ROLES-player_role_ct[occs];i++)
+                    avail_occ.push(occs);
+            }
         }
+        occ = avail_occ[Math.floor(Math.random() * avail_occ.length)]; // pick a random occupation from the available ones
+        player_role_ct[occ]++; // increment the role count for the occupation
     }
-    let occ = avail_occ[Math.floor(Math.random() * avail_occ.length)]; // pick a random occupation from the available ones
-    player_role_ct[occ]++; // increment the role count for the occupation
-
+    //console.log("Assigned occupation: " + occ + " and race: " + race + " for role: " + role);
     // get a random name from the names data
     let fnames = nameDat[race]['firstname']
     let lnames = nameDat[race]['lastname']
     let name = fnames[Math.floor(Math.random() * fnames.length)] + " " + lnames[Math.floor(Math.random() * lnames.length)];
 
     // set the description and tasks based on the occupation
+    // TODO: mix in random tasks from general 
     let desc = roleDat[occ].description;
     let tasks = getRandomElements(roleDat[occ].tasks, 3); // get 3 random tasks from the occupation's task list
-    // TODO: add AP and NPP general tasks
+    
 
     return {'race': race, 'occ': occ, 'name': name, 'desc': desc, 'tasks': tasks, 'role': role};
 }
+
+newChar('NPP')
 
 
 io.on('connection', function(socket) {
     socket.on('assign-role', function(play_type){
         let char_dat = newChar(play_type);      // AP or NPP
         playerRoles[socket.id] = char_dat; // store the character data for the player
+        console.log("> Assigned role to player " + socket.id + ": " + char_dat.name + " (" + char_dat.race + " " + char_dat.occ + ") - " + play_type);
         socket.emit('role-assigned', char_dat); // send the assigned role to the client
     })
 

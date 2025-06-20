@@ -329,6 +329,10 @@ body {
     font-weight: bold;
 }
 
+.italic{
+    font-style: italic;
+}
+
 .userTxt{
     color: #00ffea; /* Blue color for user text */
     font-weight: bold;

@@ -25,7 +25,7 @@ var map3_IMG = new Image();
 map3_IMG.src = './static/assets/forest.jpg';         // https://www.freepik.com/free-photos-vectors/cartoon-forest
 
 
-var cur_location = "";
+
 var MAP_IMG_SET = {
     "plaza" : map2_IMG,
     "battlefield" : map1_IMG,
@@ -78,15 +78,62 @@ function showPopup(id){
     }
 }
 
-function selectRole(){
+
+function selectRole(role){
     // give the player a random role
     // TODO: implement role selection logic
+    if(role_type !== ""){ // if the role is already selected, do nothing
+        return;
+    }
 
+    role_type = role; // set the role type to the selected role
+    socket.emit('assign-role',role); // send the selected role to the server
+    
+    console.log("Selected role: " + role + "\n Sending to server~!"); // log the selected role
 
+    // switch to the role assignment screen
+    document.getElementById("pick-role").style.display = "none"; // hide the role selection screen
+    document.getElementById("role-confirmation").style.display = "block"; // show the role confirmation screen
+}
 
+function toTitleCase(str) {
+  return str.replace(
+    /\w\S*/g,
+    text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+  );
+}
 
-    // bring up the role assignment popup
-    showPopup("role-ass");
+// updates the role text in the role selection popup
+function updateRole(){
+    let x = toTitleCase(char_dat.occ.replace('_'," ")) + " " + toTitleCase(char_dat.race);
+    document.getElementById("role-ass-occ").innerHTML = "Role Assignment - " + toTitleCase(char_dat.occ.replace('_'," "));
+
+    // role description
+    let rd_div = document.getElementById("role-desc");
+    rd_div.innerHTML = "";
+
+    let d = document.createElement("p");
+    d.innerHTML = "<span class='bold'> You are a "+ char_dat.name + " -- a " + x +"</span><br>"
+    d.innerHTML += "<span class='italic' style='font-size:0.8em'>"+char_dat.desc + "</span>"
+    rd_div.appendChild(d)
+
+    // tasks
+    let t = document.createElement("p");
+    let task_txt = "";
+    for(let i=0;i<char_dat.tasks.length;i++){
+        let task = char_dat.tasks[i];
+        task_txt += task + (i < char_dat.tasks.length-1 ? "<br>" : "");
+    }
+    t.innerHTML = "<span class='bold'>You are given the following tasks:</span><br>"
+    t.innerHTML += task_txt;
+    rd_div.appendChild(t);
+
+    // ending text
+    let e = document.createElement("p");
+    e.innerHTML = "Please be respectful in any and all interactions. You might be talking to an actual person!";
+    e.innerHTML += " Click EXIT when you want to leave and have fun!";
+    
+    rd_div.appendChild(e);
 }
 
 // START THE GAME
@@ -199,12 +246,18 @@ function updateConfidence(conf_val){
 function resetGame(){
     // reset the game state
     cur_location = "";
+    role_type = "";
+
+
     document.getElementById("game-ui").style.display = "none"; // hide the game screen
     closePopups(); // close all current popups
     document.getElementById("vote-confirm").innerHTML = ""; // clear the vote confirmation message
     setMapCells(); // reset the map cells in the popup menu
     showPopup("welcome"); // show the welcome popup
-    removeAvatar(); // remove all avatars from the game
+    // switch to the role assignment screen
+    document.getElementById("pick-role").style.display = "none"; // hide the role selection screen
+    document.getElementById("role-confirmation").style.display = "block"; // show the role confirmation screen
+    //removeAvatar(); // remove all avatars from the game
 }
 
 

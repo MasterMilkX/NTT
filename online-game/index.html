@@ -10,6 +10,7 @@
         
 
      </style>
+     <script src="/socket.io/socket.io.js" ></script>
      <script src="./static/js/avatar.js"></script>
      <script src="./static/js/game-client.js"></script>
 </head> 
@@ -104,7 +105,7 @@
                 </div>
             </div>
 
-            <!-- CHARACTER SELECTION -->
+            <!-- PARTICIPANT ROLE SELECTION -->
             <div class="ui-popup" id="char-sel-popup">
                 <div class="pop-contents">
                     <div class="pop-header">
@@ -112,25 +113,29 @@
                     </div>
                     <div class="pop-body">
                         <p><span class="bold">Active Participant (AP): </span> <br>You are determining who is human and who is an AI</p>
-                        <p><span class="bold">Non-player Participant (AP): </span> <br>A human role-playing as an NPC pretending to be an AI</p>
+                        <p><span class="bold">Non-player Participant (NPP): </span> <br>A human role-playing as an NPC pretending to be an AI</p>
                     </div>
-                    <div class="pop-footer" style="flex-direction: column; margin-top:10%">
+                    <div id='pick-role' class="pop-footer" style="flex-direction: column; margin-top:10%">
                         <span class="bold">Select your role:</span>
                         <div style="display: block; margin-top: 10px;">
                             <button class="pop-btn" onclick="selectRole('AP')">AP</button>
-                            <button class="pop-btn" onclick="selectRole('NPC')">NPP</button>
+                            <button class="pop-btn" onclick="selectRole('NPP')">NPP</button>
                         </div>
                     </div>  
+                    <div id="role-confirmation" class="pop-footer" style="display: none; margin-top: 10px;">
+                        <p class="bold">You have selected: <span id="selected-role"></span></p>
+                        <p>Retrieving randomly selected character details...</p>
+                    </div>
                 </div>
             </div>
 
             <!-- ROLE ASSIGNMENT -->
             <div class="ui-popup" id="role-ass-popup" >
                 <div class="pop-contents" style="width:100%;">
-                    <div class="pop-header">
+                    <div class="pop-header" id="role-ass-occ">
                         Role Assignment - Chicken
                     </div>
-                    <div class="pop-body">
+                    <div class="pop-body" id="role-desc">
                         <!-- TODO: turn this into class based structure for easy replacement and formatting -->
                         <p><span class="bold">You are a chicken! <br>Whether a normal chicken or a magical chicken, that's for you to decide.</span></p>
 
@@ -180,7 +185,7 @@
 
         </div>
     </div>
-    <script src="./static/js/ui.js"></script>
     <script src="./static/js/main.js"></script>
+    <script src="./static/js/ui.js"></script>
 </body>
 </html>

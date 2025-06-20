@@ -40,6 +40,20 @@ socket.on('message', function(data) {
 });
 
 
+socket.on('role-assigned', function(data) {
+    // handle role assignment
+    console.log("Role assigned:", data);
+    username = data.name; // set the username to the assigned username
+    char_dat = data; // store the character data
+
+    updateRole(); // update the role UI with the assigned role
+
+    showPopup('role-ass');
+
+    //role_type = data.role; // set the role type to the assigned role
+    //document.getElementById("role-type").innerText = "Role: " + role_type; // update the UI with the assigned role
+});
+
 socket.on('updateAvatars', function(data) {
     updateAvatars(data.avatars); // update the avatars with the received data
 });
