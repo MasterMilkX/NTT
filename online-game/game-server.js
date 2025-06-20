@@ -37,18 +37,20 @@ for(let occ in playerjs.AVATAR_OCC) {
     player_role_ct[occ] = 0; // initialize the role count to 0
 }
 
-
-
+// import class/role data
+var nameDat = require('./static/data/names.json');
+var roleDat = require('./static/data/roles.json');
 
 // handle player game state
 var players = {};
+var playerRoles = {};
 var playerTxtTime = {};
 //const MAX_PLAYERS = 25;
 
 
 // creates a player with a random role (as needed) and class
 // gives a description and list of tasks
-function newRole(){
+function newChar(role){
     let race = playerjs.getRandomRace();
 
     // get a random occupation based on need
@@ -62,13 +64,24 @@ function newRole(){
     let occ = avail_occ[Math.floor(Math.random() * avail_occ.length)]; // pick a random occupation from the available ones
     player_role_ct[occ]++; // increment the role count for the occupation
 
+    // get a random name from the names data
+    let fnames = nameDat[race]['firstname']
+    let lnames = nameDat[race]['lastname']
+    let name = fnames[Math.floor(Math.random() * fnames.length)] + " " + lnames[Math.floor(Math.random() * lnames.length)];
 
+    // set the description and tasks based on the occupation
+    let desc = roleDat[occ].description;
+    let tasks = getRandomElements(roleDat[occ].tasks, 3); // get 3 random tasks from the occupation's task list
+    // TODO: add AP and NPP general tasks
+
+    return {'race': race, 'occ': occ, 'name': name, 'desc': desc, 'tasks': tasks, 'role': role};
 }
 
 
 io.on('connection', function(socket) {
-    socket.on('assign-role', function(){
-        let char_dat = newRole();
+    socket.on('assign-role', function(play_type){
+        let char_dat = newChar(play_type);      // AP or NPP
+        playerRoles[socket.id] = char_dat; // store the character data for the player
         socket.emit('role-assigned', char_dat); // send the assigned role to the client
     })
 
@@ -188,7 +201,14 @@ function cleanClose(){
 }
 
 
-
+function getRandomElements(array, count) {
+  const shuffled = [...array]; // Make a copy to avoid modifying the original
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, count);
+}
 
 
 // CONSTANTLY update the players
