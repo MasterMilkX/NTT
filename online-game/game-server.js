@@ -45,7 +45,8 @@ var roleDat = require('./static/data/roles.json');
 var players = {};
 var playerRoles = {};
 var playerTxtTime = {};
-//const MAX_PLAYERS = 25;
+const MAX_PLAYERS = 25;
+const FPS_I = 1000;
 
 
 // creates a player with a random role (as needed) and class
@@ -64,6 +65,10 @@ function newChar(role){
                 for(let i=0;i<MAX_ROLES-player_role_ct[occs];i++)
                     avail_occ.push(occs);
             }
+        }
+        if(avail_occ.length === 0) {
+            console.error("No available occupations left for role: " + role);
+            return null; // no available occupations, return null
         }
         occ = avail_occ[Math.floor(Math.random() * avail_occ.length)]; // pick a random occupation from the available ones
         player_role_ct[occ]++; // increment the role count for the occupation
@@ -88,28 +93,43 @@ newChar('NPP')
 
 io.on('connection', function(socket) {
     socket.on('assign-role', function(play_type){
-        let char_dat = newChar(play_type);      // AP or NPP
-        playerRoles[socket.id] = char_dat; // store the character data for the player
-        console.log("> Assigned role to player " + socket.id + ": " + char_dat.name + " (" + char_dat.race + " " + char_dat.occ + ") - " + play_type);
-        socket.emit('role-assigned', char_dat); // send the assigned role to the client
-    })
-
-    /*
-    socket.on('join', function(name) {
         if (Object.keys(players).length >= MAX_PLAYERS) {
-            socket.emit('message', 'reject');
-            io.emit('playerNum', {'cur_num':Object.keys(players).length,'max_num':MAX_PLAYERS});
+            socket.emit('message', {'status':'reject','avatar':null});
             return;
         }
-        players[socket.id] = new playerjs.Player(name, socket.id);
-        console.log(name + '(' + players[socket.id].race + ' ' + players[socket.id].pclass + ') joined! [ID: ' + socket.id + ']'); ;
-        socket.emit('message', 'accept');
+
+        let char_dat = newChar(play_type);      // AP or NPP
+        if (!char_dat) {
+            console.error("Failed to create character data for role: " + play_type);
+            socket.emit('role-reject', 'Not enough characters available'); // send reject message if character creation failed
+            return;
+        }else{
+            playerRoles[socket.id] = char_dat; // store the character data for the player
+            console.log("> Assigned role to player " + socket.id + ": " + char_dat.name + " (" + char_dat.race + " " + char_dat.occ + ") - " + play_type);
+            socket.emit('role-assigned', char_dat); // send the assigned role to the client
+        }
+    })
+
+    
+    socket.on('join', function() {
+        let char_data = playerRoles[socket.id]; // get the character data for the player
+
+        players[socket.id] = new playerjs.Avatar(
+            char_data.name, socket.id,
+            char_data.occ, char_data.race,
+            char_data.role
+        );
+        players[socket.id].position = { x: 0, y: 0 }; // set the initial position of the player
+        players[socket.id].area = "plaza";  // set the initial area of the player
+        console.log(players[socket.id].name + '(' + players[socket.id].raceType + ' ' + players[socket.id].classType + ') joined! [ID: ' + socket.id + ']'); ;
+        socket.emit('message', {'status':'accept','avatar': players[socket.id]}); // send the player data to the client
         io.emit('playerNum', {'cur_num':Object.keys(players).length,'max_num':MAX_PLAYERS});
         addPlayerDat(players[socket.id], 'joined');  
         // send the updated player list to all clients
         //io.emit('updatePlayers', players);
     });
 
+    
     // handle player movement
     socket.on('move', function(data) {
         if (players[socket.id]) {
@@ -131,6 +151,7 @@ io.on('connection', function(socket) {
         }
     });
 
+    
     // handle disconnection
     socket.on('disconnect', function() {
         console.log('User disconnected: ' + socket.id);
@@ -143,7 +164,6 @@ io.on('connection', function(socket) {
         
         //io.emit('updatePlayers', players);
     });
-    */
 });
 
 
@@ -222,5 +242,5 @@ function getRandomElements(array, count) {
 
 // CONSTANTLY update the players
 setInterval(function() {
-    io.emit('updatePlayers', players);
-}, 1000 / 60); // 60 FPS
+    io.emit('updateAvatars', {avatars:players});
+}, 1000 / FPS_I); // frames to update the players (e.g., 60 FPS = 1000/60 = 16.67 ms per frame)

@@ -6,12 +6,25 @@ var ctx = canvas.getContext('2d');
 canvas.width = 1600;
 canvas.height = 900;
 
+// player sprite sheet
+var spr_sheet = new Image();
+spr_sheet.src = '/static/assets/ShireSpriteSheet.png'; // path to your sprite sheet image
+var spr_loaded = false;
+spr_sheet.onload = function() {
+    spr_loaded = true;
+};
+
 // PLAYER PROPERTIES
-var username = ""; // default username for testing purposes
+var all_avatars = null;
+var avatar_name = "";
+var socket_avatar = null;
+
 var char_dat = {}; // character data for the player
 var cur_location = "";      // current location of the player out of the 9 areas
 var has_joined = false;
 var role_type = ""; // default role type for testing purposes
+
+
 
 var ui_overlay = document.getElementById("game-ui"); // the game UI overlay
 
@@ -33,40 +46,43 @@ function renderAvatar(p){
     ctx.fillStyle = "black";
     ctx.fillText(p.name, p.position.x, p.position.y + 40);
     */
+   if(!localAvatar(p) || !spr_loaded) // check if the avatar is local and the sprite sheet is loaded
+        return; // do not render the avatar if it is not local
 
-    // player circle -- placeholder until loaded sprite
-    if (!spr_loaded){
-        ctx.fillStyle = p.color;
+    // highlight
+    if(p.highlight){
+        // draw a highlight circle under the avatar if it is highlighted
         ctx.beginPath();
-        ctx.arc(p.position.x, p.position.y, 10, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.closePath();
-    }else{
-        // draw sprite from sprite sheet
-        ctx.drawImage(spr_sheet, 
-            (p.sprite.width * p.sprite.frame), 
-            (p.sprite.height * PLAYER_RACE[p.race]), 
-            p.sprite.width, 
-            p.sprite.height, 
-            p.position.x - p.sprite.width/2, // center the sprite
-            p.position.y - p.sprite.height/2, // center the sprite
-            p.sprite.width, // resize width
-            p.sprite.height // resize height
-        );
-
-        // draw the class clothes on top (TODO: underneath the sprite)
-        ctx.drawImage(spr_sheet,
-            (p.sprite.width * PLAYER_CLASS[p.pclass]), 
-            (p.sprite.height * 6), // assuming class clothing are in row 6
-            p.sprite.width,
-            p.sprite.height,
-            p.position.x - p.sprite.width/2 , // center the sprite
-            p.position.y - p.sprite.height/2, // center the sprite
-            p.sprite.width, // resize width  
-            p.sprite.height // resize height
-        );
-        
+        ctx.ellipse(p.position.x, p.position.y+70, 64, 16, 0, 0, Math.PI * 2); // use the click radius as the highlight radius
+        ctx.fillStyle = "yellow"; // set the highlight color
+        ctx.lineWidth = 5; // set the highlight line width
+        ctx.fill(); // draw the highlight circle
     }
+
+    // draw sprite from sprite sheet
+    ctx.drawImage(spr_sheet, 
+        (p.sprite.width * p.sprite.frame), 
+        (p.sprite.height * AVATAR_RACE[p.race]), 
+        p.sprite.width, 
+        p.sprite.height, 
+        p.position.x - p.sprite.width/2, // center the sprite
+        p.position.y - p.sprite.height/2, // center the sprite
+        p.sprite.width, // resize width
+        p.sprite.height // resize height
+    );
+
+    // draw the class clothes on top (TODO: underneath the sprite)
+    ctx.drawImage(spr_sheet,
+        (p.sprite.width * AVATAR_CLASS[p.pclass]), 
+        (p.sprite.height * 6), // assuming class clothing are in row 6
+        p.sprite.width,
+        p.sprite.height,
+        p.position.x - p.sprite.width/2 , // center the sprite
+        p.position.y - p.sprite.height/2, // center the sprite
+        p.sprite.width, // resize width  
+        p.sprite.height // resize height
+    );
+
 
     // text rendering
     if (p.showText) {
@@ -78,10 +94,17 @@ function renderAvatar(p){
     
 }
 
-
+function localAvatar(a){
+    return a && a.show && a.area == cur_location;
+}
 
 // DRAWS THE GAME
-function render(avatar_list){
+function updateAvatars(avatar_set){
+    if(!in_game || !avatar_set || avatar_set.length === 0) {
+        return;
+    }
+    let avatar_list = Object.values(all_avatars); 
+
     ctx.save();
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -101,7 +124,7 @@ function render(avatar_list){
     // draw the avatars
     for (var i = 0; i < avatar_list.length; i++) {
         var avatar = avatar_list[i];
-        if (avatar && avatar.show) {
+        if (localAvatar(avatar)) {
             renderAvatar(avatar); // render the avatar on the canvas
         }
     }
@@ -114,20 +137,12 @@ function render(avatar_list){
 
 //// EVENT HANDLERS ////
 
-/*
 
-function getAvatar(username){
-    // find the avatar with the given username
-    for (var i = 0; i < avatar_list.length; i++) {
-        var avatar = avatar_list[i];
-        if (avatar && avatar.show && avatar.username === username) {
-            return avatar; // return the avatar if found
-        }
-    }
-    return null; // return null if no avatar with the given username is found
+
+function getAvatar(){
+    return socket_avatar; // return the current user's avatar
 }
 
-*/
 
 
 // Change relative position of the cursor
@@ -178,17 +193,16 @@ function gameClick(e){
     console.log(`Click at (${x}, ${y}) on ${target}.`);
 
     // move the avatar to the clicked position
-    var avatar = getAvatar(USERNAME); // get the avatar of the current user
+    var avatar = socket_avatar; // get the avatar of the current user
     if (avatar) {
         avatar.setNextPos(x, y); // set the next position of the avatar to the clicked position
         avatar.gotoPos(); // start moving the avatar towards the next position
     }
 
     // handle other game UI interactions here
-
 }
 
-/*
+
 // check if the click is on an avatar
 function clickAvatar(e){
     let curs = getCursorPos(e); // get the cursor offset
@@ -196,13 +210,20 @@ function clickAvatar(e){
     let y = curs.offy;
 
     // check if the click is on an avatar
+    let avatar_list = Object.values(all_avatars); // get the list of avatars from the players object
+    if (!avatar_list || avatar_list.length === 0) {
+        console.log("No avatars found.");
+        return false; // no avatars to click on
+    }else{
+        avatar_list = avatar_list.filter(avatar => localAvatar(avatar)); // filter out avatars that are not shown
+    }
     for (var i = 0; i < avatar_list.length; i++) {
         var avatar = avatar_list[i];
         if (avatar.wasClicked(x, y)) { 
             // handle avatar click
-            console.log("Avatar clicked:", avatar.username);
+            console.log("Avatar clicked:", avatar.name);
             avatar.highlight = true; // highlight the clicked avatar
-            voteChar(avatar.username); // open the vote UI with the clicked avatar's username
+            //voteChar(avatar.username); // open the vote UI with the clicked avatar's username
             return true;
         }else {
             avatar.highlight = false; // remove highlight if not clicked
@@ -212,7 +233,7 @@ function clickAvatar(e){
     return false; // no avatar was clicked
 }
 
-*/
+
 
 // chat features
 function sendMessage(){
@@ -283,6 +304,15 @@ function init(){
     setMapCells(); // populate the map cells in the popup menu
     showPopup("welcome")
     //startGame(); // start the game immediately for testing purposes
+}
+
+// prevent refresh
+window.onbeforeunload = function() {
+    // handle before unload event to clean up or notify the server
+    if (has_joined) {
+        socket.emit('disconnect'); // notify the server about disconnection
+    }
+    return null; // confirmation message
 }
 
 /*

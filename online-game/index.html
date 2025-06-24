@@ -131,7 +131,7 @@
 
             <!-- ROLE ASSIGNMENT -->
             <div class="ui-popup" id="role-ass-popup" >
-                <div class="pop-contents" style="width:100%;">
+                <div class="pop-contents" style="width:100%;margin-top:2%">
                     <div class="pop-header" id="role-ass-occ">
                         Role Assignment - Chicken
                     </div>
@@ -147,10 +147,30 @@
                         <br>Click EXIT when you want to leave and have fun!</p>
                     </div>
                     <div class="pop-footer">
-                        <button id="start-button" class="pop-btn" onclick="startGame()">Enter the Game</button>
+                        <button id="tut-button" class="pop-btn" onclick="tutorial()">Tutorial</button>
+                        <button id="start-button" class="pop-btn" onclick="pregame()">Enter the Game</button>
                     </div>  
                 </div>
             </div>
+
+            <div class="ui-popup" id="role-rej-popup" >
+                <div class="pop-contents" style="width:100%;">
+                    <div class="pop-header" id="role-rej-occ">
+                        Role Not Available...
+                    </div>
+                    <div class="pop-body" id="role-rej-desc">
+                        <!-- TODO: turn this into class based structure for easy replacement and formatting -->
+                        <p>Sorry -- there are too many players on the server right now.<br>
+                            Please try again later. In the meantime, you can try the tutorial.</p>
+                        </p>
+                    </div>
+                    <div class="pop-footer">
+                        <button id="tut-rej-button" class="pop-btn" onclick="tutorial()">Tutorial</button>
+                        <button id="refresh-rej-button" class="pop-btn" onclick="location.reload()">Refresh Page</button>
+                    </div>  
+                </div>
+            </div>
+
 
 
             <!-- EXIT GAME POPUP -->
@@ -185,6 +205,7 @@
 
         </div>
     </div>
+    <script src="./static/js/avatar.js"></script>
     <script src="./static/js/main.js"></script>
     <script src="./static/js/ui.js"></script>
 </body>

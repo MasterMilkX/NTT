@@ -136,6 +136,10 @@ function updateRole(){
     rd_div.appendChild(e);
 }
 
+function pregame(){
+    socket.emit('join'); // send the username to the server to join the game
+}
+
 // START THE GAME
 // insert the player into the plaza
 function startGame(){
@@ -144,7 +148,6 @@ function startGame(){
     cur_location = "plaza"; // set the current location to plaza
 
     changeMap("plaza"); // change to plaza map
-    addAvatar("plaza")
     document.getElementById("game-ui").style.display = "block"; // show the game screen
 }
 
@@ -163,7 +166,6 @@ function changeMap(location){
 
     // set the background image
     cur_location = location;
-    render();
 }
 
 // populate the map cells of the pop up menu
@@ -205,10 +207,10 @@ function toggleTasks(){
     }
 }
 
-function voteChar(username="???"){
+function voteChar(name="???"){
     var vote_window = document.getElementById("vote-ui");
     vote_window.style.display = "block"; // show the vote UI
-    vote_window.querySelector("#vote-user").innerHTML = username; // set the voted user name
+    vote_window.querySelector("#vote-user").innerHTML = name; // set the voted user name
 }
 
 function hideVoteUI(){

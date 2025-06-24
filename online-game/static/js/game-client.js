@@ -24,16 +24,17 @@ socket.on('connect', function() {
 socket.on('message', function(data) {
     //console.log(data);
 
-    if(data === 'reject'){
+    if(data.status === 'reject'){
         alert("Server is full. Try again later.");
         in_game = false;
-        retry_conn();
         return;
-    }else if(data === 'accept'){
+    }else if(data.status === 'accept'){
         console.log("Joined successfully!");
+        socket_avatar = data.avatar; // store the avatar data
         in_game = true;
+        startGame();
     }else{
-        console.log("Status from server: " + data);
+        console.log("Status from server: " + data.status);
         in_game = false; 
         return;
     }
@@ -43,7 +44,7 @@ socket.on('message', function(data) {
 socket.on('role-assigned', function(data) {
     // handle role assignment
     console.log("Role assigned:", data);
-    username = data.name; // set the username to the assigned username
+    avatar_name = data.name; // set the username to the assigned username
     char_dat = data; // store the character data
 
     updateRole(); // update the role UI with the assigned role
@@ -54,6 +55,15 @@ socket.on('role-assigned', function(data) {
     //document.getElementById("role-type").innerText = "Role: " + role_type; // update the UI with the assigned role
 });
 
+
+socket.on('role-reject', function(nessage){
+    // handle role rejection
+    showPopup('role-rej')
+})
+
+
+
 socket.on('updateAvatars', function(data) {
+    all_avatars = data.avatars;
     updateAvatars(data.avatars); // update the avatars with the received data
 });
