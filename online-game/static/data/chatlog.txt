@@ -1,4 +1,0 @@
-[2025-06-25T15:30:52.033Z] {"id":"3Xe9MkCYhwrZOj20AAAD","name":"Daghardt Storm-Tail","text":"boo!"}
-[2025-06-25T15:34:33.105Z] {"id":"4x9aYEN4qWTvowXrAAAH","name":"Otleqe B'drath","text":"hi!"}
-[2025-06-25T15:34:43.153Z] {"id":"4x9aYEN4qWTvowXrAAAH","name":"Otleqe B'drath","text":"yo"}
-[2025-06-25T15:34:55.956Z] {"id":"WuaexpvxKvTRKGIpAAAF","name":"Nargol Farghed","text":"who are you?"}

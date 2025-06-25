@@ -157,7 +157,7 @@ io.on('connection', function(socket) {
             txt = txt.substring(0, 50); // limit text length to 50 characters
             players[socket.id].setText(txt);
             textTimeout(players[socket.id], socket.id);
-            addChat({'id': socket.id, 'name': players[socket.id].name, 'text': txt});
+            addChat({'id': socket.id, 'name': players[socket.id].name, 'area':players[socket.id].area, 'text': txt});
             //io.emit('updatePlayers', players);
         }
     });
