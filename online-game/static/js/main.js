@@ -3,8 +3,8 @@
 // canvas setup
 var canvas = document.getElementById('game-canvas');
 var ctx = canvas.getContext('2d');
-canvas.width = 1600;
-canvas.height = 900;
+canvas.width = 800;
+canvas.height = 450;
 
 // player sprite sheet
 var spr_sheet = new Image();
@@ -18,6 +18,7 @@ spr_sheet.onload = function() {
 var all_avatars = null;
 var avatar_name = "";
 var socket_avatar = null;
+var highlight_avatar = null;
 
 var char_dat = {}; // character data for the player
 var cur_location = "";      // current location of the player out of the 9 areas
@@ -31,7 +32,15 @@ var ui_overlay = document.getElementById("game-ui"); // the game UI overlay
 
 //////////////////////////      FUNCTIONS      //////////////////////////
 
+function dist(pos1, pos2){
+    // calculate the distance between two points
+    return Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
+}
 
+function inArr(arr, val){
+    // check if a value is in an array
+    return arr.indexOf(val) != -1;
+}
 
 
 
@@ -49,11 +58,12 @@ function renderAvatar(p){
    if(!localAvatar(p) || !spr_loaded) // check if the avatar is local and the sprite sheet is loaded
         return; // do not render the avatar if it is not local
 
+
     // highlight
-    if(p.highlight){
+    if(highlight_avatar && highlight_avatar == p.id) {
         // draw a highlight circle under the avatar if it is highlighted
         ctx.beginPath();
-        ctx.ellipse(p.position.x, p.position.y+70, 64, 16, 0, 0, Math.PI * 2); // use the click radius as the highlight radius
+        ctx.ellipse(p.position.x-2, p.position.y+p.sprite.height/2, 16, 8, 0, 0, Math.PI * 2); // use the click radius as the highlight radius
         ctx.fillStyle = "yellow"; // set the highlight color
         ctx.lineWidth = 5; // set the highlight line width
         ctx.fill(); // draw the highlight circle
@@ -62,7 +72,7 @@ function renderAvatar(p){
     // draw sprite from sprite sheet
     ctx.drawImage(spr_sheet, 
         (p.sprite.width * p.sprite.frame), 
-        (p.sprite.height * AVATAR_RACE[p.race]), 
+        (p.sprite.height * AVATAR_RACE[p.raceType]), 
         p.sprite.width, 
         p.sprite.height, 
         p.position.x - p.sprite.width/2, // center the sprite
@@ -73,7 +83,7 @@ function renderAvatar(p){
 
     // draw the class clothes on top (TODO: underneath the sprite)
     ctx.drawImage(spr_sheet,
-        (p.sprite.width * AVATAR_CLASS[p.pclass]), 
+        (p.sprite.width * AVATAR_CLASS[p.classType]), 
         (p.sprite.height * 6), // assuming class clothing are in row 6
         p.sprite.width,
         p.sprite.height,
@@ -82,7 +92,6 @@ function renderAvatar(p){
         p.sprite.width, // resize width  
         p.sprite.height // resize height
     );
-
 
     // text rendering
     if (p.showText) {
@@ -143,6 +152,14 @@ function getAvatar(){
     return socket_avatar; // return the current user's avatar
 }
 
+function avatarClicked(avatar, x, y, radius=16){
+    // check if the click is within the avatar's bounding box
+    if (!localAvatar(avatar))
+        return false; 
+
+    return dist({ x, y }, avatar.position) < radius; // return true if the distance is less than the click radius
+    
+}
 
 
 // Change relative position of the cursor
@@ -190,13 +207,14 @@ function gameClick(e){
     let curs = getCursorPos(e); // get the cursor offset
     let x = curs.offx;
     let y = curs.offy;
-    console.log(`Click at (${x}, ${y}) on ${target}.`);
+    //console.log(`Click at (${x}, ${y}) on ${target}.`);
 
     // move the avatar to the clicked position
     var avatar = socket_avatar; // get the avatar of the current user
     if (avatar) {
-        avatar.setNextPos(x, y); // set the next position of the avatar to the clicked position
-        avatar.gotoPos(); // start moving the avatar towards the next position
+        socket.emit('move', { position: { x: x, y: y } }); // send the move event to the server
+        //console.log("Avatar moved to position:", { x: x, y: y });
+        // TODO: move gradually
     }
 
     // handle other game UI interactions here
@@ -219,17 +237,19 @@ function clickAvatar(e){
     }
     for (var i = 0; i < avatar_list.length; i++) {
         var avatar = avatar_list[i];
-        if (avatar.wasClicked(x, y)) { 
+        if(avatar.id == getAvatar().id)
+            continue; // skip the current user's avatar
+
+        if (avatarClicked(avatar, x, y)) { 
             // handle avatar click
             console.log("Avatar clicked:", avatar.name);
-            avatar.highlight = true; // highlight the clicked avatar
-            //voteChar(avatar.username); // open the vote UI with the clicked avatar's username
+            highlight_avatar = avatar.id // add the clicked avatar to the highlight list
+            voteChar(avatar.name); // open the vote UI with the clicked avatar's username
             return true;
-        }else {
-            avatar.highlight = false; // remove highlight if not clicked
         }
     }
     //hideVoteUI(); // hide the vote UI if no avatar was clicked
+    highlight_avatar = null; // clear the highlight if no avatar was clicked
     return false; // no avatar was clicked
 }
 
@@ -238,7 +258,7 @@ function clickAvatar(e){
 // chat features
 function sendMessage(){
     let msg = document.getElementById('chat-input').value;
-    if (msg && msg.trim() !== '' && has_joined) {
+    if (msg && msg.trim() !== '' && in_game) {
         socket.emit('chat', { text: msg });
     }
     document.getElementById('chat-input').value = ''; // clear input

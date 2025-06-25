@@ -34,7 +34,6 @@ class Avatar {
         this.speed = 0.5; // the speed of the avatar (default is 1)
         this.move = false; // whether the avatar is currently moving or not
         this.moveTime = 0;
-        this.highlight = false; // whether the avatar is highlighted or not
 
         // sprite properties
         this.sprite = {
@@ -59,6 +58,7 @@ class Avatar {
         this.showText = false;
     }
 
+    // functions are not passed through by the socket -- so define them externally
     move(x, y) {
         this.position.x += x;
         this.position.y += y;
@@ -68,8 +68,10 @@ class Avatar {
         this.text = text;
         this.showText = true;
     }
-    
+
+
 }
+
 
 module.exports = {
     Avatar: Avatar,

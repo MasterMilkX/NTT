@@ -46,7 +46,7 @@ var players = {};
 var playerRoles = {};
 var playerTxtTime = {};
 const MAX_PLAYERS = 25;
-const FPS_I = 1000;
+const FPS_I = 60;
 
 
 // creates a player with a random role (as needed) and class
@@ -58,6 +58,8 @@ function newChar(role){
     let occ = "";
     if(role === 'AP'){
         occ = "hero"  // all players in AP are heroes
+    }else if(race == "chuck"){
+        occ = "chuck";
     }else{
         let avail_occ = [];
         for (let occs in playerjs.AVATAR_CLASS) {
@@ -119,8 +121,8 @@ io.on('connection', function(socket) {
             char_data.occ, char_data.race,
             char_data.role
         );
-        players[socket.id].position = { x: 0, y: 0 }; // set the initial position of the player
-        players[socket.id].area = "plaza";  // set the initial area of the player
+        players[socket.id].area = "plaza";
+        players[socket.id].show = true; // set the avatar to be shown
         console.log(players[socket.id].name + '(' + players[socket.id].raceType + ' ' + players[socket.id].classType + ') joined! [ID: ' + socket.id + ']'); ;
         socket.emit('message', {'status':'accept','avatar': players[socket.id]}); // send the player data to the client
         io.emit('playerNum', {'cur_num':Object.keys(players).length,'max_num':MAX_PLAYERS});
@@ -136,6 +138,15 @@ io.on('connection', function(socket) {
             players[socket.id].position = data.position;
             addPlayerDat(players[socket.id], 'moved');
             //io.emit('updatePlayers', players);
+        }
+    });
+
+    socket.on('changeArea', function(data) {
+        if (players[socket.id]) {
+            players[socket.id].area = data.area;
+            players[socket.id].position = data.position; // update position when changing area
+            players[socket.id].show = true; // set the avatar to be shown
+            addPlayerDat(players[socket.id], 'changed area to ' + data.area);
         }
     });
 
@@ -199,13 +210,13 @@ function textTimeout(player,id) {
 
 // write to the chatlog
 function addChat(dat){
-    var log = fs.createWriteStream('chatlog.txt', { flags: 'a' });
+    var log = fs.createWriteStream('./static/data/chatlog.txt', { flags: 'a' });
     log.write("["+new Date().toISOString() + '] ' + JSON.stringify(dat) + '\n');
     log.end();
 }
 
 function addPlayerDat(player, status){
-    var log = fs.createWriteStream('playerlog.txt', { flags: 'a' });
+    var log = fs.createWriteStream('./static/data/playerlog.txt', { flags: 'a' });
     var dat = {
         'id': player.id,
         'name': player.name,

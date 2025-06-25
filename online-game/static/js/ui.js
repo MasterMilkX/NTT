@@ -134,6 +134,16 @@ function updateRole(){
     e.innerHTML += " Click EXIT when you want to leave and have fun!";
     
     rd_div.appendChild(e);
+
+    // update the tasks in the dropdown
+    for(let i=0;i<char_dat.tasks.length;i++){
+        let task = char_dat.tasks[i];
+        let task_label = document.getElementById('task' + i + 'Label');
+        if (task_label) {
+            task_label.innerHTML = task; // update the label text
+        }
+    }
+
 }
 
 function pregame(){
@@ -166,6 +176,8 @@ function changeMap(location){
 
     // set the background image
     cur_location = location;
+    closePopups();
+    socket.emit('changeArea', {'area': location, position: randomPos(canvas.clientWidth, canvas.height)}); // send the new area to the server
 }
 
 // populate the map cells of the pop up menu
