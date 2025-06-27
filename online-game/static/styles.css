@@ -47,7 +47,7 @@ body {
     height: 100%;
     display: none; /* Hidden by default */
     justify-content: center;
-    z-index: 3;
+    z-index: 10;
     position: absolute;
 }
 .pop-contents{
@@ -137,7 +137,7 @@ body {
     height: 100%;
     display: none; /* Hidden by default */
     justify-content: center;
-    z-index: 2;
+    z-index: 5;
 }
 
 /* TASK UI */
@@ -281,12 +281,17 @@ body {
     border-radius: 5px;
 }
 
+/* CHAT */
+
 #chat-box{
     width: 70%;
     display: flex;
     align-items: center;
     justify-content: center;
     padding:10px;
+    background-image: url('/static/assets/chat_sword.png');
+    background-repeat: no-repeat;
+    background-size: cover;
     /* border:3px dashed red; */
 }
 
@@ -308,7 +313,7 @@ body {
 #send-msg-btn {
     padding: 3px 7px;
     font-size: 1.5vw;
-    background-color: #000;
+    background-color: #733E39;
     color: #dedede;
     border: 1px solid #666;
     cursor: pointer;
@@ -320,9 +325,25 @@ body {
     border: 1px solid #666;
 }
 #send-msg-btn:hover {
-    background-color: #333;
+    background-color: #724c49;
     color: #fff;
 }
+
+.av-chat-box{
+    position: absolute;
+    max-width: 200px;
+    max-height: 40px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    color:black;
+    border-radius: 5px;
+    padding: 7px;
+    font-size: 14px;
+    overflow-y: hidden;
+    z-index: 3;
+    font-family: Arial, sans-serif;
+}
+
 
 /* ------- GENERAL STYLES -------- */
 .bold {

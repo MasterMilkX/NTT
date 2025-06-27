@@ -1,18 +1,18 @@
 
 // UI imports
 var check_IMG = new Image();
-check_IMG.src = './static/assets/check.png';         // <a href="https://www.flaticon.com/free-icons/tick" title="tick icons">Tick icons created by Freepik - Flaticon</a>
+check_IMG.src = './static/assets/check2.png';         // <a href="https://www.flaticon.com/free-icons/tick" title="tick icons">Tick icons created by Freepik - Flaticon</a>
 
 var cross_IMG = new Image();
-cross_IMG.src = './static/assets/cancel.png';         // <a href="https://www.flaticon.com/free-icons/cross" title="cross icons">Cross icons created by Freepik - Flaticon</a>
+cross_IMG.src = './static/assets/x.png';         // <a href="https://www.flaticon.com/free-icons/cross" title="cross icons">Cross icons created by Freepik - Flaticon</a>
 
 var map_IMG = new Image();
-map_IMG.src = './static/assets/map.png';           // <a href="https://www.flaticon.com/free-icons/fantasy" title="fantasy icons">Fantasy icons created by Freepik - Flaticon</a>
+map_IMG.src = './static/assets/map2.png';           // <a href="https://www.flaticon.com/free-icons/fantasy" title="fantasy icons">Fantasy icons created by Freepik - Flaticon</a>
 
 var exit_IMG = new Image();
 exit_IMG.src = './static/assets/exit.png';           // <a href="https://www.flaticon.com/free-icons/exit-door" title="exit door icons">Exit door icons created by Freepik - Flaticon</a>
 
-
+var map_icons = document.getElementById("map-icons"); // get the map icons from the HTML
 
 // background image imports
 var map1_IMG = new Image();
@@ -28,29 +28,35 @@ map3_IMG.src = './static/assets/forest.jpg';         // https://www.freepik.com/
 
 var MAP_IMG_SET = {
     "plaza" : map2_IMG,
-    "battlefield" : map1_IMG,
-    "forest" : map3_IMG,
-    "A" : null, // placeholder images for unknown locations
-    "B" : null, // placeholder images for unknown locations
-    "C" : null, // placeholder images for unknown locations
-    "D" : null, // placeholder images for unknown locations
-    "E" : null, // placeholder images for unknown locations
-    "F" : null, // placeholder images for unknown locations
+    // "battlefield" : map1_IMG,
+    // "forest" : map3_IMG,
+    // "A" : null, // placeholder images for unknown locations
+    // "B" : null, // placeholder images for unknown locations
+    // "C" : null, // placeholder images for unknown locations
+    // "D" : null, // placeholder images for unknown locations
+    // "E" : null, // placeholder images for unknown locations
+    // "F" : null, // placeholder images for unknown locations
 }
-var MAP_ICON_SET = {
-    "plaza" : "./static/assets/plaza.jpg",
-    "battlefield" : "./static/assets/battlefield.jpg",
-    "forest" : "./static/assets/forest.jpg",
-    "A" : "./static/assets/point.png",
-    "B" : "./static/assets/point.png",
-    "C" : "./static/assets/point.png",
-    "D" : "./static/assets/point.png",
-    "E" : "./static/assets/point.png",
-    "F" : "./static/assets/point.png"
+var MAP_ICON_SET = {}
+
+//var MAP_CELL_LIST = ["A", "B", "C", "forest", "plaza", "battlefield", "D", "E", "F"]; // list of all map cells
+var MAP_CELL_LIST = [
+    "library", "blacksmith", "training_ground",
+    "bakery", "plaza", "butcher",
+    "market", "apothecary", "tavern"
+]; // list of all map cells
+
+var MAP_ICON_ORDER = {
+    'library': 0,
+    'bakery': 1,
+    'market': 2,
+    'tavern': 3,
+    'butcher': 4,
+    'training_ground': 5,
+    'blacksmith': 6,
+    'apothecary': 7,
+    'plaza': 8
 }
-
-var MAP_CELL_LIST = ["A", "B", "C", "forest", "plaza", "battlefield", "D", "E", "F"]; // list of all map cells
-
 
 var cur_screen = "welcome";
 
@@ -185,17 +191,31 @@ function setMapCells(){
     let map_grid = document.getElementById("map-grid");
     map_grid.innerHTML = ""; // clear the container
 
+    // setup map icons canvas for transfer
+    let ico_canv = document.createElement("canvas");
+    ico_canv.width = 48; // set the canvas width
+    ico_canv.height = 48; // set the canvas height
+    let ico_ctx = ico_canv.getContext("2d");
+
+
     // create map cell elements
     for (let i = 0; i < MAP_CELL_LIST.length; i++) {
+
+        
         let cell = document.createElement("div");
         cell.className = "map-cell";
         cell.id = "map-loc-" + MAP_CELL_LIST[i];
+
+        // create icon image for cell
         let img = document.createElement("img");
-        img.src = MAP_ICON_SET[MAP_CELL_LIST[i]];
+        ico_ctx.clearRect(0, 0, ico_canv.width, ico_canv.height); // clear the canvas
+        ico_ctx.drawImage(map_icons, MAP_ICON_ORDER[MAP_CELL_LIST[i]] * 48, 0, 48, 48, 0, 0, ico_canv.width, ico_canv.height); // draw
+        img.src = ico_canv.toDataURL(); // convert canvas to image data URL
         cell.appendChild(img);
-        // cell.style.backgroundImage = "url('" + MAP_ICON_SET[MAP_CELL_LIST[i]] + "')";
+
+        // create events
         cell.onclick = function() { changeMap(MAP_CELL_LIST[i]); };
-        cell.onmouseover = function() { setMapLabel(MAP_CELL_LIST[i].toUpperCase()); };
+        cell.onmouseover = function() { setMapLabel(MAP_CELL_LIST[i].replace('_', ' ').toUpperCase()); };
         cell.onmouseout = function() { setMapLabel("&nbsp;"); }; // clear label on mouse out
         map_grid.appendChild(cell);
     }

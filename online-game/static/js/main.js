@@ -7,12 +7,7 @@ canvas.width = 800;
 canvas.height = 450;
 
 // player sprite sheet
-var spr_sheet = new Image();
-spr_sheet.src = '/static/assets/ShireSpriteSheet.png'; // path to your sprite sheet image
-var spr_loaded = false;
-spr_sheet.onload = function() {
-    spr_loaded = true;
-};
+var spr_sheet = document.getElementById("spr-sheet");
 
 // PLAYER PROPERTIES
 var all_avatars = null;
@@ -25,7 +20,7 @@ var cur_location = "";      // current location of the player out of the 9 areas
 var has_joined = false;
 var role_type = ""; // default role type for testing purposes
 
-
+var chat_dat = {};
 
 var ui_overlay = document.getElementById("game-ui"); // the game UI overlay
 
@@ -55,7 +50,7 @@ function renderAvatar(p){
     ctx.fillStyle = "black";
     ctx.fillText(p.name, p.position.x, p.position.y + 40);
     */
-   if(!localAvatar(p) || !spr_loaded) // check if the avatar is local and the sprite sheet is loaded
+   if(!localAvatar(p)) // check if the avatar is local and the sprite sheet is loaded
         return; // do not render the avatar if it is not local
 
 
@@ -81,25 +76,61 @@ function renderAvatar(p){
         p.sprite.height // resize height
     );
 
-    // draw the class clothes on top (TODO: underneath the sprite)
-    ctx.drawImage(spr_sheet,
-        (p.sprite.width * AVATAR_CLASS[p.classType]), 
-        (p.sprite.height * 6), // assuming class clothing are in row 6
-        p.sprite.width,
-        p.sprite.height,
-        p.position.x - p.sprite.width/2 , // center the sprite
-        p.position.y - p.sprite.height/2, // center the sprite
-        p.sprite.width, // resize width  
-        p.sprite.height // resize height
-    );
+    // draw the class clothes on top
+    if(p.classType && p.classType != 'hero' && p.classType != 'chuck') {
+        ctx.drawImage(spr_sheet,
+            (p.sprite.width * AVATAR_CLASS[p.classType]), 
+            (p.sprite.height * 6), // assuming class clothing are in row 6
+            p.sprite.width,
+            p.sprite.height,
+            p.position.x - p.sprite.width/2 , // center the sprite
+            p.position.y - p.sprite.height/2, // center the sprite
+            p.sprite.width, // resize width  
+            p.sprite.height // resize height
+        );
+    }
 
     // text rendering
+    /*
     if (p.showText) {
-        ctx.font = "14px Arial";
-        ctx.fillStyle = "black";
-        ctx.textAlign = "center";
-        ctx.fillText(p.text, p.position.x, p.position.y - 30);
+         // draww the box above
+        ctx.fillStyle = "#ffffffdd"; // semi-transparent white background
+        var chatWidth = Math.min(200, p.text.length * 9); // calculate the width based on the message length
+        var lines = Math.ceil(p.text.length / 25); // calculate the number of lines based on the message length
+        var chatHeight = 20 * lines
+        
+        ctx.fillRect(p.position.x - chatWidth / 2, p.position.y - 25 - (chatHeight), chatWidth, chatHeight); // draw a rectangle for the chat message background
+
+
+        ctx.font = "14px Arial"; // set the font for the chat message
+        ctx.fillStyle = "black"; // set the color for the chat message
+        ctx.textAlign = "center"; // center the text
+
+        // split the text into lines if it exceeds the width
+        var words = p.text.split(' ');
+        var line = '';
+        var lines = [];
+        for (var n = 0; n < words.length; n++) {
+            var testLine = line + words[n] + ' ';
+            var metrics = ctx.measureText(testLine);
+            var testWidth = metrics.width;
+            if (testWidth > chatWidth && n > 0) {
+                lines.push(line);
+                line = words[n] + ' ';
+            } else {
+                line = testLine;
+            }
+        }
+        lines.push(line); // add the last line
+        // draw each line of text
+        for (var i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i], p.position.x, p.position.y - 20 - (i * 20)); // draw each line of text above the avatar
+        }
+
+
+        //ctx.fillText(p.text, p.position.x, p.position.y - 30); // draw the chat message above the avatar
     }
+    */
     
 }
 
@@ -133,15 +164,47 @@ function updateAvatars(avatar_set){
     // draw the avatars
     for (var i = 0; i < avatar_list.length; i++) {
         var avatar = avatar_list[i];
+
+        // draw the sprite
         if (localAvatar(avatar)) {
             renderAvatar(avatar); // render the avatar on the canvas
+
+            // make or delete chatboxes
+            if (avatar.showText) {
+                // create a new chatbox if it doesn't exist, or replace text
+                if (chat_dat[avatar.id])
+                    chat_dat[avatar.id].remove(); // remove previous chat box if it exists
+                chat_dat[avatar.id] = makeChatBox(avatar);
+            } else {
+                // delete the chatbox if it exists
+                if (chat_dat[avatar.id]) {
+                    chat_dat[avatar.id].remove(); // remove the chat box from the DOM
+                    delete chat_dat[avatar.id];
+                }
+            }
         }
     }
 
     ctx.restore();
 }
 
+function makeChatBox(avatar){
+    // create a chat box for the avatar
+    if (!avatar || !avatar.showText || !avatar.text || avatar.text.trim() === '')
+        return null;
 
+    let chatBox = document.createElement('div');
+    chatBox.className = 'av-chat-box';
+    chatBox.id = 'chat-box-' + avatar.id; // unique id for the chat
+
+    chatBox.innerHTML = avatar.text;
+
+    chatBox.style.left = (avatar.position.x) + 'px'; // position the chat box relative to the avatar
+    chatBox.style.top = (avatar.position.y) + 'px'; // position the chat box above the avatar
+
+    document.body.appendChild(chatBox); // add the chat box to the body
+    return chatBox; // return the chat box element
+}
 
 
 //// EVENT HANDLERS ////

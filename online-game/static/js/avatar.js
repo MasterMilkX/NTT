@@ -1,6 +1,8 @@
 const AVATAR_RACE = {'elf':0, 'beastman':1, 'orc':2, 'lizard':3, 'nord':4, 'chuck': 5}
 const AVATAR_CLASS = {'baker':0, 'butcher':1, 'blacksmith':2, 'general_goods':3, 'apothecary':4, 'knight_trainer':5, 'librarian':6, 'barmaid':7, 'gossip':8, 'mercenary':9, 'drunk':10, 'wizard':11, 'bard':12};
 
+// Role data sheet: https://docs.google.com/spreadsheets/d/1-5Qovckhty3XPEZ0E2dhk-cmdnd1MXBUqJ2Fu7BJ8l0/edit?gid=1067230120#gid=1067230120
+
 function randomPos(w,h){
     return {
         x: Math.floor(Math.random() * w),

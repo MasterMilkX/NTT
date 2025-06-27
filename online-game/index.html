@@ -47,8 +47,8 @@
                         Is <span class='userTxt' id="vote-user">TotallyChicken21</span> human?
                     </div>
                     <div id="vote-options">
-                        <button class="vote-btn" id='vote-yea' onclick="submitVote('human')"><img src="./static/assets/check.png"> Yea</button>
-                        <button class="vote-btn" id='vote-nay' onclick="submitVote('ai')"><img src="./static/assets/cancel.png">Nay</button>
+                        <button class="vote-btn" id='vote-yea' onclick="submitVote('human')"><img src="./static/assets/check2.png"> Yea</button>
+                        <button class="vote-btn" id='vote-nay' onclick="submitVote('ai')"><img src="./static/assets/x.png">Nay</button>
                     </div>
                     <div id="vote-conf">
                         <span class="bold">Confidence</span><br>
@@ -75,7 +75,7 @@
                     </div>
 
                     <div id="map-btn" style="margin-right:10px;">
-                        <button class="game-btn" onclick="showPopup('map')"><img src="./static/assets/map.png"></button>   
+                        <button class="game-btn" onclick="showPopup('map')"><img src="./static/assets/map2.png"></button>   
                     </div>
                 </div>
             </div>
@@ -205,6 +205,12 @@
 
         </div>
     </div>
+
+    <!-- Preload images -->
+    <img id='map-icons' src="./static/assets/map_icons.png" style="display:none;">
+    <img id="spr-sheet" src="./static/assets/ShireSpriteSheet.png" style="display:none;">
+
+    <!-- Scripts -->
     <script src="./static/js/avatar.js"></script>
     <script src="./static/js/main.js"></script>
     <script src="./static/js/ui.js"></script>
