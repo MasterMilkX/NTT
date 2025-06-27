@@ -167,7 +167,7 @@ body {
     margin-top: 5px;
     font-size: 1.5vw;
     overflow-y: auto;
-    max-height: 15vh; /* Limit height for scrolling */
+    max-height: 15vw; /* Limit height for scrolling */
 }
 
 /* VOTE UI */
@@ -291,7 +291,7 @@ body {
     padding:10px;
     background-image: url('/static/assets/chat_sword.png');
     background-repeat: no-repeat;
-    background-size: cover;
+    background-size: 100% 110%;
     /* border:3px dashed red; */
 }
 

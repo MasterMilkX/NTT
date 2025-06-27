@@ -14,15 +14,26 @@ var all_avatars = null;
 var avatar_name = "";
 var socket_avatar = null;
 var highlight_avatar = null;
+var AVATAR_SCALE = 1;
 
 var char_dat = {}; // character data for the player
-var cur_location = "";      // current location of the player out of the 9 areas
 var has_joined = false;
 var role_type = ""; // default role type for testing purposes
 
 var chat_dat = {};
 
 var ui_overlay = document.getElementById("game-ui"); // the game UI overlay
+
+
+// load boundaries
+var boundaries = {}
+fetch('./static/data/area_boundaries.json')
+  .then(response => response.json())
+  .then(data => {
+    boundaries = data; // store the loaded boundaries
+  })
+  .catch(error => console.error('Error loading JSON:', error));
+
 
 
 //////////////////////////      FUNCTIONS      //////////////////////////
@@ -37,6 +48,39 @@ function inArr(arr, val){
     return arr.indexOf(val) != -1;
 }
 
+function inZone(pos, boundary) {
+    const { x, y } = pos;
+    let inside = false;
+
+    for (let i = 0, j = boundary.length - 1; i < boundary.length; j = i++) {
+        const xi = boundary[i].x, yi = boundary[i].y;
+        const xj = boundary[j].x, yj = boundary[j].y;
+
+        // Check if point is within the y-range of the edge
+        const intersect = ((yi > y) !== (yj > y)) &&
+                          (x < ((xj - xi) * (y - yi)) / (yj - yi) + xi);
+
+        if (intersect) inside = !inside;
+    }
+
+    return inside;
+}
+
+
+// var saved_pos = []
+// var record_pos = false;
+
+// function rec_pos(){
+//     if(saved_pos.length > 0 && record_pos) {
+//         let j = {}
+//         j[cur_location] = saved_pos; // save the current location and positions
+//         console.log(JSON.stringify(j)); // log the saved positions to the console
+//     }
+
+//     saved_pos = []; // reset the saved positions
+//     record_pos = true; // start recording positions
+//     console.log("Recording positions...");
+// }
 
 
 ///////// RENDER /////////
@@ -50,6 +94,9 @@ function renderAvatar(p){
     ctx.fillStyle = "black";
     ctx.fillText(p.name, p.position.x, p.position.y + 40);
     */
+
+    let offset = {x: 0, y: -20}
+
    if(!localAvatar(p)) // check if the avatar is local and the sprite sheet is loaded
         return; // do not render the avatar if it is not local
 
@@ -58,11 +105,16 @@ function renderAvatar(p){
     if(highlight_avatar && highlight_avatar == p.id) {
         // draw a highlight circle under the avatar if it is highlighted
         ctx.beginPath();
-        ctx.ellipse(p.position.x-2, p.position.y+p.sprite.height/2, 16, 8, 0, 0, Math.PI * 2); // use the click radius as the highlight radius
+        ctx.ellipse(p.position.x-2, p.position.y+(p.sprite.height*AVATAR_SCALE)/2, 16, 
+            8, 0, 0, Math.PI * 2); // use the click radius as the highlight radius
         ctx.fillStyle = "yellow"; // set the highlight color
         ctx.lineWidth = 5; // set the highlight line width
         ctx.fill(); // draw the highlight circle
     }
+
+    AVATAR_SCALE = MAP_SCALE[cur_location] || 1; // get the scale for the current location, default to 1 if not found
+    if(p.raceType == 'chuck')
+        AVATAR_SCALE = MAP_SCALE[cur_location]*0.5 || 0.5; // chuck's scale is smaller
 
     // draw sprite from sprite sheet
     ctx.drawImage(spr_sheet, 
@@ -70,10 +122,10 @@ function renderAvatar(p){
         (p.sprite.height * AVATAR_RACE[p.raceType]), 
         p.sprite.width, 
         p.sprite.height, 
-        p.position.x - p.sprite.width/2, // center the sprite
-        p.position.y - p.sprite.height/2, // center the sprite
-        p.sprite.width, // resize width
-        p.sprite.height // resize height
+        p.position.x - (p.sprite.width * AVATAR_SCALE)/2 , // center the sprite
+        p.position.y - (p.sprite.height * AVATAR_SCALE)/2 + offset.y*AVATAR_SCALE, // center the sprite
+        p.sprite.width * AVATAR_SCALE, // resize width
+        p.sprite.height * AVATAR_SCALE // resize height
     );
 
     // draw the class clothes on top
@@ -83,55 +135,42 @@ function renderAvatar(p){
             (p.sprite.height * 6), // assuming class clothing are in row 6
             p.sprite.width,
             p.sprite.height,
-            p.position.x - p.sprite.width/2 , // center the sprite
-            p.position.y - p.sprite.height/2, // center the sprite
-            p.sprite.width, // resize width  
-            p.sprite.height // resize height
+            p.position.x - (p.sprite.width * AVATAR_SCALE)/2 , // center the sprite
+            p.position.y - (p.sprite.height * AVATAR_SCALE)/2 + offset.y*AVATAR_SCALE, // center the sprite
+            p.sprite.width * AVATAR_SCALE, // resize width
+            p.sprite.height * AVATAR_SCALE // resize height
         );
     }
-
-    // text rendering
-    /*
-    if (p.showText) {
-         // draww the box above
-        ctx.fillStyle = "#ffffffdd"; // semi-transparent white background
-        var chatWidth = Math.min(200, p.text.length * 9); // calculate the width based on the message length
-        var lines = Math.ceil(p.text.length / 25); // calculate the number of lines based on the message length
-        var chatHeight = 20 * lines
-        
-        ctx.fillRect(p.position.x - chatWidth / 2, p.position.y - 25 - (chatHeight), chatWidth, chatHeight); // draw a rectangle for the chat message background
-
-
-        ctx.font = "14px Arial"; // set the font for the chat message
-        ctx.fillStyle = "black"; // set the color for the chat message
-        ctx.textAlign = "center"; // center the text
-
-        // split the text into lines if it exceeds the width
-        var words = p.text.split(' ');
-        var line = '';
-        var lines = [];
-        for (var n = 0; n < words.length; n++) {
-            var testLine = line + words[n] + ' ';
-            var metrics = ctx.measureText(testLine);
-            var testWidth = metrics.width;
-            if (testWidth > chatWidth && n > 0) {
-                lines.push(line);
-                line = words[n] + ' ';
-            } else {
-                line = testLine;
-            }
-        }
-        lines.push(line); // add the last line
-        // draw each line of text
-        for (var i = 0; i < lines.length; i++) {
-            ctx.fillText(lines[i], p.position.x, p.position.y - 20 - (i * 20)); // draw each line of text above the avatar
-        }
-
-
-        //ctx.fillText(p.text, p.position.x, p.position.y - 30); // draw the chat message above the avatar
-    }
-    */
     
+}
+
+function drawBoundary(points, options = {}) {
+    if (points.length < 2) return;
+
+    const {
+        strokeStyle = 'black',
+        lineWidth = 1,
+        fill = false,
+        fillStyle = 'rgba(0, 0, 0, 0.1)'
+    } = options;
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+
+    for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+    }
+
+    ctx.closePath(); // closes the shape (back to first point)
+
+    if (fill) {
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
+    }
+
+    ctx.strokeStyle = strokeStyle;
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
 }
 
 function localAvatar(a){
@@ -139,7 +178,7 @@ function localAvatar(a){
 }
 
 // DRAWS THE GAME
-function updateAvatars(avatar_set){
+function updateGame(avatar_set){
     if(!in_game || !avatar_set || avatar_set.length === 0) {
         return;
     }
@@ -154,11 +193,22 @@ function updateAvatars(avatar_set){
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // draw a temporary world
-    if (cur_location == "" || !MAP_IMG_SET[cur_location]) {
+    let bg_img = document.getElementById("bg-"+cur_location);
+    if (cur_location == "" || !bg_img) {
         ctx.fillStyle = "#000"; // black void background for unknown locations
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }else
-        ctx.drawImage(MAP_IMG_SET[cur_location], 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(bg_img, 0, 0, canvas.width, canvas.height);
+
+    // DEBUG: draw boundaries for the current area
+    // if (boundaries[cur_location]) {
+    //     drawBoundary(boundaries[cur_location], {
+    //         strokeStyle: 'blue', // color of the boundary lines
+    //         lineWidth: 2, // width of the boundary lines
+    //         fill: true, // fill the boundary area
+    //         fillStyle: 'rgba(255, 0, 0, 0.1)' // fill color for the boundary area
+    //     });
+    // }
 
 
     // draw the avatars
@@ -258,8 +308,6 @@ function gameClick(e){
         return; // ignore clicks outside the game UI
     }
 
-    
-
     // check if the click is on an avatar
     if (clickAvatar(e)) {
         return; // if an avatar was clicked, do not proceed further
@@ -275,9 +323,18 @@ function gameClick(e){
     // move the avatar to the clicked position
     var avatar = socket_avatar; // get the avatar of the current user
     if (avatar) {
-        socket.emit('move', { position: { x: x, y: y } }); // send the move event to the server
+        // check if the click is within the boundaries of the current area
+        if (cur_location && boundaries[cur_location]) {
+            if (inZone({ x, y }, boundaries[cur_location])) {
+                socket.emit('move', { position: { x: x, y: y } }); // send the move event to the server
+            }
+        }
+
         //console.log("Avatar moved to position:", { x: x, y: y });
-        // TODO: move gradually
+        // if (record_pos) {
+        //     // record the position if recording is enabled
+        //     saved_pos.push({ x: x, y: y });
+        // }
     }
 
     // handle other game UI interactions here
@@ -339,7 +396,7 @@ function showClickPos(e){
     let x = curs.offx;
     let y = curs.offy;
 
-    console.log(`Click at (${x}, ${y}) on ${target}.`);
+    //console.log(`Click at (${x}, ${y}) on ${target}.`);
 
     // hidde the vote UI if the click is not on the game UI
     hideVoteUI();
@@ -351,7 +408,8 @@ ui_overlay.addEventListener('touchstart', gameClick);
 
 // shortcuts
 window.onkeydown = function(e) {
-    
+    if(e.key == 'b')
+        rec_pos(); // start recording positions when B is pressed
     
     if(!document.activeElement || document.activeElement.tagName !== 'INPUT') {
         e.preventDefault(); // prevent default behavior of the key press

@@ -31,7 +31,8 @@ socket.on('message', function(data) {
     }else if(data.status === 'accept'){
         console.log("Joined successfully!");
         socket_avatar = data.avatar; // store the avatar data
-        socket.emit('move',{'position':randomPos(canvas.width, canvas.height)}); // set a random position for the avatar in the plaza
+
+        socket.emit('move',{'position':{x:canvas.width/2, y:canvas.height*0.75}}); // set a random position for the avatar in the area
         in_game = true;
         startGame();
     }else{
@@ -67,5 +68,5 @@ socket.on('role-reject', function(nessage){
 socket.on('updateAvatars', function(data) {
     all_avatars = data.avatars;
     socket_avatar = data.avatars[socket.id]
-    updateAvatars(data.avatars); // update the avatars with the received data
+    updateGame(data.avatars); // update the avatars with the received data
 });

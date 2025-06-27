@@ -12,34 +12,14 @@ map_IMG.src = './static/assets/map2.png';           // <a href="https://www.flat
 var exit_IMG = new Image();
 exit_IMG.src = './static/assets/exit.png';           // <a href="https://www.flaticon.com/free-icons/exit-door" title="exit door icons">Exit door icons created by Freepik - Flaticon</a>
 
+
+
+// --- MAP UI --- //
+
 var map_icons = document.getElementById("map-icons"); // get the map icons from the HTML
 
-// background image imports
-var map1_IMG = new Image();
-map1_IMG.src = './static/assets/battlefield.jpg';    // https://gamebanana.com/mods/369805
-
-var map2_IMG = new Image(); 
-map2_IMG.src = './static/assets/plaza.jpg';          // https://www.deviantart.com/jakebowkett/art/Fantasy-Town-Plaza-689235345
-
-var map3_IMG = new Image();
-map3_IMG.src = './static/assets/forest.jpg';         // https://www.freepik.com/free-photos-vectors/cartoon-forest
-
-
-
-var MAP_IMG_SET = {
-    "plaza" : map2_IMG,
-    // "battlefield" : map1_IMG,
-    // "forest" : map3_IMG,
-    // "A" : null, // placeholder images for unknown locations
-    // "B" : null, // placeholder images for unknown locations
-    // "C" : null, // placeholder images for unknown locations
-    // "D" : null, // placeholder images for unknown locations
-    // "E" : null, // placeholder images for unknown locations
-    // "F" : null, // placeholder images for unknown locations
-}
 var MAP_ICON_SET = {}
 
-//var MAP_CELL_LIST = ["A", "B", "C", "forest", "plaza", "battlefield", "D", "E", "F"]; // list of all map cells
 var MAP_CELL_LIST = [
     "library", "blacksmith", "training_ground",
     "bakery", "plaza", "butcher",
@@ -58,7 +38,20 @@ var MAP_ICON_ORDER = {
     'plaza': 8
 }
 
+var MAP_SCALE = {
+    'library': 1.25,
+    'blacksmith': 2,
+    'training_ground': 1.5,
+    'bakery': 2,
+    'plaza': 1,
+    'butcher': 3,
+    'market': 2,
+    'apothecary': 2,
+    'tavern': 1.5
+}
+
 var cur_screen = "welcome";
+var cur_location = ""; // current location of the player
 
 
 // CLOSE POPUPS
@@ -183,7 +176,7 @@ function changeMap(location){
     // set the background image
     cur_location = location;
     closePopups();
-    socket.emit('changeArea', {'area': location, position: randomPos(canvas.clientWidth, canvas.height)}); // send the new area to the server
+    socket.emit('changeArea', {'area': location, position: {x:canvas.width/2, y:canvas.height*0.75}}); // send the new area to the server
 }
 
 // populate the map cells of the pop up menu
