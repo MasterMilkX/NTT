@@ -15,10 +15,6 @@ socket.on('connect_error', function(err) {
 // connect to the server and reception
 socket.on('connect', function() {
     console.log('Connected to the server');
-    if (!in_game) {
-        in_game = true; // set in_game to true
-        console.log("Joining game...");
-    }
 });
 
 socket.on('message', function(data) {
@@ -31,7 +27,7 @@ socket.on('message', function(data) {
     }else if(data.status === 'accept'){
         console.log("Joined successfully!");
         socket_avatar = data.avatar; // store the avatar data
-
+        cur_location = data.avatar.area; // set the current location to the avatar's area
         socket.emit('move',{'position':{x:canvas.width/2, y:canvas.height*0.75}}); // set a random position for the avatar in the area
         in_game = true;
         startGame(socket_avatar.area); // start the game with the avatar's area
@@ -49,7 +45,8 @@ socket.on('role-assigned', function(data) {
     avatar_name = data.name; // set the username to the assigned username
     char_dat = data; // store the character data
 
-    updateRole(); // update the role UI with the assigned role
+    updateRole(data); // update the role UI with the assigned role
+    updateInfo();
 
     showPopup('role-ass');
 

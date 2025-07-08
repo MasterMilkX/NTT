@@ -170,6 +170,44 @@ body {
     max-height: 15vw; /* Limit height for scrolling */
 }
 
+/* AVATAR INFO UI */
+#avatar-ui {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    max-width: 30%;
+    max-height: 40%;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+    padding: 10px;
+    border-radius: 10px;
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+}
+#avatar-header {
+    font-size: 2vw;
+    font-weight:bold;
+    text-decoration: underline;
+    text-align: center;
+}
+#avatar-header:hover{
+    background-color: #00000033;
+    cursor: pointer;
+    border-radius: 5px;
+}
+#avatar-info {
+    margin-top: 5px;
+    font-size: 2vw;
+    display: none; /* Hidden by default */
+}
+#avatar-socket-id{
+    font-size: 1.5vw;
+    color: #0022e0;
+    margin-top:0.5vw;
+}
+.av-info-label{
+    font-weight: bold;
+    cursor:pointer;
+}
+
 /* VOTE UI */
 #vote-ui {
     position: absolute;

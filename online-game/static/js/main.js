@@ -17,13 +17,11 @@ var highlight_avatar = null;
 var AVATAR_SCALE = 1;
 
 var char_dat = {}; // character data for the player
-var in_game = false;
 var role_type = ""; // default role type for testing purposes
-
-var chat_dat = {};
 
 var ui_overlay = document.getElementById("game-ui"); // the game UI overlay
 
+var chat_dat = {}; // chat boxes for avatars
 
 // load boundaries
 var boundaries = {}

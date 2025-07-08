@@ -103,31 +103,31 @@ function toTitleCase(str) {
 }
 
 // updates the role text in the role selection popup
-function updateRole(){
-    let x = toTitleCase(char_dat.occ.replace('_'," ")) + " " + toTitleCase(char_dat.race);
-    document.getElementById("role-ass-occ").innerHTML = "Role Assignment - " + toTitleCase(char_dat.occ.replace('_'," "));
+function updateRole(dat){
+    let x = toTitleCase(dat.occ.replace('_'," ")) + " " + toTitleCase(dat.race);
+    document.getElementById("role-ass-occ").innerHTML = "Role Assignment - " + toTitleCase(dat.occ.replace('_'," "));
 
     // role description
     let rd_div = document.getElementById("role-desc");
     rd_div.innerHTML = "";
 
     let d = document.createElement("p");
-    d.innerHTML = "<span class='bold'> You are a "+ char_dat.name + " -- a " + x +"</span><br>"
-    d.innerHTML += "<span class='italic' style='font-size:0.8em'>"+char_dat.desc + "</span>"
+    d.innerHTML = "<span class='bold'> You are a "+ dat.name + " -- a " + x +"</span><br>"
+    d.innerHTML += "<span class='italic' style='font-size:0.8em'>"+dat.desc + "</span>"
     rd_div.appendChild(d)
 
     // tasks
     let t = document.createElement("p");
     let task_txt = "";
-    for(let i=0;i<char_dat.tasks.length;i++){
-        let task = char_dat.tasks[i];
-        task_txt += task + (i < char_dat.tasks.length-1 ? "<br>" : "");
+    for(let i=0;i<dat.tasks.length;i++){
+        let task = dat.tasks[i];
+        task_txt += task + (i < dat.tasks.length-1 ? "<br>" : "");
     }
     t.innerHTML = "<span class='bold'>You are given the following tasks:</span><br>"
     t.innerHTML += task_txt;
     rd_div.appendChild(t);
 
-    // ending text
+    // ending text      
     let e = document.createElement("p");
     e.innerHTML = "Please be respectful in any and all interactions. You might be talking to an actual person!";
     e.innerHTML += " Click EXIT when you want to leave and have fun!";
@@ -135,14 +135,118 @@ function updateRole(){
     rd_div.appendChild(e);
 
     // update the tasks in the dropdown
-    for(let i=0;i<char_dat.tasks.length;i++){
-        let task = char_dat.tasks[i];
-        let task_label = document.getElementById('task' + i + 'Label');
+    for(let i=0;i<dat.tasks.length;i++){
+        let task = dat.tasks[i];
+        let task_label = document.getElementById('task' + (i+1) + 'Label');
         if (task_label) {
             task_label.innerHTML = task; // update the label text
         }
     }
+}
 
+function updateInfo(){
+    // update the avatar info in the game UI
+    let avatar_info = document.getElementById("avatar-info");
+    avatar_info.innerHTML = ""; // clear the current info
+
+    // set name
+    let name_div = document.createElement("div");
+    name_div.id = "avatar-name";
+    let l = document.createElement("span");
+    l.className = "av-info-label";
+    l.innerHTML = "Name: ";
+    name_div.appendChild(l);
+    let n = document.createElement("span");
+    n.innerHTML = char_dat.name; // set the name from the character data
+    name_div.appendChild(n);
+    avatar_info.appendChild(name_div);
+    name_div.onclick = function() {
+        highlight(n); // highlight the name div when clicked
+    };
+
+    // set occupation
+    let occ_div = document.createElement("div");
+    occ_div.id = "avatar-occ";
+    let o = document.createElement("span");
+    o.className = "av-info-label";
+    o.innerHTML = "Class: ";
+    occ_div.appendChild(o);
+    let occ_span = document.createElement("span");
+    occ_span.innerHTML = char_dat.occ; // set the occupation from the character data
+    occ_div.appendChild(occ_span);
+    avatar_info.appendChild(occ_div);
+    occ_div.onclick = function() {
+        highlight(occ_span); // highlight the occupation div when clicked
+    };
+
+    // set race
+    let race_div = document.createElement("div");
+    race_div.id = "avatar-race";
+    let a = document.createElement("span");
+    a.className = "av-info-label";
+    a.innerHTML = "Race: ";
+    race_div.appendChild(a);
+    let race_span = document.createElement("span");
+    race_span.innerHTML = char_dat.race; // set the race from the character data
+    race_div.appendChild(race_span);
+    avatar_info.appendChild(race_div);
+    race_div.onclick = function() {
+        highlight(race_span); // highlight the race div when clicked
+    };
+
+    // set role
+    let role_div = document.createElement("div");
+    role_div.id = "avatar-role";
+    let r = document.createElement("span");
+    r.className = "av-info-label";
+    r.innerHTML = "Role: ";
+    role_div.appendChild(r);
+    let role_span = document.createElement("span");
+    role_span.innerHTML = char_dat.role; // set the role from the character data
+    role_div.appendChild(role_span);
+    avatar_info.appendChild(role_div);
+    role_div.onclick = function() {
+        highlight(role_span); // highlight the role div when clicked
+    };
+
+    // set location
+    let loc_div = document.createElement("div");
+    loc_div.id = "avatar-loc";
+    let l2 = document.createElement("span");
+    l2.className = "av-info-label";
+    l2.innerHTML = "Location: ";
+    loc_div.appendChild(l2);
+    let loc_span = document.createElement("span");
+    loc_span.innerHTML = cur_location.replace('_', ' ').toUpperCase(); // set
+    loc_span.id = "avatar-loc-span"; // set the id for the location span
+    loc_div.appendChild(loc_span);
+    avatar_info.appendChild(loc_div);
+    loc_div.onclick = function() {
+        highlight(loc_span); // highlight the location div when clicked
+    };
+
+    // set socket id
+    let id_div = document.createElement("div");
+    id_div.id = "avatar-socket-id";
+    let id_span = document.createElement("span");
+    id_span.className = "av-info-label";
+    id_span.innerHTML = "Socket ID: ";
+    id_div.appendChild(id_span);
+    let socket_id_span = document.createElement("span");
+    socket_id_span.innerHTML = socket.id; // set the socket id
+    id_div.appendChild(socket_id_span);
+    avatar_info.appendChild(id_div);
+    id_div.onclick = function() {
+        highlight(socket_id_span); // highlight the socket id div when clicked
+    };
+
+}
+
+function highlight(element){
+    var range = document.createRange();
+    range.selectNode(element);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
 }
 
 function pregame(){
@@ -177,6 +281,11 @@ function changeMap(location){
     cur_location = location;
     closePopups();
     socket.emit('changeArea', {'area': location, position: {x:canvas.width/2, y:canvas.height*0.75}}); // send the new area to the server
+
+    // update info
+    let loc_info = document.getElementById("avatar-loc-span");
+    if(loc_info)
+        loc_info.innerHTML = cur_location.replace('_', ' ').toUpperCase(); // update the location in the avatar info
 }
 
 // populate the map cells of the pop up menu
@@ -229,6 +338,14 @@ function toggleTasks(){
         document.getElementById("task-list").style.display = "block";
     }else {
         document.getElementById("task-list").style.display = "none";
+    }
+}
+
+function toggleAvatarInfo(){
+    if (document.getElementById("avatar-info").style.display === "none") {
+        document.getElementById("avatar-info").style.display = "block";
+    }else {
+        document.getElementById("avatar-info").style.display = "none";
     }
 }
 
