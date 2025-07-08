@@ -13,6 +13,7 @@ body {
     align-items: center;
     width: 90vw;
     height: 50vw;
+    max-width: 1400px; /* Limit the maximum width */
     max-height:800px;
     border: 2px solid #ccc;
     margin: max(0%, calc(50vh - 28vw)) auto 0 auto;  /* keep in the middle */
@@ -64,7 +65,7 @@ body {
     text-decoration: underline;
 }
 .pop-body {
-    font-size: 1.75vw;
+    font-size: min(28px,1.75vw);
     margin-bottom: 20px;
     width:80%;
     margin: auto;
@@ -376,10 +377,11 @@ body {
     color:black;
     border-radius: 5px;
     padding: 7px;
-    font-size: 14px;
+    font-size: min(18px,1.5vw);
     overflow-y: hidden;
     z-index: 3;
     font-family: Arial, sans-serif;
+    transform: translate(-50%, -100%); /* Center the box above the avatar */
 }
 
 /* AUTHORS SECTION */

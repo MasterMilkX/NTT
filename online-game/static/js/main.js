@@ -247,10 +247,17 @@ function makeChatBox(avatar){
 
     chatBox.innerHTML = avatar.text;
 
-    chatBox.style.left = (avatar.position.x) + 'px'; // position the chat box relative to the avatar
-    chatBox.style.top = (avatar.position.y) + 'px'; // position the chat box above the avatar
+    let rect = ui_overlay.getBoundingClientRect(); // get the bounding rectangle of the UI overlay
+    let ax = avatar.position.x; // center the chat box relative to the avatar
+    let ay = avatar.position.y - (avatar.sprite.height * AVATAR_SCALE); // position the chat box above the avatar
 
-    document.body.appendChild(chatBox); // add the chat box to the body
+    let cx = ax * (rect.width / canvas.width); // convert to canvas coordinates
+    let cy = ay * (rect.height / canvas.height); // convert to canvas coordinates
+
+    chatBox.style.left = (cx) + 'px'; // position the chat box relative to the avatar
+    chatBox.style.top = (cy) + 'px'; // position the chat box above the avatar
+
+    document.getElementById('container').appendChild(chatBox); // add the chat box to the body
     return chatBox; // return the chat box element
 }
 
