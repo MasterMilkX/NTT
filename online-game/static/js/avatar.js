@@ -1,5 +1,7 @@
 const AVATAR_RACE = {'elf':0, 'beastman':1, 'orc':2, 'lizard':3, 'nord':4, 'chuck': 5}
 const AVATAR_CLASS = {'baker':0, 'butcher':1, 'blacksmith':2, 'general_goods':3, 'apothecary':4, 'knight_trainer':5, 'librarian':6, 'barmaid':7, 'gossip':8, 'mercenary':9, 'drunk':10, 'wizard':11, 'bard':12};
+const AVATAR_AREAS = {'hero':'plaza','baker': 'bakery', 'butcher': 'butcher', 'blacksmith': 'blacksmith', 'general_goods': 'market', 'apothecary': 'apothecary', 'knight_trainer': 'training_ground', 'librarian': 'library', 'barmaid': 'tavern', 'gossip': 'town_square', 'mercenary': 'training_ground', 'drunk': 'tavern', 'wizard': 'library', 'bard': 'tavern', 'chuck': 'plaza'};
+
 
 // Role data sheet: https://docs.google.com/spreadsheets/d/1-5Qovckhty3XPEZ0E2dhk-cmdnd1MXBUqJ2Fu7BJ8l0/edit?gid=1067230120#gid=1067230120
 
@@ -79,5 +81,6 @@ module.exports = {
     Avatar: Avatar,
     AVATAR_CLASS : AVATAR_CLASS,
     AVATAR_RACE : AVATAR_RACE,
+    AVATAR_AREAS : AVATAR_AREAS,
     randomRace : randomRace
 };

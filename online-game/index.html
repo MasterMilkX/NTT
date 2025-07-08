@@ -10,6 +10,7 @@
      <style>
         
 
+
      </style>
      <script src="/socket.io/socket.io.js" ></script>
      <script src="./static/js/avatar.js"></script>
@@ -20,7 +21,6 @@
         <canvas id="game-canvas"></canvas>
 
         <div id="ui-overlay">
-
 
             <!-- ---- GAME UI OVERLAY ---- -->
             <div id="game-ui">
@@ -41,6 +41,19 @@
                         <label for="task3" id="task3Label">Go to the plaza</label><br>
                     </div>
                 </div>
+
+                <!-- AVATAR UI -->
+                <!-- <div id="avatar-ui">
+                    <div id="avatar-header">
+                        Avatar Name
+                    </div>
+                    <div id="avatar-display">
+                        <div id="avatar-class">???</div>
+                        <div id="avatar-race">???</div>
+                        <div id="avatar-loc">???</div>
+                        <div id="avatar-socket-id">???</div>
+                    </div>
+                </div> -->
 
                 <!-- VOTE UI -->
                  <div id="vote-ui">
@@ -97,11 +110,44 @@
                     </div>
                     <div class="pop-body">
                         <p>In this prototype, you will interact with a fantasy world and you are given a role</p>
-                        <p>Try to determine if the NPC is a human or an AI.</p>
+                        <p>The goal is to determine if the NPC is a human or an AI.</p>
                         <p>Click "Continue" to select your role.</p>
                     </div>
                     <div class="pop-footer">
-                        <button id="char-sel-btn" class="pop-btn" onclick="showPopup('char-sel')">Continue</button>
+                        <button id="char-sel-btn" class="pop-btn" onclick="showPopup('about')">About this Project</button>
+                        <button id="char-sel-btn" class="pop-btn" onclick="showPopup('char-sel')">Continue to Role Selection</button>
+                    </div>  
+                </div>
+            </div>
+
+            <!-- ABOUT THIS PROJECT -->
+            <div class="ui-popup" id="about-popup">
+                <div class="pop-contents" style="margin-top: 2%;">
+                    <div class="pop-header">
+                        About this Project
+                    </div>
+                    <div class="pop-body">
+                        <p>This project is a proof of concept for a NPC Turing Test
+                        <br>It is designed to test the ability of humans to distinguish between humans pretending to be NPCs and actual AI NPCs.
+                        <br>We are looking to examine the realism of NPC interactions and the nuances and behaviors in role-playing in order to create more believable and immersive characters.</p>
+                        <p> If you are not a part of the paper reviewing process, you can view the authors of this project by clicking on 'Show Authors' button below.</p>
+
+                        <div id="authors" style="display: none;">
+                            <div id="author-row">
+                                <div class="author-img" onclick="window.open('https://www.linkedin.com/in/jae-will-a19b53238', '_blank')">
+                                    <img src="./static/authors/jae.png">
+                                    <p>Jae Will</p>
+                                </div>
+                                <div class="author-img" onclick="window.open('https://mastermilkx.github.io/', '_blank')">
+                                    <img src="./static/authors/m.png">
+                                    <p>M Charity</p>
+                                </div>  
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pop-footer" style="margin-top:1vw">
+                        <button id="char-sel-btn" class="pop-btn" onclick="document.getElementById('authors').style.display = 'block'">Show Authors</button>
+                        <button id="char-sel-btn" class="pop-btn" onclick="showPopup('welcome')">Back</button>
                     </div>  
                 </div>
             </div>
@@ -113,8 +159,8 @@
                         Character Selection
                     </div>
                     <div class="pop-body">
-                        <p><span class="bold">Active Participant (AP): </span> <br>You are determining who is human and who is an AI</p>
-                        <p><span class="bold">Non-player Participant (NPP): </span> <br>A human role-playing as an NPC pretending to be an AI</p>
+                        <p><span class="bold">Active Participant (AP): </span> <br>Play as a normal human protagonist of a video game <br>(determine which NPCs are human and which are actual AI)</p>
+                        <p><span class="bold">Non-player Participant (NPP): </span> <br>A human role-playing as an NPC with a specific job <br>(pretend to be an AI)</p>
                     </div>
                     <div id='pick-role' class="pop-footer" style="flex-direction: column; margin-top:10%">
                         <span class="bold">Select your role:</span>
@@ -154,6 +200,7 @@
                 </div>
             </div>
 
+            <!-- ROLE REJECTION POPUP -->
             <div class="ui-popup" id="role-rej-popup" >
                 <div class="pop-contents" style="width:100%;">
                     <div class="pop-header" id="role-rej-occ">
@@ -187,8 +234,24 @@
                         </div>
                     </div>
                     <div class="pop-footer">
-                        <button class="pop-btn" onclick="resetGame()">Exit Game</button>
+                        <button class="pop-btn" onclick="exitGame()">Exit Game</button>
                         <button class="pop-btn" onclick="closePopups()">Return to Game</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GOODBYE MESSAGE POPUP -->
+            <div class="ui-popup" id="goodbye-popup" style="background-color:black;color:white;">
+                <div class="pop-contents">
+                    <div class="pop-header">
+                        Goodbye!
+                    </div>
+                    <div class="pop-body">
+                        <p>Thank you for playing!</p>
+                        <p>We hope to see you again soon!</p>
+                    </div>
+                    <div class="pop-footer">
+                        <button class="pop-btn" onclick="location.reload()">Play Again</button>
                     </div>
                 </div>
             </div>

@@ -17,7 +17,7 @@ var highlight_avatar = null;
 var AVATAR_SCALE = 1;
 
 var char_dat = {}; // character data for the player
-var has_joined = false;
+var in_game = false;
 var role_type = ""; // default role type for testing purposes
 
 var chat_dat = {};
@@ -360,7 +360,7 @@ function clickAvatar(e){
         if(avatar.id == getAvatar().id)
             continue; // skip the current user's avatar
 
-        if (avatarClicked(avatar, x, y)) { 
+        if (getAvatar().roletype == "AP" && avatarClicked(avatar, x, y)) { 
             // handle avatar click
             console.log("Avatar clicked:", avatar.name);
             highlight_avatar = avatar.id // add the clicked avatar to the highlight list
@@ -450,10 +450,10 @@ function init(){
 // prevent refresh
 window.onbeforeunload = function() {
     // handle before unload event to clean up or notify the server
-    if (has_joined) {
+    if (in_game) {
         socket.emit('disconnect'); // notify the server about disconnection
     }
-    return null; // confirmation message
+    return "You will not be able to return as the same character. Once you leave, the experiment is over<br>Do you wish to leave?";
 }
 
 /*

@@ -90,7 +90,7 @@ function newChar(role){
     return {'race': race, 'occ': occ, 'name': name, 'desc': desc, 'tasks': tasks, 'role': role};
 }
 
-newChar('NPP')
+//newChar('NPP')
 
 
 io.on('connection', function(socket) {
@@ -121,7 +121,9 @@ io.on('connection', function(socket) {
             char_data.occ, char_data.race,
             char_data.role
         );
-        players[socket.id].area = "plaza";
+        console.log(playerjs.AVATAR_AREAS);
+        console.log(char_data.occ);
+        players[socket.id].area = playerjs.AVATAR_AREAS[char_data.occ] || 'plaza'; // set the area based on the occupation
         players[socket.id].show = true; // set the avatar to be shown
         console.log(players[socket.id].name + '(' + players[socket.id].raceType + ' ' + players[socket.id].classType + ') joined! [ID: ' + socket.id + ']'); ;
         socket.emit('message', {'status':'accept','avatar': players[socket.id]}); // send the player data to the client

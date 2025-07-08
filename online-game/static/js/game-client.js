@@ -34,7 +34,7 @@ socket.on('message', function(data) {
 
         socket.emit('move',{'position':{x:canvas.width/2, y:canvas.height*0.75}}); // set a random position for the avatar in the area
         in_game = true;
-        startGame();
+        startGame(socket_avatar.area); // start the game with the avatar's area
     }else{
         console.log("Status from server: " + data.status);
         in_game = false; 
@@ -66,6 +66,9 @@ socket.on('role-reject', function(nessage){
 
 
 socket.on('updateAvatars', function(data) {
+    if(!in_game)
+        return;
+    
     all_avatars = data.avatars;
     socket_avatar = data.avatars[socket.id]
     updateGame(data.avatars); // update the avatars with the received data

@@ -151,12 +151,12 @@ function pregame(){
 
 // START THE GAME
 // insert the player into the plaza
-function startGame(){
+function startGame(location="plaza"){
     closePopups(); // close all current popups
     cur_screen = "game"; // set the current screen to game
-    cur_location = "plaza"; // set the current location to plaza
+    cur_location = location; // set the current location to the specified location
 
-    changeMap("plaza"); // change to plaza map
+    changeMap(location); // change to the specified map
     document.getElementById("game-ui").style.display = "block"; // show the game screen
 }
 
@@ -270,24 +270,30 @@ function updateConfidence(conf_val){
 
 
 // show the start up screen to select role again
-function resetGame(){
-    // reset the game state
-    cur_location = "";
-    role_type = "";
+// function resetGame(){
+//     // reset the game state
+//     cur_location = "";
+//     role_type = "";
 
 
+//     document.getElementById("game-ui").style.display = "none"; // hide the game screen
+//     closePopups(); // close all current popups
+//     document.getElementById("vote-confirm").innerHTML = ""; // clear the vote confirmation message
+//     setMapCells(); // reset the map cells in the popup menu
+//     showPopup("welcome"); // show the welcome popup
+//     // switch to the role assignment screen
+//     document.getElementById("pick-role").style.display = "none"; // hide the role selection screen
+//     document.getElementById("role-confirmation").style.display = "block"; // show the role confirmation screen
+//     //removeAvatar(); // remove all avatars from the game
+// }
+
+function exitGame(){
+    if(in_game){ // if the player has joined the game
+        socket.disconnect(); // notify the server about exit
+        in_game = false; // set in_game to false
+    }
+    closePopups(); // close all current popups`
     document.getElementById("game-ui").style.display = "none"; // hide the game screen
-    closePopups(); // close all current popups
-    document.getElementById("vote-confirm").innerHTML = ""; // clear the vote confirmation message
-    setMapCells(); // reset the map cells in the popup menu
-    showPopup("welcome"); // show the welcome popup
-    // switch to the role assignment screen
-    document.getElementById("pick-role").style.display = "none"; // hide the role selection screen
-    document.getElementById("role-confirmation").style.display = "block"; // show the role confirmation screen
-    //removeAvatar(); // remove all avatars from the game
+    showPopup('goodbye'); // show the goodbye popup
 }
 
-
-window.onbeforeunload = function() {
-  return "You will not be able to return as the same character. Once you leave, the experiment is over<br>Do you wish to leave?";
-};
