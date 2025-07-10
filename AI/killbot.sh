@@ -1,3 +1,4 @@
 !/bin/bash
 
-killall 'python3 run_ai.py'
+kill -9 python3
+echo "All Python processes have been killed."
