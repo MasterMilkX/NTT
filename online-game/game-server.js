@@ -68,8 +68,9 @@ function newChar(role){
                     avail_occ.push(occs);
             }
         }
+        //console.log("Available roles:"+avail_occ);
         if(avail_occ.length === 0) {
-            console.error("No available occupations left for role: " + role);
+            console.error("No available occupations left for NPP");
             return null; // no available occupations, return null
         }
         occ = avail_occ[Math.floor(Math.random() * avail_occ.length)]; // pick a random occupation from the available ones
@@ -94,6 +95,7 @@ function newChar(role){
 
 
 io.on('connection', function(socket) {
+    // handle role assignment
     socket.on('assign-role', function(play_type){
         if (Object.keys(players).length >= MAX_PLAYERS) {
             socket.emit('message', {'status':'reject','avatar':null});
@@ -112,7 +114,7 @@ io.on('connection', function(socket) {
         }
     })
 
-    
+    // handle player joining the game
     socket.on('join', function() {
         let char_data = playerRoles[socket.id]; // get the character data for the player
 
@@ -121,8 +123,6 @@ io.on('connection', function(socket) {
             char_data.occ, char_data.race,
             char_data.role
         );
-        console.log(playerjs.AVATAR_AREAS);
-        console.log(char_data.occ);
         players[socket.id].area = playerjs.AVATAR_AREAS[char_data.occ] || 'plaza'; // set the area based on the occupation
         players[socket.id].tasks = char_data.tasks; // set the tasks for the player
         players[socket.id].show = true; // set the avatar to be shown
@@ -145,6 +145,22 @@ io.on('connection', function(socket) {
         }
     });
 
+    socket.on('moveToPlayer', function(data) {
+        if (players[socket.id] && players[data.targetId]) {
+            let new_pos = players[data.targetId].position;
+            // offset the position slightly to avoid overlap
+            new_pos.x += Math.random() * 10 - 5; // random offset between -5 and 5
+            if( new_pos.x < 0) new_pos.x -= 10; 
+            if( new_pos.x > 0) new_pos.x += 10;
+
+            players[socket.id].position = new_pos; // move to the target player's position
+            addPlayerDat(players[socket.id], 'moved to player ' + data.targetId + ' (' + new_pos.x + ', ' + new_pos.y + ')');
+            //io.emit('updatePlayers', players);
+        }
+    });
+
+    
+    // handle player area change
     socket.on('changeArea', function(data) {
         if (players[socket.id]) {
             players[socket.id].area = data.area;
@@ -154,6 +170,7 @@ io.on('connection', function(socket) {
         }
     });
 
+    // handle player chat messages
     socket.on('chat', function(data) {
         if (players[socket.id]) {
             var txt = data.text.trim();
@@ -165,6 +182,8 @@ io.on('connection', function(socket) {
             //io.emit('updatePlayers', players);
         }
     });
+
+
 
     
     // handle disconnection

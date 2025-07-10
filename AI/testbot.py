@@ -1,0 +1,222 @@
+import socketio
+import time
+import json
+import random
+
+sio = socketio.Client()
+
+
+
+
+# GLOBAL VARIABLES
+
+in_game = False
+char_dat = None
+avatar = None
+all_avatars = {}
+
+
+# ---- AREA BOUNDARY DEFINITIONS ---- #
+
+
+FULL_AREA_WIDTH = 800
+FULL_AREA_HEIGHT = 450
+
+boundaries = {}
+with open('../online-game/static/data/area_boundaries.json', 'r') as f:
+    boundaries = json.load(f)
+
+def randomPos():
+    ''' Generate a random position within the boundaries '''
+    x = random.randint(0, FULL_AREA_WIDTH)
+    y = random.randint(0, FULL_AREA_HEIGHT)
+    return {'x': x, 'y': y}
+
+def in_zone(pos, boundary):
+    ''' Check if a position is inside a polygon defined by the boundary points.'''
+    x, y = pos['x'], pos['y']
+    inside = False
+
+    for i in range(len(boundary)):
+        j = (i - 1) % len(boundary)
+        xi, yi = boundary[i]['x'], boundary[i]['y']
+        xj, yj = boundary[j]['x'], boundary[j]['y']
+
+        intersect = ((yi > y) != (yj > y)) and \
+                    (x < ((xj - xi) * (y - yi)) / (yj - yi + 1e-12) + xi)
+
+        if intersect:
+            inside = not inside
+
+    return inside
+
+
+def randomAreaPos(area):
+    ''' Return a random position within the area boundaries'''
+    points = boundaries.get(area)
+    if not points:
+        return randomPos()
+
+    xs = [p['x'] for p in points]
+    ys = [p['y'] for p in points]
+    min_x, max_x = min(xs), max(xs)
+    min_y, max_y = min(ys), max(ys)
+
+    for _ in range(100):
+        x = random.uniform(min_x, max_x)
+        y = random.uniform(min_y, max_y)
+
+        if in_zone({'x': x, 'y': y}, points):
+            return {'x': x, 'y': y}
+
+    return randomPos()
+
+
+
+# --- SOCKET.IO EVENTS --- #
+
+@sio.event
+def connect():
+    print("Connected to the game server")
+
+@sio.event
+def disconnect():
+    print("Disconnected from the game server")
+
+
+# --- ROLE ASSIGNMENTS --- #
+
+@sio.event
+def getAvatar():
+    # request the server to assign an avatar
+    sio.emit('assign-role', {'play_type': 'NPP-AI'})       # bots are always NPP
+
+
+@sio.on('role-assigned')
+def role_assigned(data):
+    global char_dat
+    char_dat = data
+    print(f"Role assigned: {char_dat}")
+
+    # then ask for the avatar
+    sio.emit('join')
+
+@sio.on('message')
+def avatar_assigned(data):
+    global avatar
+    if data['status'] == 'accept':
+        avatar = data['avatar']
+        print(f"Avatar assigned: {avatar}")
+
+        # goto the game area (center)
+        sio.emit('move', {'position': randomAreaPos(avatar['area'])})
+
+    elif data['status'] == 'reject':
+        print("Role assignment rejected, retrying...")
+        in_game = False
+
+
+# --- GAME EVENTS --- #
+
+@sio.event
+def act():
+    # test function to show chat
+    dialogue_lines = [
+        "Sorry, can you repeat that?",
+        "I'm not sure.",
+        "Hello!",
+        "Nice to meet you!",
+        "Can I help you?",
+        "What was that?",
+        "Excuse me...",
+        "You see...",
+        "Well...",
+        "Do you need something?",
+        "Haven't seen you around here before.",
+        "Are you new to town?",
+        "Glad to make your acquaintance.",
+        "Hey!",
+        "Isn't this town beautiful?",
+        "The weather is just divine.",
+        "Lovely to chat with you!",
+        "Good afternoon. How may I help you?",
+        "Thank you for choosing our store. What can I get for you today?",
+        "How much would you like?",
+        "How many would you like?",
+        "I'm sorry, we've run out of that, may I help you choose something different?",
+        "Are there any particular items I can help you find?",
+        "I am currently engaged and will help you momentarily.",
+        "Thank you for visiting!",
+        "Please come back again!",
+        'pog',
+        'lol',
+        '...',
+        'yo!',
+        'lmao',
+        'hi!'
+    ]
+    p = random.random()
+    if p < 0.5:
+        sio.emit('chat', {'text':random.choice(dialogue_lines)})
+    elif p < 0.8:
+        # move to a random position in the area
+        new_pos = randomAreaPos(avatar['area'])
+        sio.emit('move', {'position': new_pos})
+    else:
+        # move near another avatar
+        if all_avatars:
+            target_avatar = random.choice(list(all_avatars.values()))
+            if target_avatar['id'] != avatar['id']:
+                sio.emit('moveToPlayer', {'targetId': target_avatar['id']})
+    time.sleep(random.randint(1, 10))  # wait for a random time before acting again
+
+
+@sio.on('updateAvatars')
+def update_avatars(data):
+    # Update the local avatar data with the information from the server
+    global all_avatars
+    all_avatars = data['avatars']
+
+
+
+
+
+
+# --- UPDATE LOOP FOR THE CLIENT --- #
+
+
+if __name__ == '__main__': 
+    while True:
+        # retry connecting to the server until successful
+        while not in_game:
+            try:
+                # connect to the server
+                sio.connect('http://localhost:4000')
+                print("Connected to the game server")
+                in_game = True
+            except socketio.exceptions.ConnectionError:
+                print("Connection failed, retrying in 5 seconds...")
+                time.sleep(5)
+
+        
+        # request a role assignment
+        if char_dat is None and avatar is None:
+            print("Requesting role assignment...")
+            getAvatar()
+
+        # wait for the role assignment
+        while (char_dat is None or avatar is None) and in_game:
+            try:
+                print("Waiting for role assignment...")
+                time.sleep(1)  # wait for events to be processed
+            except socketio.exceptions.ConnectionError:
+                print("Connection lost, retrying...")
+                in_game = False
+                break
+
+        if avatar:
+            act()
+            
+
+    
+    

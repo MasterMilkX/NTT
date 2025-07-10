@@ -286,6 +286,10 @@ function changeMap(location){
     let loc_info = document.getElementById("avatar-loc-span");
     if(loc_info)
         loc_info.innerHTML = cur_location.replace('_', ' ').toUpperCase(); // update the location in the avatar info
+
+    // delete all chatboxes
+    if(chat_dat)
+        chat_dat = {}; // clear the chat data
 }
 
 // populate the map cells of the pop up menu

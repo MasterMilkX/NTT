@@ -64,21 +64,21 @@ function inZone(pos, boundary) {
     return inside;
 }
 
+// creating boundaries via game
+var saved_pos = []
+var record_pos = false;
 
-// var saved_pos = []
-// var record_pos = false;
+function rec_pos(){
+    if(saved_pos.length > 0 && record_pos) {
+        let j = {}
+        j[cur_location] = saved_pos; // save the current location and positions
+        console.log(JSON.stringify(j)); // log the saved positions to the console
+    }
 
-// function rec_pos(){
-//     if(saved_pos.length > 0 && record_pos) {
-//         let j = {}
-//         j[cur_location] = saved_pos; // save the current location and positions
-//         console.log(JSON.stringify(j)); // log the saved positions to the console
-//     }
-
-//     saved_pos = []; // reset the saved positions
-//     record_pos = true; // start recording positions
-//     console.log("Recording positions...");
-// }
+    saved_pos = []; // reset the saved positions
+    record_pos = true; // start recording positions
+    console.log("Recording positions...");
+}
 
 
 ///////// RENDER /////////

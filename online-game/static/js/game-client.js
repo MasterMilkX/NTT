@@ -60,8 +60,6 @@ socket.on('role-reject', function(nessage){
     showPopup('role-rej')
 })
 
-
-
 socket.on('updateAvatars', function(data) {
     if(!in_game)
         return;
