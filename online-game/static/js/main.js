@@ -230,10 +230,14 @@ function updateGame(avatar_set){
                     delete chat_dat[avatar.id];
                 }
             }
-        }else if(chat_dat[avatar.id]) {
-            // if the avatar is not local but has a chat box, remove it
-            chat_dat[avatar.id].remove(); // remove the chat box from the DOM
-            delete chat_dat[avatar.id]; // delete the chat box from the chat data
+        }
+    }
+
+    // clean up unnecessary chat boxes
+    for (let id in chat_dat) {
+        if (!all_avatars[id] || !all_avatars[id].showText || (!localAvatar(all_avatars[id]))) {
+            chat_dat[id].remove(); // remove the chat box from the DOM
+            delete chat_dat[id]; // delete the chat box from the chat data
         }
     }
 
@@ -340,10 +344,10 @@ function gameClick(e){
         }
 
         //console.log("Avatar moved to position:", { x: x, y: y });
-        // if (record_pos) {
-        //     // record the position if recording is enabled
-        //     saved_pos.push({ x: x, y: y });
-        // }
+        if (record_pos) {
+            // record the position if recording is enabled
+            saved_pos.push({ x: x, y: y });
+        }
     }
 
     // handle other game UI interactions here
