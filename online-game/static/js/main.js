@@ -230,6 +230,10 @@ function updateGame(avatar_set){
                     delete chat_dat[avatar.id];
                 }
             }
+        }else if(chat_dat[avatar.id]) {
+            // if the avatar is not local but has a chat box, remove it
+            chat_dat[avatar.id].remove(); // remove the chat box from the DOM
+            delete chat_dat[avatar.id]; // delete the chat box from the chat data
         }
     }
 
