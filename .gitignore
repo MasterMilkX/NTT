@@ -1,3 +1,6 @@
 online-game/node_modules
 online-game/static/data/chatlog.txt
 online-game/static/data/playerlog.txt
+AI/startbots.sh
+AI/killbots.sh
+AI/run_ai_OUT.log

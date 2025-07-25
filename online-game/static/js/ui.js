@@ -118,6 +118,7 @@ function updateRole(dat){
 
     // tasks
     let t = document.createElement("p");
+    t.className = "resize-text";
     let task_txt = "";
     for(let i=0;i<dat.tasks.length;i++){
         let task = dat.tasks[i];
@@ -130,7 +131,9 @@ function updateRole(dat){
     // ending text      
     let e = document.createElement("p");
     e.innerHTML = "Please be respectful in any and all interactions. You might be talking to an actual person!";
-    e.innerHTML += " Click EXIT when you want to leave and have fun!";
+    e.innerHTML += "<br>Click EXIT when you want to leave and have fun!";
+    e.className = "red-text resize-text";
+    
     
     rd_div.appendChild(e);
 

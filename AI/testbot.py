@@ -82,6 +82,8 @@ def connect():
 @sio.event
 def disconnect():
     print("Disconnected from the game server")
+    print("Exiting the script...")
+    exit(0)  # exit the script when disconnected
 
 
 # --- ROLE ASSIGNMENTS --- #
@@ -89,7 +91,7 @@ def disconnect():
 @sio.event
 def getAvatar():
     # request the server to assign an avatar
-    sio.emit('assign-role', {'play_type': 'NPP-AI'})       # bots are always NPP
+    sio.emit('assign-role', 'NPP-AI')       # bots are always NPP
 
 
 @sio.on('role-assigned')
@@ -120,6 +122,10 @@ def avatar_assigned(data):
 
 @sio.event
 def act():
+    # don't act if not available
+    if not in_game:
+        return
+
     # test function to show chat
     dialogue_lines = [
         "Sorry, can you repeat that?",
@@ -158,17 +164,21 @@ def act():
     p = random.random()
     if p < 0.5:
         sio.emit('chat', {'text':random.choice(dialogue_lines)})
-    elif p < 0.8:
+        time.sleep(random.randint(7, 15))  # wait for a random time before acting again
+    elif p < 0.75:
         # move to a random position in the area
         new_pos = randomAreaPos(avatar['area'])
         sio.emit('move', {'position': new_pos})
+        time.sleep(random.randint(1, 5))  # wait for a random time before acting again
     else:
         # move near another avatar
         if all_avatars:
             target_avatar = random.choice(list(all_avatars.values()))
             if target_avatar['id'] != avatar['id']:
                 sio.emit('moveToPlayer', {'targetId': target_avatar['id']})
-    time.sleep(random.randint(1, 10))  # wait for a random time before acting again
+        time.sleep(random.randint(1, 5))  # wait for a random time before acting again
+
+    
 
 
 @sio.on('updateAvatars')

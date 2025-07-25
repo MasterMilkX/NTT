@@ -36,6 +36,7 @@ var player_role_ct = {};
 for(let occ in playerjs.AVATAR_CLASS) {
     player_role_ct[occ] = 0; // initialize the role count to 0
 }
+var hero_ct = 0; // count of heroes
 
 // import class/role data
 var nameDat = require('./static/data/names.json');
@@ -45,7 +46,7 @@ var roleDat = require('./static/data/roles.json');
 var players = {};
 var playerRoles = {};
 var playerTxtTime = {};
-const MAX_PLAYERS = 25;
+const MAX_PLAYERS = 50;
 const FPS_I = 60;
 
 
@@ -58,19 +59,22 @@ function newChar(role){
     let occ = "";
     if(role === 'AP'){
         occ = "hero"  // all players in AP are heroes
+        hero_ct++;
     }else if(race == "chuck"){
         occ = "chuck";
     }else{
-        let avail_occ = [];
-        for (let occs in playerjs.AVATAR_CLASS) {
-            if (player_role_ct[occs] < MAX_ROLES) {
-                for(let i=0;i<MAX_ROLES-player_role_ct[occs];i++)
-                    avail_occ.push(occs);
-            }
+        // if more roles than players, recount
+        let rolesCt = totalRoles();
+        if (Object.keys(player_role_ct).length > (rolesCt+hero_ct) ) {
+            recountRoles(); // recount the roles
         }
-        //console.log("Available roles:"+avail_occ);
+
+        let avail_occ = getAvailOccs(); // get the available occupations
+        
+        // check if there are any available occupations
         if(avail_occ.length === 0) {
-            console.error("No available occupations left for NPP");
+            // retry
+            console.error("No available occupations left for " + role);
             return null; // no available occupations, return null
         }
         occ = avail_occ[Math.floor(Math.random() * avail_occ.length)]; // pick a random occupation from the available ones
@@ -86,10 +90,10 @@ function newChar(role){
     // TODO: mix in random tasks from general 
     let desc = roleDat[occ].description;
     let tasks = getRandomElements(roleDat[occ].tasks, 3); // get 3 random tasks from the occupation's task list
-    
 
     return {'race': race, 'occ': occ, 'name': name, 'desc': desc, 'tasks': tasks, 'role': role};
 }
+
 
 //newChar('NPP')
 
@@ -131,6 +135,7 @@ io.on('connection', function(socket) {
         socket.emit('message', {'status':'accept','avatar': players[socket.id]}); // send the player data to the client
         io.emit('playerNum', {'cur_num':Object.keys(players).length,'max_num':MAX_PLAYERS});
         addPlayerDat(players[socket.id], 'joined');  
+        showNumRoles(); // show the total roles assigned  
         // send the updated player list to all clients
         //io.emit('updatePlayers', players);
     });
@@ -147,11 +152,12 @@ io.on('connection', function(socket) {
 
     socket.on('moveToPlayer', function(data) {
         if (players[socket.id] && players[data.targetId]) {
-            let new_pos = players[data.targetId].position;
+            let new_pos = {x:players[data.targetId].position.x, y:players[data.targetId].position.y};
             // offset the position slightly to avoid overlap
-            new_pos.x += Math.random() * 10 - 5; // random offset between -5 and 5
-            if( new_pos.x < 0) new_pos.x -= 10; 
-            if( new_pos.x > 0) new_pos.x += 10;
+            let ofx = Math.random() * 30 - 30;   // random offset between -30 and 30
+            new_pos.x += ofx; 
+            if( ofx < 0) new_pos.x -= 30; 
+            if( ofx >= 0) new_pos.x += 30;
 
             players[socket.id].position = new_pos; // move to the target player's position
             addPlayerDat(players[socket.id], 'moved to player ' + data.targetId + ' (' + new_pos.x + ', ' + new_pos.y + ')');
@@ -175,7 +181,7 @@ io.on('connection', function(socket) {
         if (players[socket.id]) {
             var txt = data.text.trim();
             if (txt.length === 0) return; // ignore empty messages
-            txt = txt.substring(0, 50); // limit text length to 50 characters
+            txt = txt.substring(0, 75); // limit text length to 75 characters
             players[socket.id].setText(txt);
             textTimeout(players[socket.id], socket.id);
             addChat({'id': socket.id, 'name': players[socket.id].name, 'area':players[socket.id].area, 'text': txt});
@@ -192,10 +198,12 @@ io.on('connection', function(socket) {
         if(players[socket.id]) // if player does not exist, do nothing
             addPlayerDat(players[socket.id], 'disconnected');
             freeOcc(socket.id); // free the occupation of the player
+            showNumRoles();
             if (playerTxtTime[socket.id]) {
                 clearTimeout(playerTxtTime[socket.id]); // clear the text timeout
             }
             delete players[socket.id];
+            delete playerRoles[socket.id]; // remove the character data for the player
             delete playerTxtTime[socket.id]; // remove the text timeout
             console.log('Current players: ' + Object.keys(players).length);
             io.emit('playerNum', {'cur_num':Object.keys(players).length,'max_num':MAX_PLAYERS});
@@ -254,19 +262,6 @@ function addPlayerDat(player, status){
     log.end();
 }
 
-function freeOcc(id) {
-    if (!players[id]) {
-        console.error("ERROR (freeOcc): Player with ID " + id + " does not exist.");
-        return;
-
-    }
-    let occ = players[id].classType; // get the occupation of the player
-
-    if (player_role_ct[occ] && player_role_ct[occ] > 0) {
-        player_role_ct[occ]--; // decrement the role count for the occupation
-        //console.log("Decremented role count for occupation: " + occ + " to " + player_role_ct[occ]);
-    }
-}
 
 function cleanClose(){
     let ids = Object.keys(players);
@@ -290,6 +285,67 @@ function getRandomElements(array, count) {
   }
   return shuffled.slice(0, count);
 }
+
+
+
+// role and occupation management functions
+function getAvailOccs(){
+    let avail_occ = [];
+    for (let occs in playerjs.AVATAR_CLASS) {
+        if (player_role_ct[occs] < MAX_ROLES) {
+            for(let i=0;i<MAX_ROLES-player_role_ct[occs];i++)
+                avail_occ.push(occs);
+        }
+    }
+    return avail_occ;
+}
+
+function freeOcc(id) {
+    if( !players[id]) return; // if player does not exist, do nothing
+    let occ = players[id].classType; // get the occupation of the player
+
+    if (occ == "hero") { hero_ct--; return; } // skip heroes, they are not counted
+
+    if (player_role_ct[occ] && player_role_ct[occ] > 0) {
+        player_role_ct[occ]--; // decrement the role count for the occupation
+        //console.log("Decremented role count for occupation: " + occ + " to " + player_role_ct[occ]);
+    }
+}
+
+function recountRoles() {
+    console.log("Recounting roles...");
+    showNumRoles(); // show the total roles assigned
+    player_role_ct = {};
+    for (let occ in playerjs.AVATAR_CLASS) {
+        player_role_ct[occ] = 0; // reset the role count to 0
+    }
+    for (let id in players) {
+        if (players[id]) {
+            let occ = players[id].classType; // get the occupation of the player
+            if (occ == "hero") continue; // skip heroes, they are not counted
+            if (player_role_ct[occ] !== undefined) {
+                player_role_ct[occ]++; // increment the role count for the occupation
+            }
+        }
+    }
+    showNumRoles(); // show the total roles assigned after recounting
+}
+
+function totalRoles(){
+    let total = 0;
+    for (let occ in player_role_ct) {
+        total += player_role_ct[occ];
+    }
+    return total;
+}
+
+function showNumRoles(){
+    let total = totalRoles();
+    console.log("### Total roles: " + total + "/" + (MAX_ROLES * Object.keys(player_role_ct).length) + " (+" + hero_ct + ") ###");
+}
+
+
+
 
 
 // CONSTANTLY update the players

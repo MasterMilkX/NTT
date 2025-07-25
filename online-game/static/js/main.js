@@ -83,7 +83,7 @@ function rec_pos(){
 
 ///////// RENDER /////////
 
-
+let RENDER_OFFSET = {x: 2, y: -20, cx: -2}
 function renderAvatar(p){
     // username
     /*
@@ -93,9 +93,13 @@ function renderAvatar(p){
     ctx.fillText(p.name, p.position.x, p.position.y + 40);
     */
 
-    let offset = {x: 0, y: -20}
+    let offset = RENDER_OFFSET; // offset for the avatar position
+    let spr_y = p.position.y - (p.sprite.height * AVATAR_SCALE)/2 + offset.y*AVATAR_SCALE;
+    let px = p.position.x + offset.x*AVATAR_SCALE;
+    let py = p.position.y + offset.y*AVATAR_SCALE;
 
-   if(!localAvatar(p)) // check if the avatar is local and the sprite sheet is loaded
+
+    if(!localAvatar(p)) // check if the avatar is local and the sprite sheet is loaded
         return; // do not render the avatar if it is not local
 
 
@@ -103,8 +107,9 @@ function renderAvatar(p){
     if(highlight_avatar && highlight_avatar == p.id) {
         // draw a highlight circle under the avatar if it is highlighted
         ctx.beginPath();
-        ctx.ellipse(p.position.x-2, p.position.y+(p.sprite.height*AVATAR_SCALE)/2, 16, 
-            8, 0, 0, Math.PI * 2); // use the click radius as the highlight radius
+        ctx.ellipse(px + offset.cx*AVATAR_SCALE, // center the highlight circle
+               spr_y + (p.sprite.height * AVATAR_SCALE),  
+            (p.sprite.width * AVATAR_SCALE)/3, 8, 0, 0, Math.PI * 2); // use the click radius as the highlight radius
         ctx.fillStyle = "yellow"; // set the highlight color
         ctx.lineWidth = 5; // set the highlight line width
         ctx.fill(); // draw the highlight circle
@@ -120,7 +125,7 @@ function renderAvatar(p){
         (p.sprite.height * AVATAR_RACE[p.raceType]), 
         p.sprite.width, 
         p.sprite.height, 
-        p.position.x - (p.sprite.width * AVATAR_SCALE)/2 , // center the sprite
+        p.position.x - (p.sprite.width * AVATAR_SCALE)/2 + offset.x*AVATAR_SCALE, // center the sprite
         p.position.y - (p.sprite.height * AVATAR_SCALE)/2 + offset.y*AVATAR_SCALE, // center the sprite
         p.sprite.width * AVATAR_SCALE, // resize width
         p.sprite.height * AVATAR_SCALE // resize height
@@ -133,13 +138,21 @@ function renderAvatar(p){
             (p.sprite.height * 6), // assuming class clothing are in row 6
             p.sprite.width,
             p.sprite.height,
-            p.position.x - (p.sprite.width * AVATAR_SCALE)/2 , // center the sprite
+            p.position.x - (p.sprite.width * AVATAR_SCALE)/2 + offset.x*AVATAR_SCALE, // center the sprite
             p.position.y - (p.sprite.height * AVATAR_SCALE)/2 + offset.y*AVATAR_SCALE, // center the sprite
             p.sprite.width * AVATAR_SCALE, // resize width
             p.sprite.height * AVATAR_SCALE // resize height
         );
     }
-    
+
+    // ctx.strokeStyle = "white";
+    // // DRAW A circle to represent the click area
+    // ctx.beginPath();
+    // ctx.arc(px + offset.cx*AVATAR_SCALE, // center the circle
+    //         py, 
+    //         24*AVATAR_SCALE, 0, Math.PI * 2); // use the click radius as the highlight radius
+    // ctx.stroke();
+
 }
 
 function drawBoundary(points, options = {}) {
@@ -190,7 +203,7 @@ function updateGame(avatar_set){
     ctx.fillStyle = "#dedede";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // draw a temporary world
+    // draw the background for the location
     let bg_img = document.getElementById("bg-"+cur_location);
     if (cur_location == "" || !bg_img) {
         ctx.fillStyle = "#000"; // black void background for unknown locations
@@ -234,12 +247,20 @@ function updateGame(avatar_set){
     }
 
     // clean up unnecessary chat boxes
-    for (let id in chat_dat) {
+    let all_boxes = document.getElementsByClassName('av-chat-box');
+    for (let b=0;b<all_boxes.length;b++){
+        let box = all_boxes[b]; // get the chat box element
+        if (!box.id || !box.id.startsWith('chat-box-')) continue; // skip if the box does not have a valid id{
+        let id = box.id.replace('chat-box-', ''); // get the avatar id from the chat box id
         if (!all_avatars[id] || !all_avatars[id].showText || (!localAvatar(all_avatars[id]))) {
-            chat_dat[id].remove(); // remove the chat box from the DOM
-            delete chat_dat[id]; // delete the chat box from the chat data
+            if (chat_dat[id]){
+                chat_dat[id].remove(); // remove the chat box from the DOM
+                delete chat_dat[id]; // delete the chat box from the chat data
+            }
+            box.remove(); // remove the chat box element
         }
     }
+
 
     ctx.restore();
 }
@@ -278,13 +299,16 @@ function getAvatar(){
     return socket_avatar; // return the current user's avatar
 }
 
-function avatarClicked(avatar, x, y, radius=16){
+function avatarClicked(avatar, x, y, radius=24){
     // check if the click is within the avatar's bounding box
     if (!localAvatar(avatar))
         return false; 
 
-    return dist({ x, y }, avatar.position) < radius; // return true if the distance is less than the click radius
-    
+    let offset = RENDER_OFFSET; // offset for the avatar position
+    let opos = { x: avatar.position.x + (offset.x+ offset.cx)*AVATAR_SCALE, y: avatar.position.y + (offset.y)*AVATAR_SCALE }; // get the avatar's position with offset
+
+    return dist({ x, y }, opos) < radius*AVATAR_SCALE; // return true if the distance is less than the click radius
+
 }
 
 
