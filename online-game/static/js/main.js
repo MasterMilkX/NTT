@@ -111,8 +111,8 @@ function renderAvatar(p){
     }
 
     AVATAR_SCALE = MAP_SCALE[cur_location] || 1; // get the scale for the current location, default to 1 if not found
-    if(p.raceType == 'chuck')
-        AVATAR_SCALE = MAP_SCALE[cur_location]*0.5 || 0.5; // chuck's scale is smaller
+    // if(p.raceType == 'chuck')
+    //     AVATAR_SCALE = MAP_SCALE[cur_location]*0.5 || 0.5; // chuck's scale is smaller
 
     // draw sprite from sprite sheet
     ctx.drawImage(spr_sheet, 

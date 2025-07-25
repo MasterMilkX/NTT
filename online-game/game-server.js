@@ -191,6 +191,10 @@ io.on('connection', function(socket) {
         console.log('User disconnected: ' + socket.id);
         if(players[socket.id]) // if player does not exist, do nothing
             addPlayerDat(players[socket.id], 'disconnected');
+            freeOcc(socket.id); // free the occupation of the player
+            if (playerTxtTime[socket.id]) {
+                clearTimeout(playerTxtTime[socket.id]); // clear the text timeout
+            }
             delete players[socket.id];
             delete playerTxtTime[socket.id]; // remove the text timeout
             console.log('Current players: ' + Object.keys(players).length);
@@ -248,6 +252,20 @@ function addPlayerDat(player, status){
     };
     log.write("["+new Date().toISOString() + '] ' + JSON.stringify(dat) + '\n');
     log.end();
+}
+
+function freeOcc(id) {
+    if (!players[id]) {
+        console.error("ERROR (freeOcc): Player with ID " + id + " does not exist.");
+        return;
+
+    }
+    let occ = players[id].classType; // get the occupation of the player
+
+    if (player_role_ct[occ] && player_role_ct[occ] > 0) {
+        player_role_ct[occ]--; // decrement the role count for the occupation
+        //console.log("Decremented role count for occupation: " + occ + " to " + player_role_ct[occ]);
+    }
 }
 
 function cleanClose(){
