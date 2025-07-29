@@ -476,7 +476,20 @@ function showClickPos(e){
 function sendMessage(){
     let msg = document.getElementById('chat-input').value;
     if (msg && msg.trim() !== '' && in_game) {
-        socket.emit('chat', { text: msg });
+        // check if the message starts with a backslash for commands
+        if(msg.startsWith('\\')){
+            // handle key commands
+            let cmd = msg.slice(1).trim(); // get the command without the backslash
+            if(cmd === 'dance'){
+                toggleDance();
+            }else if(cmd === 'wave'){
+                toggleWave();
+            }
+        }
+        // normal chat
+        else{
+            socket.emit('chat', { text: msg });
+        }
     }
     document.getElementById('chat-input').value = ''; // clear input
 }

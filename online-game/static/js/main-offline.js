@@ -515,15 +515,28 @@ function sendMessage(msg=null){
         msg = document.getElementById('chat-input').value;
 
     if (msg && msg.trim() !== '' && in_game) {
-        clearInterval(socket_avatar.textInt); // clear the previous text timeout
-        socket_avatar.setText(msg); // set the text for the avatar
-        socket_avatar.textInt = setTimeout(() => {
-            socket_avatar.showText = false; // hide the text after a timeout
-            socket_avatar.text = ""; // clear the text
+        // check if the message is a key command
+        if(msg.startsWith('\\')){
+            // handle key commands
+            let cmd = msg.slice(1).trim(); // get the command without the backslash
+            if(cmd === 'dance'){
+                toggleDance();
+            }else if(cmd === 'wave'){
+                toggleWave();
+            }
+        }
+        // otherwise normal chat message
+        else{
+            clearInterval(socket_avatar.textInt); // clear the previous text timeout
+            socket_avatar.setText(msg); // set the text for the avatar
+            socket_avatar.textInt = setTimeout(() => {
+                socket_avatar.showText = false; // hide the text after a timeout
+                socket_avatar.text = ""; // clear the text
+                //updateGame(); // update the game with the new text
+            }, 3000); // hide the text after 3 seconds
             //updateGame(); // update the game with the new text
-        }, 3000); // hide the text after 3 seconds
-        //updateGame(); // update the game with the new text
-        //socket.emit('chat', { text: msg });
+            //socket.emit('chat', { text: msg });
+        }
     }
     document.getElementById('chat-input').value = ''; // clear input
 }
