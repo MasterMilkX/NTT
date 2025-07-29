@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>NPC Turing Test - Fantasy World [OFFLINE TEST]</title>
+        <link rel="stylesheet" href="./static/styles.css">
+        <link rel="stylesheet" href="./static/styles-mobile.css">
+        <!-- extra styles -->
+        <style>
+            
+
+
+        </style>
+        <script src="./static/js/avatar.js"></script>
+    </head> 
+    <body onload="init()">
+    <div id="container">
+        <canvas id="game-canvas"></canvas>
+
+        <div id="ui-overlay">
+
+            <!-- ---- GAME UI OVERLAY ---- -->
+            <div id="game-ui">
+
+                <!-- TASK UI BOX -->
+                <div id="task-ui">
+                    <div id="task-header" onclick="toggleTasks()">
+                        Tasks
+                    </div>
+                    <div id="task-list" style="display: none;">
+                        <input type="checkbox" id="task1" class="task-item">
+                        <label for="task1" id="task1Label">Make a chicken noise near an AP</label><br>
+                        
+                        <input type="checkbox" id="task2" class="task-item">
+                        <label for="task2" id="task2Label">Find the wizard</label><br>
+                        
+                        <input type="checkbox" id="task3" class="task-item">
+                        <label for="task3" id="task3Label">Go to the plaza</label><br>
+                    </div>
+                </div>
+
+                <!-- AVATAR UI -->
+                <div id="avatar-ui">
+                    <div id="avatar-header" onclick="toggleAvatarInfo()">
+                        Avatar Info
+                    </div>
+                    <div id="avatar-info">
+                        <div id="avatar-name">Name: Offline Avatar</div>
+                        <div id="avatar-class">Class: ???</div>
+                        <div id="avatar-race">Race: ???</div>
+                        <div id="avatar-loc">Location: ???</div>
+                        <div id="avatar-socket-id">Socket ID: ?????????</div>
+                    </div>
+                </div>
+
+                <!-- VOTE UI -->
+                 <div id="vote-ui">
+                    <div id="vote-header">
+                        Is <span class='userTxt' id="vote-user">TotallyChicken21</span> human?
+                    </div>
+                    <div id="vote-options">
+                        <button class="vote-btn" id='vote-yea' onclick="submitVote('human')"><img src="./static/assets/check2.png"> Yea</button>
+                        <button class="vote-btn" id='vote-nay' onclick="submitVote('ai')"><img src="./static/assets/x.png">Nay</button>
+                    </div>
+                    <div id="vote-conf">
+                        <span class="bold">Confidence</span><br>
+                        Low <input type="range" id="confidence-slider" min="1" max="5" oninput="updateConfidence(this.value)"> High
+                    </div>
+                    <div id="vote-footer">
+                        <!-- <button class="pop-btn" id="vote-submit" onclick="submitVote()">Submit Vote</button>  -->
+                        <div id="vote-confirm">
+                            <!-- shows 'Vote submitted' -->
+                        </div>   
+                    </div>
+                </div>
+
+                <!-- BOTTOM UI -->
+                <div id="bottom-ui">
+                    
+                    <div id="exit-game-btn" style="margin-left:10px;">
+                        <button class="game-btn" onclick="showPopup('exit')"><img src="./static/assets/exit.png"></button>
+                    </div>  
+
+                    <div id="chat-box">
+                        <input type="text" id="chat-input" placeholder="Type your message here..." onkeydown="if(event.key === 'Enter') sendMessage()">
+                        <button id="send-msg-btn" onclick="sendMessage()">Send</button>
+                    </div>
+
+                    <div id="map-btn" style="margin-right:10px;">
+                        <button class="game-btn" onclick="showPopup('map')"><img src="./static/assets/map2.png"></button>   
+                    </div>
+                </div>
+            </div>
+
+            
+
+
+
+
+            <!-- ---- POP UP SCREENS ---- -->
+
+
+
+
+
+            <!-- MAP SELECTION POPUP -->
+            <div class="ui-popup" id="map-popup">
+                <div class="pop-contents" style="margin:1%;">
+                    <div id="map-grid">
+                        <!-- Add grid cells here -->
+                    </div>
+                    <p id="map-label">Plaza</p>
+                    <button class="pop-btn" onclick="closePopups()">Close Map</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Preload images -->
+    <img id='map-icons' src="./static/assets/map_icons.png" style="display:none;">
+    <img id="spr-sheet" src="./static/assets/ShireSpriteSheet.png" style="display:none;">
+
+    <img id="bg-apothecary" src="./static/assets/BGs/apothecary.jpg" style="display:none;">
+    <img id="bg-bakery" src="./static/assets/BGs/bakery.jpg" style="display:none;">
+    <img id="bg-blacksmith" src="./static/assets/BGs/blacksmith.jpg" style="display:none;">
+    <img id="bg-butcher" src="./static/assets/BGs/butcher.jpg" style="display:none;">
+    <img id="bg-library" src="./static/assets/BGs/library.jpg" style="display:none;">
+    <img id="bg-market" src="./static/assets/BGs/market.jpg" style="display:none;">
+    <img id="bg-training_ground" src="./static/assets/BGs/training_ground.jpg" style="display:none;">
+    <img id="bg-tavern" src="./static/assets/BGs/tavern.jpg" style="display:none;">
+    <img id="bg-plaza" src="./static/assets/BGs/plaza.jpg" style="display:none;">
+
+
+    <!-- Scripts -->
+    <script src="./static/js/avatar.js"></script>
+    <script src="./static/js/main-offline.js"></script>
+    <script src="./static/js/ui.js"></script>
+</body>
+</html>

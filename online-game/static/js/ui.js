@@ -147,7 +147,10 @@ function updateRole(dat){
     }
 }
 
-function updateInfo(){
+function updateInfo(dat=null, offline=false){
+    if(!dat)
+        dat = char_dat; // use the character data if not provided
+
     // update the avatar info in the game UI
     let avatar_info = document.getElementById("avatar-info");
     avatar_info.innerHTML = ""; // clear the current info
@@ -160,7 +163,7 @@ function updateInfo(){
     l.innerHTML = "Name: ";
     name_div.appendChild(l);
     let n = document.createElement("span");
-    n.innerHTML = char_dat.name; // set the name from the character data
+    n.innerHTML = dat.name; // set the name from the character data
     name_div.appendChild(n);
     avatar_info.appendChild(name_div);
     name_div.onclick = function() {
@@ -175,7 +178,7 @@ function updateInfo(){
     o.innerHTML = "Class: ";
     occ_div.appendChild(o);
     let occ_span = document.createElement("span");
-    occ_span.innerHTML = char_dat.occ; // set the occupation from the character data
+    occ_span.innerHTML = dat.occ; // set the occupation from the character data
     occ_div.appendChild(occ_span);
     avatar_info.appendChild(occ_div);
     occ_div.onclick = function() {
@@ -190,7 +193,7 @@ function updateInfo(){
     a.innerHTML = "Race: ";
     race_div.appendChild(a);
     let race_span = document.createElement("span");
-    race_span.innerHTML = char_dat.race; // set the race from the character data
+    race_span.innerHTML = dat.race; // set the race from the character data
     race_div.appendChild(race_span);
     avatar_info.appendChild(race_div);
     race_div.onclick = function() {
@@ -205,7 +208,7 @@ function updateInfo(){
     r.innerHTML = "Role: ";
     role_div.appendChild(r);
     let role_span = document.createElement("span");
-    role_span.innerHTML = char_dat.role; // set the role from the character data
+    role_span.innerHTML = dat.role; // set the role from the character data
     role_div.appendChild(role_span);
     avatar_info.appendChild(role_div);
     role_div.onclick = function() {
@@ -236,7 +239,7 @@ function updateInfo(){
     id_span.innerHTML = "Socket ID: ";
     id_div.appendChild(id_span);
     let socket_id_span = document.createElement("span");
-    socket_id_span.innerHTML = socket.id; // set the socket id
+    socket_id_span.innerHTML = offline ? dat.id : socket.id; // set the socket id
     id_div.appendChild(socket_id_span);
     avatar_info.appendChild(id_div);
     id_div.onclick = function() {
@@ -244,6 +247,8 @@ function updateInfo(){
     };
 
 }
+
+
 
 function highlight(element){
     var range = document.createRange();
@@ -258,17 +263,17 @@ function pregame(){
 
 // START THE GAME
 // insert the player into the plaza
-function startGame(location="plaza"){
+function startGame(location="plaza",offline=false){
     closePopups(); // close all current popups
     cur_screen = "game"; // set the current screen to game
     cur_location = location; // set the current location to the specified location
 
-    changeMap(location); // change to the specified map
+    changeMap(location,offline); // change to the specified map
     document.getElementById("game-ui").style.display = "block"; // show the game screen
 }
 
 // CHANGE THE PLAYER'S LOCATION
-function changeMap(location){
+function changeMap(location,offline=false){
     // TODO: implement location change logic
 
     let all_map_icons = document.getElementsByClassName("map-cell");
@@ -283,7 +288,13 @@ function changeMap(location){
     // set the background image
     cur_location = location;
     closePopups();
-    socket.emit('changeArea', {'area': location, position: {x:canvas.width/2, y:canvas.height*0.75}}); // send the new area to the server
+    if(!offline)
+        socket.emit('changeArea', {'area': location, position: {x:canvas.width/2, y:canvas.height*0.75}}); // send the new area to the server
+    else{
+        socket_avatar.area = location; // set the area for the offline avatar
+        socket_avatar.position = {x:canvas.width/2, y:canvas.height*0.75}; // set the position for the offline avatar
+        updateGame(); // update the game with the new area and position
+    }
 
     // update info
     let loc_info = document.getElementById("avatar-loc-span");
@@ -296,7 +307,7 @@ function changeMap(location){
 }
 
 // populate the map cells of the pop up menu
-function setMapCells(){
+function setMapCells(offline=false){
     let map_grid = document.getElementById("map-grid");
     map_grid.innerHTML = ""; // clear the container
 
@@ -323,7 +334,7 @@ function setMapCells(){
         cell.appendChild(img);
 
         // create events
-        cell.onclick = function() { changeMap(MAP_CELL_LIST[i]); };
+        cell.onclick = function() { changeMap(MAP_CELL_LIST[i],offline); };
         cell.onmouseover = function() { setMapLabel(MAP_CELL_LIST[i].replace('_', ' ').toUpperCase()); };
         cell.onmouseout = function() { setMapLabel("&nbsp;"); }; // clear label on mouse out
         map_grid.appendChild(cell);

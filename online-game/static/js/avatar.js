@@ -12,11 +12,38 @@ function randomPos(w,h){
     };
 }
 
+function randomClass(){
+    let classes = Object.keys(AVATAR_CLASS);
+    return classes[Math.floor(Math.random() * classes.length)];
+}
+
 function randomRace(){
     let races = Object.keys(AVATAR_RACE);
     return races[Math.floor(Math.random() * races.length)];
 }
 
+// for use with offline testing only
+function randomChar(role){
+    let r = randomRace();
+    let c = randomClass();
+    if (r == 'chuck')
+        c = 'chuck'; // chuck is always chuck
+    else if (role == 'AP')
+        c = 'hero'; // if the role is AP, set the class to hero
+    let a = new Avatar(
+       'OFFLINE AVATAR',
+       'offline-' + Math.random().toString(36).substring(2, 8), // generate a random socket id
+       c,
+       r,
+       role
+    );
+    a.area = AVATAR_AREAS[a.classType]; // set the area based on the class type
+    a.position = randomPos(canvas.width, canvas.height); // set a random position on the
+    a.show = true; // set the avatar to be visible
+    a.tasks = ["Do a little dance", "Explore", "Say hi"]; // initialize tasks as an empty array
+
+    return a;
+}
 
 // player class definition
 class Avatar {
@@ -46,11 +73,11 @@ class Avatar {
 
             frame: 0, // current frame for animation
             frameCount: 2, // number of frames in the sprite animation
-            frameInterval: 500, // time between frames in milliseconds
+            frameInterval: 250, // time between frames in milliseconds
 
             animations:{
                 'idle': [0,0],
-                'dance': [1,2],
+                'dance': [0,2],
                 'wave': [3,4]
             },
             cur_animation: 'idle', // current animation state
