@@ -147,11 +147,12 @@
         position: absolute;
         top: 10px;
         left: 10px;
-        max-width: 20%;
+        max-width: 30%;
         max-height: 30%;
         background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
         padding: 10px;
         border-radius: 10px;
+        overflow: auto;
         /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
     }
     #task-header {
@@ -459,7 +460,7 @@
     }
     #avatar-info {
         margin-top: 5px;
-        font-size: 2vw;
+        font-size: 1.5vw;
         display: none; /* Hidden by default */
     }
     #avatar-socket-id{
