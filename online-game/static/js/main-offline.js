@@ -37,7 +37,7 @@ fetch('./static/data/area_boundaries.json')
   })
   .catch(error => console.error('Error loading JSON:', error));
 
-  
+
 // load tasks
 var task_json = {};
 function setTasks(){
@@ -324,7 +324,17 @@ function makeChatBox(avatar){
     chatBox.className = 'av-chat-box';
     chatBox.id = 'chat-box-' + avatar.id; // unique id for the chat
 
-    chatBox.innerHTML = avatar.text;
+    // emoji chat
+    if(avatar.text.startsWith(':emo-') && avatar.text.endsWith(':')) {
+        let emo_id = avatar.text.replace(':emo-', '').replace(':', ''); // get the emoticon id
+        let emo_img = document.getElementById('emo-' + emo_id); // get the emoticon image
+        let img = document.createElement('img'); // create an image element
+        img.src = emo_img.src; // set the image source to the emoticon image
+        chatBox.appendChild(img); // add the image to the chat box
+    }
+    // normal text chat
+    else
+        chatBox.innerHTML = avatar.text;
 
     let rect = ui_overlay.getBoundingClientRect(); // get the bounding rectangle of the UI overlay
     let ax = avatar.position.x; // center the chat box relative to the avatar
@@ -401,9 +411,16 @@ function gameClick(e){
     // check if the click is on an avatar
     if (clickAvatar(e)) {
         return; // if an avatar was clicked, do not proceed further
-    }else if (document.getElementById("vote-ui").style.display === "block") {
+    }
+    // close vote ui
+    if (document.getElementById("vote-ui").style.display === "block") {
         hideVoteUI(); // hide the vote UI if it is open and no avatar was clicked
         return; // do not proceed further if the vote UI is open
+    }
+    // close emoticon popup
+    if( document.getElementById("emoticon-popup").style.display === "block") {
+        document.getElementById("emoticon-popup").style.display = "none"; // close the emoticon popup if it is open
+        return; // do not proceed further if the emoticon popup is open
     }
     let curs = getCursorPos(e); // get the cursor offset
     let x = curs.offx;
@@ -493,9 +510,12 @@ function showClickPos(e){
 
 
 // chat features
-function sendMessage(){
-    let msg = document.getElementById('chat-input').value;
+function sendMessage(msg=null){
+    if(msg === null)
+        msg = document.getElementById('chat-input').value;
+
     if (msg && msg.trim() !== '' && in_game) {
+        clearInterval(socket_avatar.textInt); // clear the previous text timeout
         socket_avatar.setText(msg); // set the text for the avatar
         socket_avatar.textInt = setTimeout(() => {
             socket_avatar.showText = false; // hide the text after a timeout
@@ -585,6 +605,8 @@ window.onkeydown = function(e) {
             if (socket_avatar) {
                 toggleWave(); // toggle wave animation when W is pressed
             }
+        }else if(e.key == 'e'){
+            toggleEmojis(); // toggle the emoji popup when E is pressed
         }
     }
     
@@ -623,6 +645,7 @@ function init(){
             setTasks(); // set the tasks for the avatar
         })
         .catch(error => console.error('Error loading tasks:', error));
+    setEmoCells(true); // populate the emoji cells in the popup menu
     setMapCells(true); // populate the map cells in the popup menu
     startGame('plaza',true); // start the game immediately for testing purposes
     main();

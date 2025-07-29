@@ -75,18 +75,34 @@
                     </div>
                 </div>
 
+                <!-- EMOTICON POPUP -->
+                <div id="emoticon-popup">
+                    <div class="pop-contents">
+                        <div id="emo-grid">
+                            <!-- Emoticons will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+
                 <!-- BOTTOM UI -->
                 <div id="bottom-ui">
-                    
+                    <!-- exit button -->
                     <div id="exit-game-btn" style="margin-left:10px;">
                         <button class="game-btn" onclick="showPopup('exit')"><img src="./static/assets/exit.png"></button>
                     </div>  
 
+
+                    <!-- chatbox -->
                     <div id="chat-box">
+                        <!-- emoticons -->
+                        <button id="emo-btn" onclick="toggleEmojis()"><img id="emo-btn-img" src="./static/assets/emoticons/013-happy.png"></button>
+
+                        <!-- text -->
                         <input type="text" id="chat-input" placeholder="Type your message here..." onkeydown="if(event.key === 'Enter') sendMessage()">
                         <button id="send-msg-btn" onclick="sendMessage()">Send</button>
                     </div>
 
+                    <!-- map -->
                     <div id="map-btn" style="margin-right:10px;">
                         <button class="game-btn" onclick="showPopup('map')"><img src="./static/assets/map2.png"></button>   
                     </div>
@@ -132,6 +148,37 @@
     <img id="bg-tavern" src="./static/assets/BGs/tavern.jpg" style="display:none;">
     <img id="bg-plaza" src="./static/assets/BGs/plaza.jpg" style="display:none;">
 
+    <!-- emoticons -->
+    <img id="emo-01" src="./static/assets/emoticons/013-happy.png" style="display:none;">
+    <img id="emo-02" src="./static/assets/emoticons/004-big-smile.png" style="display:none;">
+    <img id="emo-03" src="./static/assets/emoticons/003-laugh.png" style="display:none;">
+    <img id="emo-04" src="./static/assets/emoticons/029-intelligent-emoji.png" style="display:none;">
+    <img id="emo-05" src="./static/assets/emoticons/028-sleeping.png" style="display:none;">
+    <img id="emo-06" src="./static/assets/emoticons/019-bored.png" style="display:none;">
+    <img id="emo-07" src="./static/assets/emoticons/017-surprise.png" style="display:none;">
+    <img id="emo-08" src="./static/assets/emoticons/002-frightened.png" style="display:none;">
+    <img id="emo-09" src="./static/assets/emoticons/001-cry.png" style="display:none;">
+    <img id="emo-10" src="./static/assets/emoticons/005-angry.png" style="display:none;">
+    <img id="emo-11" src="./static/assets/emoticons/006-numb.png" style="display:none;">
+    <img id="emo-12" src="./static/assets/emoticons/007-sweat.png" style="display:none;">
+    <img id="emo-13" src="./static/assets/emoticons/008-tongue-out.png" style="display:none;">
+    <img id="emo-14" src="./static/assets/emoticons/009-numb-1.png" style="display:none;">
+    <img id="emo-15" src="./static/assets/emoticons/010-kissing.png" style="display:none;">
+    <img id="emo-16" src="./static/assets/emoticons/011-heart.png" style="display:none;">
+    <img id="emo-17" src="./static/assets/emoticons/012-star.png" style="display:none;">
+    <img id="emo-18" src="./static/assets/emoticons/025-star-1.png" style="display:none;">
+    <img id="emo-19" src="./static/assets/emoticons/014-like.png" style="display:none;">
+    <img id="emo-20" src="./static/assets/emoticons/021-close.png" style="display:none;">
+    <img id="emo-21" src="./static/assets/emoticons/022-help.png" style="display:none;">
+    <img id="emo-22" src="./static/assets/emoticons/016-daisy.png" style="display:none;">
+    <img id="emo-23" src="./static/assets/emoticons/018-gift.png" style="display:none;">
+    <img id="emo-24" src="./static/assets/emoticons/020-money-bag.png" style="display:none;">
+    <img id="emo-25" src="./static/assets/emoticons/024-axe.png" style="display:none;">
+    <img id="emo-26" src="./static/assets/emoticons/023-chicken-leg.png" style="display:none;">
+    <img id="emo-27" src="./static/assets/emoticons/026-tomato.png" style="display:none;">
+    <img id="emo-28" src="./static/assets/emoticons/027-mushroom.png" style="display:none;">
+    <img id="emo-29" src="./static/assets/emoticons/030-chemical-free.png" style="display:none;">
+    <img id="emo-30" src="./static/assets/emoticons/015-beer.png" style="display:none;">
 
     <!-- Scripts -->
     <script src="./static/js/avatar.js"></script>

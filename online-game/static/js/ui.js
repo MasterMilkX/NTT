@@ -61,6 +61,8 @@ function closePopups(){
     for (var i = 0; i < all_pops.length; i++) {
         all_pops[i].style.display = "none";
     }
+    // close emoji popup too
+    document.getElementById("emoticon-popup").style.display = "none"; // close the emoticon popup
 }
 
 // SHOW POPUPS
@@ -347,6 +349,55 @@ function setMapLabel(loc){
     map_label.innerHTML = loc; // display the location in uppercase
 }
 
+// EMOJI SETUP
+
+
+// toggle the emoticon popup
+function toggleEmojis(){
+    if (document.getElementById("emoticon-popup").style.display === "none") {
+        document.getElementById("emoticon-popup").style.display = "block";
+    }else {
+        document.getElementById("emoticon-popup").style.display = "none";
+    }
+}
+
+
+// populate the emoji cells of the pop up menu
+function setEmoCells(offline=false){
+    let emo_grid = document.getElementById("emo-grid");
+    emo_grid.innerHTML = ""; // clear the container
+
+
+    // create emoji cell elements (30 emojis)
+    for (let i = 0; i < 30; i++) {
+        let pi = String(i+1).padStart(2, '0'); // pad the index with zeros for the image name
+        
+        let cell = document.createElement("div");
+        cell.className = "emo-cell";
+        // cell.id = "emo-cell-" + pi;
+
+        // create icon image for cell
+        let img = document.createElement("img");
+        img.src = document.getElementById('emo-'+pi).src; // convert canvas to image data URL
+        cell.appendChild(img);
+
+        // create events
+        cell.onclick = function() { 
+            if(offline)
+                sendMessage(":emo-" + pi + ":"); 
+            else
+                socket.emit('chat', {'text': ":emo-" + pi + ":"}); // send the emoticon as a message
+            document.getElementById("emoticon-popup").style.display = "none"; // close the emoticon popup after sending
+            document.getElementById('emo-btn-img').src = img.src; // update the emoticon button image
+        }; // send the emoticon as a message
+        emo_grid.appendChild(cell);
+    }
+}
+
+
+
+
+
 
 // -- GAME UI
 
@@ -359,6 +410,7 @@ function toggleTasks(){
     }
 }
 
+// toggle the avatar info
 function toggleAvatarInfo(){
     if (document.getElementById("avatar-info").style.display === "none") {
         document.getElementById("avatar-info").style.display = "block";
@@ -367,6 +419,7 @@ function toggleAvatarInfo(){
     }
 }
 
+// ------ vote
 function voteChar(name="???"){
     var vote_window = document.getElementById("vote-ui");
     vote_window.style.display = "block"; // show the vote UI

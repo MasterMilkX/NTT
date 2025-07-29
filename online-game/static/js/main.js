@@ -300,7 +300,17 @@ function makeChatBox(avatar){
     chatBox.className = 'av-chat-box';
     chatBox.id = 'chat-box-' + avatar.id; // unique id for the chat
 
-    chatBox.innerHTML = avatar.text;
+    // emoji chat
+    if(avatar.text.startsWith(':emo-') && avatar.text.endsWith(':')) {
+        let emo_id = avatar.text.replace(':emo-', '').replace(':', ''); // get the emoticon id
+        let emo_img = document.getElementById('emo-' + emo_id); // get the emoticon image
+        let img = document.createElement('img'); // create an image element
+        img.src = emo_img.src; // set the image source to the emoticon image
+        chatBox.appendChild(img); // add the image to the chat box
+    }
+    // normal text chat
+    else
+        chatBox.innerHTML = avatar.text;
 
     let rect = ui_overlay.getBoundingClientRect(); // get the bounding rectangle of the UI overlay
     let ax = avatar.position.x; // center the chat box relative to the avatar
@@ -462,7 +472,6 @@ function showClickPos(e){
 
 
 
-
 // chat features
 function sendMessage(){
     let msg = document.getElementById('chat-input').value;
@@ -565,6 +574,8 @@ window.onkeydown = function(e) {
             if (socket_avatar) {
                 toggleWave(); // toggle wave animation when W is pressed
             }
+        }else if(e.key == 'e'){
+            toggleEmojis(); // toggle the emoji popup when E is pressed
         }
     }
     
@@ -583,6 +594,7 @@ window.onkeydown = function(e) {
 
 // INITIALIZATION FUNCTION 
 function init(){
+    setEmoCells();
     setMapCells(); // populate the map cells in the popup menu
     showPopup("welcome")
     //startGame(); // start the game immediately for testing purposes

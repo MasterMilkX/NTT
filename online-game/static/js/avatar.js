@@ -73,7 +73,7 @@ class Avatar {
 
             frame: 0, // current frame for animation
             frameCount: 2, // number of frames in the sprite animation
-            frameInterval: 250, // time between frames in milliseconds
+            frameInterval: 375, // time between frames in milliseconds
 
             animations:{
                 'idle': [0,0],
