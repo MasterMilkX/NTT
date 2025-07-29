@@ -190,8 +190,17 @@ io.on('connection', function(socket) {
     });
 
 
+    // handle player animation
+    socket.on('animate', function(data) {
+        if (players[socket.id]) {
+            players[socket.id].sprite.cur_animation = data.cur_anim; // set the current animation
+            players[socket.id].sprite.frame = data.frame; // set the current frame 
+            players[socket.id].sprite.frameInterval = 250; // reset the frame interval
+            addPlayerDat(players[socket.id], ' did [' + data.cur_anim + '] animation');
+        }
+    });
 
-    
+
     // handle disconnection
     socket.on('disconnect', function() {
         console.log('User disconnected: ' + socket.id);

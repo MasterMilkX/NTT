@@ -10,7 +10,7 @@ canvas.height = 450;
 var spr_sheet = document.getElementById("spr-sheet");
 
 // PLAYER PROPERTIES
-var all_avatars = null;
+var all_avatars = {};
 var avatar_name = "";
 var socket_avatar = null;
 var highlight_avatar = null;
@@ -64,6 +64,13 @@ function inZone(pos, boundary) {
     return inside;
 }
 
+
+// check if the avatar is in the current area and local to this socket
+function localAvatar(a){
+    return a && a.show && a.area == cur_location;
+}
+
+
 // creating boundaries via game
 var saved_pos = []
 var record_pos = false;
@@ -81,7 +88,10 @@ function rec_pos(){
 }
 
 
-///////// RENDER /////////
+
+//////////////////////      RENDER     ////////////////////////
+
+
 
 let RENDER_OFFSET = {x: 2, y: -20, cx: -2}
 function renderAvatar(p){
@@ -115,13 +125,19 @@ function renderAvatar(p){
         ctx.fill(); // draw the highlight circle
     }
 
+    // -- modify the avatar scale based on the current location
     AVATAR_SCALE = MAP_SCALE[cur_location] || 1; // get the scale for the current location, default to 1 if not found
     // if(p.raceType == 'chuck')
     //     AVATAR_SCALE = MAP_SCALE[cur_location]*0.5 || 0.5; // chuck's scale is smaller
 
+    // set the sprite frame based on the current animation
+    p.sprite.frame = Math.floor((Date.now() - p.sprite.frameInterval) / p.sprite.frameInterval) % 2;
+    let ani_frame = p.sprite.animations[p.sprite.cur_animation][p.sprite.frame];
+
+
     // draw sprite from sprite sheet
     ctx.drawImage(spr_sheet, 
-        (p.sprite.width * p.sprite.frame), 
+        (p.sprite.width * ani_frame), 
         (p.sprite.height * AVATAR_RACE[p.raceType]), 
         p.sprite.width, 
         p.sprite.height, 
@@ -133,18 +149,31 @@ function renderAvatar(p){
 
     // draw the class clothes on top
     if(p.classType && p.classType != 'hero' && p.classType != 'chuck') {
+
+        let dance_offset = 0;
+        if (p.sprite.cur_animation === 'dance' && p.sprite.frame == 1) {
+            dance_offset = -5; // offset for the dance animation
+        }
+
+        let wave_offset = 0;
+        if (p.sprite.cur_animation === 'wave') {
+            wave_offset = -5; // offset for the wave animation
+        }
+
         ctx.drawImage(spr_sheet,
             (p.sprite.width * AVATAR_CLASS[p.classType]), 
             (p.sprite.height * 6), // assuming class clothing are in row 6
             p.sprite.width,
             p.sprite.height,
-            p.position.x - (p.sprite.width * AVATAR_SCALE)/2 + offset.x*AVATAR_SCALE, // center the sprite
-            p.position.y - (p.sprite.height * AVATAR_SCALE)/2 + offset.y*AVATAR_SCALE, // center the sprite
+            p.position.x - ((p.sprite.width+wave_offset) * AVATAR_SCALE)/2 + offset.x*AVATAR_SCALE, // center the sprite
+            p.position.y - ((p.sprite.height+dance_offset) * AVATAR_SCALE)/2 + offset.y*AVATAR_SCALE, // center the sprite
             p.sprite.width * AVATAR_SCALE, // resize width
             p.sprite.height * AVATAR_SCALE // resize height
         );
     }
 
+
+    // DEBUG DRAWING
     // ctx.strokeStyle = "white";
     // // DRAW A circle to represent the click area
     // ctx.beginPath();
@@ -184,9 +213,6 @@ function drawBoundary(points, options = {}) {
     ctx.stroke();
 }
 
-function localAvatar(a){
-    return a && a.show && a.area == cur_location;
-}
 
 // DRAWS THE GAME
 function updateGame(avatar_set){
@@ -291,7 +317,8 @@ function makeChatBox(avatar){
 }
 
 
-//// EVENT HANDLERS ////
+
+////////////////////////   CLICK / MOUSE FUNCTIONS   ////////////////////
 
 
 
@@ -363,6 +390,7 @@ function gameClick(e){
         // check if the click is within the boundaries of the current area
         if (cur_location && boundaries[cur_location]) {
             if (inZone({ x, y }, boundaries[cur_location])) {
+                resetAnim();    // reset the animation to idle
                 socket.emit('move', { position: { x: x, y: y } }); // send the move event to the server
             }
         }
@@ -411,17 +439,6 @@ function clickAvatar(e){
 }
 
 
-
-// chat features
-function sendMessage(){
-    let msg = document.getElementById('chat-input').value;
-    if (msg && msg.trim() !== '' && in_game) {
-        socket.emit('chat', { text: msg });
-    }
-    document.getElementById('chat-input').value = ''; // clear input
-}
-
-
 function showClickPos(e){
     let target = e.target.id; // get the target element id or unknown if not available
 
@@ -435,9 +452,80 @@ function showClickPos(e){
 
     //console.log(`Click at (${x}, ${y}) on ${target}.`);
 
-    // hidde the vote UI if the click is not on the game UI
+    // hide the vote UI if the click is not on the game UI
     hideVoteUI();
 }
+
+
+
+////////////////////////   AVATAR ACTIONS  ////////////////////////////////
+
+
+
+
+// chat features
+function sendMessage(){
+    let msg = document.getElementById('chat-input').value;
+    if (msg && msg.trim() !== '' && in_game) {
+        socket.emit('chat', { text: msg });
+    }
+    document.getElementById('chat-input').value = ''; // clear input
+}
+
+
+// --- Avatar animations
+function toggleDance(){
+    if (socket_avatar) {
+        socket_avatar.sprite.frame = 0; // reset the frame to 0
+        if (socket_avatar.sprite.cur_animation === 'dance') {
+            resetAnim(); // switch to idle animation
+        }else {
+            socket_avatar.sprite.cur_animation = 'dance'; // switch to dance animation
+            sendAnim(); 
+        }
+    }
+}
+
+function toggleWave(){
+    if (socket_avatar) {
+        socket_avatar.sprite.frame = 0; // reset the frame to 0
+        if (socket_avatar.sprite.cur_animation === 'wave') {
+            resetAnim(); // switch to idle animation
+        }else {
+            socket_avatar.sprite.cur_animation = 'wave'; // switch to wave animation
+            sendAnim();
+        }
+    }
+}
+
+// reset the animation to idle
+function resetAnim(){
+    if (socket_avatar) {
+        socket_avatar.sprite.cur_animation = 'idle'; // reset the animation to idle
+        socket_avatar.sprite.frame = 0; // reset the frame to 0
+        socket_avatar.sprite.frameInterval = 250;
+        sendAnim(); // send the current animation to the server
+    }
+}
+
+// send the current animation to the server
+function sendAnim(){
+    if (socket_avatar) {
+        socket.emit('animate', { 
+            cur_anim: socket_avatar.sprite.cur_animation,
+            frame: socket_avatar.sprite.frame 
+        }); // send the current animation to the server
+    }
+}
+
+
+
+
+////////////////////////   EVENT LISTENERS ////////////////////////////////
+
+
+
+
 
 // mouse + touch event listeners for the "canvas" (really just the ui-overlay on top)
 ui_overlay.addEventListener('click', gameClick);
@@ -445,9 +533,11 @@ ui_overlay.addEventListener('touchstart', gameClick);
 
 // shortcuts
 window.onkeydown = function(e) {
+    // debug shortcuts
     if(e.key == 'b')
         rec_pos(); // start recording positions when B is pressed
     
+    // non-text input shortcuts
     if(!document.activeElement || document.activeElement.tagName !== 'INPUT') {
         e.preventDefault(); // prevent default behavior of the key press
         if(e.key == 't'){
@@ -464,8 +554,22 @@ window.onkeydown = function(e) {
         }
         else if(e.key == 'Tab'){
             document.getElementById("chat-input").focus(); // focus the chat input when Left Shift is pressed
+        }else if(e.key == 'i'){
+            toggleAvatarInfo()   // toggle avatar info
         }
-    }else{
+        else if(e.key == 'd'){
+            if (socket_avatar) {
+                toggleDance(); // toggle dance animation when D is pressed
+            }
+        }else if(e.key == 'w'){
+            if (socket_avatar) {
+                toggleWave(); // toggle wave animation when W is pressed
+            }
+        }
+    }
+    
+    // text input shortcuts
+    else{
         if (e.key === 'Enter') {
             sendMessage(); // send the chat message when Enter is pressed
         }else if (e.key === 'Escape') {
