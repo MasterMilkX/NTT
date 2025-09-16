@@ -1,11 +1,21 @@
+'''
+    >>>> RANDOM BOT <<<<
+
+    A simple random bot that connects to the game server,
+    requests a role assignment, and then moves and chats randomly.
+
+'''
+
+
+
 import socketio
 import time
 import json
 import random
 
+GAME_SERVER = 'http://localhost:4000'
+
 sio = socketio.Client()
-
-
 
 
 # GLOBAL VARIABLES
@@ -14,7 +24,20 @@ in_game = False
 char_dat = None
 avatar = None
 all_avatars = {}
-
+'''
+    Avatar Data:
+    {
+        "id": "???",
+        "name": "???",
+        "area": "plaza/tavern/market/blacksmith/apothecary/library/training_ground/butcher/bakery",
+        "position": {"x": 000, "y": 000},
+        "role": "NPP-AI-[BTree/RAND]",
+        "race": "nord/elf/lizard/beastman/orc/chuck",
+        "occ": "baker/butcher/blacksmith/general_goods/apothecary/
+                knight_trainer/librarian/barmaid/gossip/mercenary/
+                drunk/wizard/bard"
+    }
+'''
 
 # ---- AREA BOUNDARY DEFINITIONS ---- #
 
@@ -91,7 +114,7 @@ def disconnect():
 @sio.event
 def getAvatar():
     # request the server to assign an avatar
-    sio.emit('assign-role', 'NPP-AI')       # bots are always NPP
+    sio.emit('assign-role', 'NPP-RAND')       # bots are always NPP
 
 
 @sio.on('role-assigned')
@@ -162,21 +185,38 @@ def act():
         'hi!'
     ]
     p = random.random()
-    if p < 0.5:
+    if p < 0.05:
+        # idle
+        time.sleep(random.randint(5, 10))
+    elif p < 0.15:
+        # wave or dance
+        sio.emit('animate', {'cur_anim': 'wave' if random.random() < 0.5 else 'dance', 'frame': 0})
+        time.sleep(random.randint(5, 10))  # wait for a random time before acting again
+    elif p < 0.3:
+        # emote
+        sio.emit('chat', {'text': f':emo-{random.randint(0, 29):02}:'})
+        time.sleep(random.randint(5, 10))  # wait for a random time before acting again
+    elif p < 0.5:
+        # chat
         sio.emit('chat', {'text':random.choice(dialogue_lines)})
-        time.sleep(random.randint(7, 15))  # wait for a random time before acting again
+        time.sleep(random.randint(5, 15))  # wait for a random time before acting again
     elif p < 0.75:
         # move to a random position in the area
         new_pos = randomAreaPos(avatar['area'])
         sio.emit('move', {'position': new_pos})
         time.sleep(random.randint(1, 5))  # wait for a random time before acting again
-    else:
+    elif p < 0.9:
         # move near another avatar
         if all_avatars:
             target_avatar = random.choice(list(all_avatars.values()))
             if target_avatar['id'] != avatar['id']:
                 sio.emit('moveToPlayer', {'targetId': target_avatar['id']})
         time.sleep(random.randint(1, 5))  # wait for a random time before acting again
+
+    else:
+        # change location to a different area
+        new_area = random.choice(list(boundaries.keys()))
+        sio.emit('changeArea', {'area': new_area, 'position': randomAreaPos(new_area)})
 
     
 
@@ -201,7 +241,7 @@ if __name__ == '__main__':
         while not in_game:
             try:
                 # connect to the server
-                sio.connect('http://localhost:4000')
+                sio.connect(GAME_SERVER)
                 print("Connected to the game server")
                 in_game = True
             except socketio.exceptions.ConnectionError:

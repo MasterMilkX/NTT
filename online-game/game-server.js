@@ -46,6 +46,7 @@ var roleDat = require('./static/data/roles.json');
 var players = {};
 var playerRoles = {};
 var playerTxtTime = {};
+var chuck_ct = 0; // count of chuck characters
 const MAX_PLAYERS = 50;
 const FPS_I = 60;
 
@@ -60,8 +61,9 @@ function newChar(role){
     if(role === 'AP'){
         occ = "hero"  // all players in AP are heroes
         hero_ct++;
-    }else if(race == "chuck"){
+    }else if(race == "chuck" && chuck_ct < 3){
         occ = "chuck";
+        chuck_ct++;
     }else{
         // if more roles than players, recount
         let rolesCt = totalRoles();
@@ -80,6 +82,12 @@ function newChar(role){
         occ = avail_occ[Math.floor(Math.random() * avail_occ.length)]; // pick a random occupation from the available ones
         player_role_ct[occ]++; // increment the role count for the occupation
     }
+
+    // change race if chuck limit reached
+    if(race == "chuck" && chuck_ct >= 3 && occ != "chuck"){
+        race = Object.keys(AVATAR_RACE)[Math.floor(Math.random() * Object.keys(AVATAR_RACE).length-1)]; // pick a random race
+    }
+
     //console.log("Assigned occupation: " + occ + " and race: " + race + " for role: " + role);
     // get a random name from the names data
     let fnames = nameDat[race]['firstname']
@@ -134,7 +142,7 @@ io.on('connection', function(socket) {
         console.log(players[socket.id].name + '(' + players[socket.id].raceType + ' ' + players[socket.id].classType + ') joined! [ID: ' + socket.id + ']'); ;
         socket.emit('message', {'status':'accept','avatar': players[socket.id]}); // send the player data to the client
         io.emit('playerNum', {'cur_num':Object.keys(players).length,'max_num':MAX_PLAYERS});
-        addPlayerDat(players[socket.id], 'joined');  
+        logDat(players[socket.id], '[JOIN SERVER]');  
         showNumRoles(); // show the total roles assigned  
         // send the updated player list to all clients
         //io.emit('updatePlayers', players);
@@ -145,7 +153,7 @@ io.on('connection', function(socket) {
     socket.on('move', function(data) {
         if (players[socket.id]) {
             players[socket.id].position = data.position;
-            addPlayerDat(players[socket.id], 'moved');
+            logDat(players[socket.id], '[MOVE]');
             //io.emit('updatePlayers', players);
         }
     });
@@ -154,13 +162,12 @@ io.on('connection', function(socket) {
         if (players[socket.id] && players[data.targetId]) {
             let new_pos = {x:players[data.targetId].position.x, y:players[data.targetId].position.y};
             // offset the position slightly to avoid overlap
-            let ofx = Math.random() * 30 - 30;   // random offset between -30 and 30
-            new_pos.x += ofx; 
-            if( ofx < 0) new_pos.x -= 30; 
-            if( ofx >= 0) new_pos.x += 30;
+            let ofx = Math.random() - 0.5;
+            if( ofx < 0) new_pos.x -= 50; 
+            if( ofx >= 0) new_pos.x += 50;
 
             players[socket.id].position = new_pos; // move to the target player's position
-            addPlayerDat(players[socket.id], 'moved to player ' + data.targetId + ' (' + new_pos.x + ', ' + new_pos.y + ')');
+            logDat(players[socket.id], '[MOVE_TO_CHAR] ' + data.targetId + ' (' + new_pos.x + ', ' + new_pos.y + ')');
             //io.emit('updatePlayers', players);
         }
     });
@@ -172,7 +179,7 @@ io.on('connection', function(socket) {
             players[socket.id].area = data.area;
             players[socket.id].position = data.position; // update position when changing area
             players[socket.id].show = true; // set the avatar to be shown
-            addPlayerDat(players[socket.id], 'changed area to ' + data.area);
+            logDat(players[socket.id], '[CHANGE_AREA]' + data.area);
         }
     });
 
@@ -184,7 +191,7 @@ io.on('connection', function(socket) {
             txt = txt.substring(0, 75); // limit text length to 75 characters
             players[socket.id].setText(txt);
             textTimeout(players[socket.id], socket.id);
-            addChat({'id': socket.id, 'name': players[socket.id].name, 'area':players[socket.id].area, 'text': txt});
+            logDat(players[socket.id], '[CHAT]: ' + txt); // log the chat message
             //io.emit('updatePlayers', players);
         }
     });
@@ -196,7 +203,7 @@ io.on('connection', function(socket) {
             players[socket.id].sprite.cur_animation = data.cur_anim; // set the current animation
             players[socket.id].sprite.frame = data.frame; // set the current frame 
             players[socket.id].sprite.frameInterval = 250; // reset the frame interval
-            addPlayerDat(players[socket.id], ' did [' + data.cur_anim + '] animation');
+            logDat(players[socket.id], '[' + data.cur_anim + ']');
         }
     });
 
@@ -205,7 +212,7 @@ io.on('connection', function(socket) {
     socket.on('disconnect', function() {
         console.log('User disconnected: ' + socket.id);
         if(players[socket.id]) // if player does not exist, do nothing
-            addPlayerDat(players[socket.id], 'disconnected');
+            logDat(players[socket.id], '[DISCONNECT]');
             freeOcc(socket.id); // free the occupation of the player
             showNumRoles();
             if (playerTxtTime[socket.id]) {
@@ -252,18 +259,15 @@ function textTimeout(player,id) {
     }, 3000); // text will be shown for 3 seconds
 }
 
-// write to the chatlog
-function addChat(dat){
-    var log = fs.createWriteStream('./static/data/chatlog.txt', { flags: 'a' });
-    log.write("["+new Date().toISOString() + '] ' + JSON.stringify(dat) + '\n');
-    log.end();
-}
-
-function addPlayerDat(player, status){
-    var log = fs.createWriteStream('./static/data/playerlog.txt', { flags: 'a' });
+function logDat(player, status){
+    var log = fs.createWriteStream('./static/data/LOG.txt', { flags: 'a' });
     var dat = {
         'id': player.id,
         'name': player.name,
+        'area': player.area,
+        'classType': player.classType,
+        'raceType': player.raceType,
+        'role': player.roletype,
         'position': player.position,
         'status': status
     };
@@ -276,7 +280,7 @@ function cleanClose(){
     let ids = Object.keys(players);
     for (var id in ids) {
         if (players[id]) {
-            addPlayerDat(players[id], 'disconnected [server closed]');
+            logDat(players[id], '[SERVER CLOSED]');
             delete players[id];
         }
     }
