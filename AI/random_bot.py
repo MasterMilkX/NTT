@@ -95,6 +95,13 @@ def randomAreaPos(area):
     return randomPos()
 
 
+def print2Dash():
+    d = {
+        'bot_name':avatar['name'],
+        'role':avatar['raceType'] + "-" + avatar['classType'],
+        'location':avatar['area']
+    }
+    print("DASHBOARD "+json.dumps(d)+"\n",flush=True)
 
 # --- SOCKET.IO EVENTS --- #
 
@@ -133,6 +140,9 @@ def avatar_assigned(data):
         avatar = data['avatar']
         print(f"Avatar assigned: {avatar}")
 
+        # print for the dashboard
+        print2Dash()
+
         # goto the game area (center)
         sio.emit('move', {'position': randomAreaPos(avatar['area'])})
 
@@ -145,6 +155,8 @@ def avatar_assigned(data):
 
 @sio.event
 def act():
+    global avatar
+
     # don't act if not available
     if not in_game:
         return
@@ -219,7 +231,11 @@ def act():
         # change location to a different area
         sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
         new_area = random.choice(list(boundaries.keys()))
+        avatar['area'] = new_area
         sio.emit('changeArea', {'area': new_area, 'position': randomAreaPos(new_area)})
+
+        # print for the dashboard
+        print2Dash()
 
     
 
@@ -229,7 +245,6 @@ def update_avatars(data):
     # Update the local avatar data with the information from the server
     global all_avatars
     all_avatars = data['avatars']
-
 
 
 

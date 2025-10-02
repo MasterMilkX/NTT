@@ -8,7 +8,7 @@
 
     Variations:
         - 1 : no variation
-        - 2 : chance for misspelling in dialogue lines and change case
+        - 2 : chance for misspelling in dialogue lines and all lowercase
         - 3 : same as 2 + chance to not respond at all or choose random line
 
 '''
@@ -124,6 +124,14 @@ def debug_print(msg):
     if DEBUG:
         print(msg)
 
+def print2Dash():
+    d = {
+        'bot_name':avatar['name'],
+        'role':avatar['raceType'] + "-" + avatar['classType'],
+        'location':avatar['area']
+    }
+    print("DASHBOARD "+json.dumps(d)+"\n",flush=True)
+
 
 # --- SOCKET.IO EVENTS --- #
 
@@ -143,7 +151,7 @@ def disconnect():
 @sio.event
 def getAvatar():
     # request the server to assign an avatar
-    sio.emit('assign-role', 'NPP-AI-BTree')       # bots are always NPP
+    sio.emit('assign-role', 'NPP-AI-BTree-v' + str(variant))       # bots are always NPP
 
 
 @sio.on('role-assigned')
@@ -165,7 +173,12 @@ def avatar_assigned(data):
         print(f"BASE AREA: {char_dat.get('area', 'plaza')}")
         print("====================================")
 
+        
+
         base_area = char_dat.get('area', 'plaza')
+
+        # print for the dashboard
+        print2Dash()
 
         # goto the game area (center)
         sio.emit('move', {'position': randomAreaPos(avatar['area'])})
@@ -213,13 +226,14 @@ def act():
                 # apply variant modifications
                 if variant >= 2:
                     # chance to misspell or change case
-                    if random.random() < 0.3:
+                    if random.random() < 0.7:
                         response = response.lower()
-                    if random.random() < 0.2:
+                    if random.random() < 0.4:
                         # introduce a random typo
                         if len(response) > 1:
-                            idx = random.randint(0, len(response) - 1)
-                            response = response[:idx] + random.choice('abcdefghijklmnopqrstuvwxyz') + response[idx + 1:]
+                            for _ in range(random.randint(1, 5)):
+                                idx = random.randint(0, len(response) - 1)
+                                response = response[:idx] + random.choice('abcdefghijklmnopqrstuvwxyz') + response[idx + 1:]
 
                 if variant == 3:
                     # chance to not respond or choose a random line
@@ -265,6 +279,8 @@ def act():
 
     
 def random_act():
+    global avatar
+
     ''' Perform a random action '''
     if not in_game:
         return
@@ -315,10 +331,15 @@ def random_act():
         if avatar['area'] == base_area:
             new_area = random.choice(list(boundaries.keys()))
             debug_print(f"Random action: change area to {new_area}")
+            avatar['area'] = new_area
             sio.emit('changeArea', {'area': new_area, 'position': randomAreaPos(new_area)})
         else:
             debug_print(f"Random action: return to base area {base_area}")
+            avatar['area'] = base_area
             sio.emit('changeArea', {'area': base_area, 'position': randomAreaPos(base_area)})
+
+        # print for the dashboard
+        print2Dash()
 
 
 @sio.on('updateAvatars')
@@ -364,16 +385,10 @@ def update_avatars(data):
 
 
 if __name__ == '__main__': 
-    # set variant from command line argument
-    if len(sys.argv) > 1:
-        try:
-            v = int(sys.argv[1])
-            if v in [1, 2, 3]:
-                variant = v
-            else:
-                print("Invalid variant specified. Using default (1).")
-        except ValueError:
-            print("Invalid variant specified. Using default (1).")
+    # set variant based on random chance
+    variant = 1 + min(2, max(0, int(random.gauss(1.5, 0.75))))
+    print(f"=== Behavior Variant Set To: {variant} ===")
+    
 
 
     while True:
