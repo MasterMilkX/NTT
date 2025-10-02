@@ -26,7 +26,7 @@ sio = socketio.Client()
 
 # GLOBAL VARIABLES
 
-DEBUG = True
+DEBUG = False
 in_game = False
 char_dat = None
 avatar = None
@@ -162,9 +162,7 @@ def avatar_assigned(data):
         avatar = data['avatar']
         print("=== Avatar Successfully Assigned ===")
         print(f"Avatar assigned: {avatar}")
-        print(f"Starting behavior variant {variant}")
         print(f"BASE AREA: {char_dat.get('area', 'plaza')}")
-        print(f"Keywords: {list(role_dialog[avatar['classType']].get('role_keywords', {}).keys())}")
         print("====================================")
 
         base_area = char_dat.get('area', 'plaza')
@@ -273,15 +271,27 @@ def random_act():
 
     convo_char = None
 
+    sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})       # reset emote
+
     p = random.random()
-    if p < 0.3:
-        # say an ambient line
-        ambient_lines = role_dialog[avatar['classType']].get('ambient_lines', role_dialog['all_ambient_lines'])
-        if ambient_lines:
-            line = random.choice(ambient_lines)
-            debug_print("Random action: ambient line - " + line)
-            sio.emit('chat', {'text': line})
-            time.sleep(random.randint(5, 15))
+    if p < 0.4:
+        # say an ambient line (70% chance) or do an emote (30% chance)
+        if random.random() < 0.3:
+            if random.random() < 0.5:
+                # wave or dance
+                sio.emit('animate', {'cur_anim': 'wave' if random.random() < 0.5 else 'dance', 'frame': 0})
+            else:
+                # emote
+                sio.emit('chat', {'text': f':emo-{random.randint(0, 29):02}:'})
+            time.sleep(random.randint(5, 10))
+        else:
+            # ambient line
+            ambient_lines = role_dialog[avatar['classType']].get('ambient_lines', role_dialog['all_ambient_lines'])
+            if ambient_lines:
+                line = random.choice(ambient_lines)
+                debug_print("Random action: ambient line - " + line)
+                sio.emit('chat', {'text': line})
+                time.sleep(random.randint(5, 15))
         return
     elif p < 0.6:
         # move to a random position in the area
@@ -290,7 +300,7 @@ def random_act():
         sio.emit('move', {'position': new_pos})
         time.sleep(random.randint(1, 5))
         return
-    elif p < 0.9:
+    elif p < 0.85:
         debug_print("Random action: move to another avatar")
         # move near another avatar
         if all_avatars:
