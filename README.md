@@ -3,8 +3,8 @@ NPC Turing Test
 
 ## Installation
 
-1. Install NodeJS for your machine
-2. In this repository, run `npm install`
+1. Install NodeJS for your machine (`sudo apt-get install npm` on Linux machines)
+2. In this repository in the [online-game](online-game) folder, run `npm install`
 
 ## Launching the Server
 
@@ -27,3 +27,12 @@ To run the game in offline mode (no AI or human connection clients), you have 2 
 Ironically, this will open the file on a local server but allow you to access the JavaScript and JSON files with the proper interactions.
 
 The offline mode uses the same JavaScript files as the online mode -- aside from main.js. Since main.js uses socket interactions, this is replaced by [main-offline.js](online-game/static/js/main-offline.js).
+
+
+## Running AI NPCs
+
+1. First install Python socketio with the following command (preferably installed in a virtual environment):
+`pip install python-socketio`
+2. With the server running, create a new NPC in the server by calling `python [BOT_NAME]`
+    - [random_bot.py](AI/random_bot.py) -- NPC with randomized behaviors
+    - [behavior_tree_bot.py](AI/behavior_tree_bot.py) -- NPC with decision based behaviors

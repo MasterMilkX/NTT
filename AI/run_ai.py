@@ -5,10 +5,14 @@ import time
 import os
 import signal
 
-# Number of instances
-INSTANCE_COUNT = 7
-# Path to the script
-SCRIPT_PATH = "testbot.py"
+
+INSTANCE_COUNT = 7                 # number of instances
+SCRIPT_PATH = "random_bot.py"      # Path to the bot script
+
+if sys.argv > 2:
+    SCRIPT_PATH = sys.args[1]
+if sys.argv > 3:
+    INSTANCE_COUNT = int(sys.argv[2])
 
 # Store process references
 processes = [None] * INSTANCE_COUNT
@@ -19,7 +23,7 @@ def start_instance(i):
 
 def kill_and_restart_loop(i):
     while True:
-        wait_time = random.randint(300, 600)  # 5 to 10 minutes in seconds
+        wait_time = random.randint(600, 900)  # 10 to 15 minutes in seconds
         time.sleep(wait_time)
         
         proc = processes[i]
