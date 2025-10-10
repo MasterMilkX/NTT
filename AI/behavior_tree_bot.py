@@ -19,6 +19,7 @@ import time
 import json
 import random
 import sys
+import typo
 
 sio = socketio.Client()
 
@@ -71,7 +72,7 @@ with open('../online-game/static/data/area_boundaries.json', 'r') as f:
 
 # get the role dialogue data
 role_dialog = {}
-with open('data/role_dialog.json', 'r') as f:
+with open('data/dialogue_split.json', 'r') as f:
     role_dialog = json.load(f)
 
 
@@ -190,12 +191,41 @@ def avatar_assigned(data):
 
 # --- GAME EVENTS --- #
 
-def talk_to(id):
-    ''' Move to and talk to the avatar with the given id '''
-    if not in_game:
-        return
+def apply_typo(r):
+    rt = typo.StrErrer(r)
+    ra = random.random()
+    if ra < 0.1:
+        return r
+    elif ra < 0.25:
+        return rt.char_swap().result
+    elif ra < 0.55:
+        return rt.missing_char().result
+    elif ra < 0.85:
+        return rt.nearby_char().result
+    else:
+        return rt.extra_char().result
 
-    
+def modify_response(response):
+    # apply variant modifications
+    if variant >= 2:
+        # chance to misspell or change case
+        if random.random() < 0.7:
+            response = response.lower() if type(response) == str else [r.lower() for r in response]
+
+        # chance to have typo
+        if random.random() < 0.4 and type(response) == str:
+            response = apply_typo(response)
+        # introduce a random typo
+        if type(response) == list:
+            response = list(map(apply_typo, response))
+
+    if variant == 3:
+        # chance to not respond or choose a random line
+        p = random.random()
+        if p < 0.3:
+            return None # do not respond
+        
+    return response
 
 @sio.event
 def act():
@@ -223,24 +253,6 @@ def act():
         # if the text has a keyword, move to the avatar and respond accordingly
         for keyword, response in role_words.items():
             if keyword.lower() in text.lower():
-                # apply variant modifications
-                if variant >= 2:
-                    # chance to misspell or change case
-                    if random.random() < 0.7:
-                        response = response.lower()
-                    if random.random() < 0.4:
-                        # introduce a random typo
-                        if len(response) > 1:
-                            for _ in range(random.randint(1, 5)):
-                                idx = random.randint(0, len(response) - 1)
-                                response = response[:idx] + random.choice('abcdefghijklmnopqrstuvwxyz') + response[idx + 1:]
-
-                if variant == 3:
-                    # chance to not respond or choose a random line
-                    p = random.random()
-                    if p < 0.3:
-                        return  # do not respond
-
                 # add to the possible targets
                 if text != last_convo_char_msg and id != convo_char:  # only respond if new message
                     valid_targets.append((id, response))
@@ -268,10 +280,28 @@ def act():
         sio.emit('moveToPlayer', {'targetId': id})
         convo_char = id  # set current conversation character
         last_convo_char_msg = last_text.get(id, "")
+        time.sleep(0.5)
         
         # respond with the appropriate response
-        sio.emit('chat', {'text': response})
-        time.sleep(random.randint(4, 7))
+        response = modify_response(response)
+
+        # no reply -- do nothing
+        if not response:
+            time.sleep(random.randint(1,3))
+            return
+
+        # list response
+        if type(response) == list:
+            for r in response:
+                sio.emit('chat', {'text':r})
+                lr = (len(r)//5)+1
+                time.sleep(random.randint(int(lr*1.5), int(lr*3.5)))
+
+        # single string response
+        else:
+            sio.emit('chat', {'text': response})
+            lr = (len(response)//5)+1
+            time.sleep(random.randint(int(lr*1.5), int(lr*3.5)))
         return
     else:
         # if no keywords detected or valid targets, do a random action

@@ -150,6 +150,15 @@ def avatar_assigned(data):
 
 # --- GAME EVENTS --- #
 
+def goto():
+    pass
+
+def talk():
+    pass
+
+
+
+
 @sio.event
 def act():
     # don't act if not available

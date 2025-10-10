@@ -358,7 +358,21 @@
         "Are there any particular items I can help you find?",
         "I am currently engaged and will help you momentarily.",
         "Thank you for visiting!",
-        "Please come back again!"
+        "Please come back again!",
+        "bruh",
+        "gg",
+        "that's crazy",
+        "anyways",
+        "o7",
+        "f",
+        "pog",
+        "lol",
+        "...",
+        "yo!",
+        "lmao",
+        "hi!",
+        "yikes...",
+        "..."
     ],
     "apothecary": {
         "ambient_lines": [
@@ -595,5 +609,29 @@
             ],
             "bard": "May all songs of the Chuck be long and true."
         }
+    },
+    "bard":{
+        "role_keywords": {
+            "song": "A song for every soul, a tale for every ear.",
+            "story": "Gather 'round, and I'll tell you a tale of heroes and heartbreak.",
+            "music": "Music is the language of the heart, spoken without words.",
+            "love": "Ah, love! The sweetest melody of all.",
+            "adventure": "Every adventure begins with a single note.",
+            "dance": "Care to dance? The rhythm of life awaits!",
+            "bard": "A bard's life is a tapestry of stories woven with song.",
+            "poem": "A well-crafted poem can stir the soul like no other art.",
+            "lute": "My lute and I have traveled far and wide, sharing tales and tunes."
+        },
+        "ambient_lines": [
+            "Would you like to hear a song? I've got plenty to share.",
+            "The right tune can lift even the heaviest heart.",
+            "I once sang for a king... or was it a jester? Ah, details.",
+            "Music is magic that everyone can understand.",
+            "A good story is worth more than gold, but I'll take both if offered.",
+            "The lute is my companion, my voice, my soul.",
+            "Every town has its own song. What's yours?",
+            "I write songs about heroes... but I prefer to stay out of the fight myself.",
+            "The world is full of stories waiting to be told."
+        ]
     }
 }
