@@ -4,6 +4,12 @@
     A simple random bot that connects to the game server,
     requests a role assignment, and then moves and chats randomly.
 
+    Variations:
+        - 1 : chat, emote, move
+        - 2 : chat only
+        - 3 : move only
+        - 4 : emote only
+
 '''
 
 
@@ -20,6 +26,7 @@ sio = socketio.Client()
 
 # GLOBAL VARIABLES
 
+variant = 1             # behavior variant (1, 2, 3. 4)
 in_game = False
 char_dat = None
 avatar = None
@@ -121,7 +128,7 @@ def disconnect():
 @sio.event
 def getAvatar():
     # request the server to assign an avatar
-    sio.emit('assign-role', 'NPP-RAND')       # bots are always NPP
+    sio.emit('assign-role', 'NPP-AI-RAND-v' + str(variant))       # bots are always NPP
 
 
 @sio.on('role-assigned')
@@ -196,47 +203,95 @@ def act():
         'lmao',
         'hi!'
     ]
-    p = random.random()
-    if p < 0.05:
-        # idle
-        time.sleep(random.randint(5, 10))
-    elif p < 0.15:
-        # wave or dance
-        sio.emit('animate', {'cur_anim': 'wave' if random.random() < 0.5 else 'dance', 'frame': 0})
-        time.sleep(random.randint(5, 10))  # wait for a random time before acting again
-    elif p < 0.3:
-        # emote
-        sio.emit('chat', {'text': f':emo-{random.randint(0, 29):02}:'})
-        time.sleep(random.randint(5, 10))  # wait for a random time before acting again
-    elif p < 0.5:
-        # chat
+
+    if variant == 1:            # all random
+        p = random.random()
+        if p < 0.05:
+            # idle
+            time.sleep(random.randint(5, 10))
+        elif p < 0.15:
+            # wave or dance
+            sio.emit('animate', {'cur_anim': 'wave' if random.random() < 0.5 else 'dance', 'frame': 0})
+            time.sleep(random.randint(5, 10))  # wait for a random time before acting again
+        elif p < 0.3:
+            # emote
+            sio.emit('chat', {'text': f':emo-{random.randint(0, 29):02}:'})
+            time.sleep(random.randint(5, 10))  # wait for a random time before acting again
+        elif p < 0.5:
+            # chat
+            sio.emit('chat', {'text':random.choice(dialogue_lines)})
+            time.sleep(random.randint(5, 15))  # wait for a random time before acting again
+        elif p < 0.75:
+            # move to a random position in the area
+            sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
+            new_pos = randomAreaPos(avatar['area'])
+            sio.emit('move', {'position': new_pos})
+            time.sleep(random.randint(1, 5))  # wait for a random time before acting again
+        elif p < 0.9:
+            # move near another avatar
+            sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
+            if all_avatars:
+                target_avatar = random.choice(list(all_avatars.values()))
+                if target_avatar['id'] != avatar['id']:
+                    sio.emit('moveToPlayer', {'targetId': target_avatar['id']})
+            time.sleep(random.randint(1, 5))  # wait for a random time before acting again
+
+        else:
+            # change location to a different area
+            sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
+            new_area = random.choice(list(boundaries.keys()))
+            avatar['area'] = new_area
+            sio.emit('changeArea', {'area': new_area, 'position': randomAreaPos(new_area)})
+
+            # print for the dashboard
+            print2Dash()
+
+    elif variant == 2:          # chat only
         sio.emit('chat', {'text':random.choice(dialogue_lines)})
         time.sleep(random.randint(5, 15))  # wait for a random time before acting again
-    elif p < 0.75:
-        # move to a random position in the area
-        sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
-        new_pos = randomAreaPos(avatar['area'])
-        sio.emit('move', {'position': new_pos})
-        time.sleep(random.randint(1, 5))  # wait for a random time before acting again
-    elif p < 0.9:
-        # move near another avatar
-        sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
-        if all_avatars:
-            target_avatar = random.choice(list(all_avatars.values()))
-            if target_avatar['id'] != avatar['id']:
-                sio.emit('moveToPlayer', {'targetId': target_avatar['id']})
-        time.sleep(random.randint(1, 5))  # wait for a random time before acting again
 
-    else:
-        # change location to a different area
-        sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
-        new_area = random.choice(list(boundaries.keys()))
-        avatar['area'] = new_area
-        sio.emit('changeArea', {'area': new_area, 'position': randomAreaPos(new_area)})
+    elif variant == 3:          # move only
+        p = random.random()
+        if p < 0.5:
+            # move to a random position in the area
+            sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
+            new_pos = randomAreaPos(avatar['area'])
+            sio.emit('move', {'position': new_pos})
+            time.sleep(random.randint(1, 10))  # wait for a random time before acting again
+        elif p < 0.75:
+            # move near another avatar
+            sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
+            if all_avatars:
+                target_avatar = random.choice(list(all_avatars.values()))
+                if target_avatar['id'] != avatar['id']:
+                    sio.emit('moveToPlayer', {'targetId': target_avatar['id']})
+            time.sleep(random.randint(1, 10))  # wait for a random time before acting again
 
-        # print for the dashboard
-        print2Dash()
+        else:
+            # change location to a different area
+            sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
+            new_area = random.choice(list(boundaries.keys()))
+            avatar['area'] = new_area
+            sio.emit('changeArea', {'area': new_area, 'position': randomAreaPos(new_area)})
 
+            # print for the dashboard
+            print2Dash()
+            
+            time.sleep(random.randint(3, 7))  # wait for a random time before acting again
+            
+    elif variant == 4:          # emote only
+        p = random.random()
+        if p < 0.2:
+            # idle
+            time.sleep(random.randint(3, 10))
+        elif p < 0.5:
+            # wave or dance
+            sio.emit('animate', {'cur_anim': 'wave' if random.random() < 0.5 else 'dance', 'frame': 0})
+            time.sleep(random.randint(3, 10))  # wait for a random time before acting again
+        else:
+            # emote
+            sio.emit('chat', {'text': f':emo-{random.randint(0, 29):02}:'})
+            time.sleep(random.randint(3, 10))  # wait for a random time before acting again
     
 
 
@@ -254,6 +309,11 @@ def update_avatars(data):
 
 
 if __name__ == '__main__': 
+    # set variant based on random chance
+    # lean heavily towards variant 1 but allow 1-4
+    variant = random.choices([1, 2, 3, 4], weights=[0.5, 0.2, 0.15, 0.15], k=1)[0]
+    print(f"=== Behavior Variant Set To: {variant} ===")
+    
     while True:
         # retry connecting to the server until successful
         while not in_game:
@@ -263,8 +323,8 @@ if __name__ == '__main__':
                 print("Connected to the game server")
                 in_game = True
             except socketio.exceptions.ConnectionError:
-                print("Connection failed, retrying in 5 seconds...")
-                time.sleep(5)
+                print("Connection failed, retrying in 15 seconds...")
+                time.sleep(15)
 
         
         # request a role assignment
