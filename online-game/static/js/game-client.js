@@ -60,7 +60,7 @@ socket.on('role-reject', function(nessage){
     showPopup('role-rej')
 })
 
-socket.on('updateAvatars', function(data) {
+socket.on('updateAvatars', function(data) {    
     if(!in_game)
         return;
     
@@ -68,3 +68,18 @@ socket.on('updateAvatars', function(data) {
     socket_avatar = data.avatars[socket.id]
     updateGame(data.avatars); // update the avatars with the received data
 });
+
+socket.on('vote-accepted', function(data){
+    document.getElementById("vote-confirm").innerHTML = "Vote submitted!"
+    setTimeout(function() {
+        document.getElementById("vote-confirm").innerHTML = "";
+    },5000); // clear the confirmation message after 2 seconds
+
+    // disable vote buttons then re-enable after 3 seconds
+    document.getElementById('vote-yea').disabled = true;
+    document.getElementById('vote-nay').disabled = true;
+    setTimeout(function(){
+        document.getElementById('vote-yea').disabled = false;
+        document.getElementById('vote-nay').disabled = false;
+    }, 3000);
+})

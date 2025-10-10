@@ -208,6 +208,16 @@ io.on('connection', function(socket) {
     });
 
 
+    // handle player votes
+    socket.on('vote', function(data){
+        if(players[socket.id]){
+            addVote(socket.id, data.avatar, data.dec, data.conf);
+            console.log(":: AP [" + socket.id + "] voted " + data.dec.toUpperCase() + " on [" + data.avatar + "] (" + players[data.avatar].roletype + ") ::")
+            io.emit('vote-accepted',{});
+        }
+    })
+
+
     // handle disconnection
     socket.on('disconnect', function() {
         console.log('User disconnected: ' + socket.id);
@@ -275,6 +285,25 @@ function logDat(player, status){
     log.end();
 }
 
+function isAI(avatar){
+    return players[avatar].roleType.includes("AI")
+}
+
+function addVote(player,candidate,vote,confidence){
+    var voteLog = fs.createWriteStream('./static/data/VOTE_DATA.txt', { flags: 'a'});
+    var dat = {
+        'correct-vote': (isAI(candidate) && vote=='ai') || (!isAI(candidate) && vote=='human'),
+        'ap-id': player,
+        'npc-id': candidate,
+        'npc-actual': players[candidate].roletype,
+        'npc-job': players[candidate].raceType+' '+players[candidate].classType,
+        'vote':vote,
+        'confidence':confidence,
+        'time':"["+new Date().toISOString() + ']'
+    }
+    voteLog.write(JSON.stringify(dat)+"\n");
+    voteLog.end();
+}
 
 function cleanClose(){
     let ids = Object.keys(players);

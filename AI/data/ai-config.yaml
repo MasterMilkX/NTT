@@ -1,4 +1,5 @@
 bots : [
   {script: "random_bot.py", instances: 3},
   {script: "behavior_tree_bot.py", instances: 3},
+  {script: "grammar-bot.py", instances: 3}
 ]

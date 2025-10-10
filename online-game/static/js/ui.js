@@ -437,24 +437,6 @@ function closeVoteUI(){
     vote_window.style.display = "none"; // hide the vote UI
 }
 
-function submitVote(vote){
-    // TODO: implement vote submission logic to the database
-    // userID, votedUserID, voteType, confidence
-
-    document.getElementById("vote-confirm").innerHTML = "Vote submitted!"
-    setTimeout(function() {
-        document.getElementById("vote-confirm").innerHTML = "";
-    },5000); // clear the confirmation message after 2 seconds
-    
-
-}
-
-
-function updateConfidence(conf_val){
-    // TODO: implement confidence update logic
-
-    
-}
 
 
 // show the start up screen to select role again

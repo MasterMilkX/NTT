@@ -59,7 +59,8 @@ class Avatar {
 
         this.classType = occ; // the class/occupation of the avatar (e.g., "warrior", "mage")
         this.raceType = race  // the race of the avatar (e.g., "human", "elf")
-        this.roletype = roletype; // the role type of the avatar (e.g., "impostor", "crewmate")
+        this.roleType = roletype;       // account for typos with roletype (redundancy)
+        this.roletype = roletype; // the role type of the avatar (e.g., "AP", "NPC-AI-GRAMMAR")
 
         this.area = null;   // the area where the avatar is currently located
         this.show = true; // whether the avatar is currently visible on the map

@@ -16,6 +16,8 @@ var socket_avatar = null;
 var highlight_avatar = null;
 var AVATAR_SCALE = 1;
 
+var last_vote_time = null;      // last time the player submitted a vote on a character
+
 var char_dat = {}; // character data for the player
 var role_type = ""; // default role type for testing purposes
 
@@ -540,6 +542,21 @@ function sendAnim(){
     }
 }
 
+
+///////////////////////       VOTING       ////////////////////////////////
+
+function submitVoteMain(vote){
+    // TODO: implement vote submission logic to the database
+
+    // get the highlighted character ID
+    let char_id = highlight_avatar;
+    if (!char_id)
+        return;
+    let confidence = document.getElementById("confidence-slider").value;
+
+    console.log("Voted on " + char_id);
+    socket.emit('vote', { avatar: char_id,  conf:confidence, dec:vote});
+}
 
 
 

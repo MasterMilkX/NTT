@@ -40,7 +40,8 @@ sio = socketio.Client()
 
 # GLOBAL VARIABLES
 
-DEBUG = True
+DEBUG = False
+DEBUG_ACTION = True
 in_game = False
 char_dat = None
 avatar = None
@@ -138,6 +139,10 @@ def debug_print(msg):
     if DEBUG:
         print(msg)
 
+def debug_print_act(msg):
+    if DEBUG_ACTION:
+        print(msg)
+
 def print2Dash():
     d = {
         'bot_name':avatar['name'],
@@ -207,11 +212,11 @@ def avatar_assigned(data):
 def apply_typo(r):
     rt = typo.StrErrer(r)
     ra = random.random()
-    if ra < 0.15:
+    if ra < 0.25:
         return r
-    elif ra < 0.3:
+    elif ra < 0.35:
         return rt.char_swap().result
-    elif ra < 0.55:
+    elif ra < 0.60:
         return rt.missing_char().result
     elif ra < 0.85:
         return rt.nearby_char().result
@@ -306,7 +311,7 @@ def speak():
                 sio.emit('chat', {'text':r})
                 lr = (len(r)//7)+1
                 t = random.randint(int(lr*0.5), int(lr*2))
-                debug_print(f"Text: {r} ({t})")
+                debug_print_act(f"Text: {r} ({t})")
                 time.sleep(t)
 
         # single string response
@@ -314,7 +319,7 @@ def speak():
             sio.emit('chat', {'text': response})
             lr = (len(response)//7)+1
             t = random.randint(int(lr*0.5), int(lr*2))
-            debug_print(f"Text: {response} ({t})")
+            debug_print_act(f"Text: {response} ({t})")
             time.sleep(t)
         return
     else:
@@ -331,7 +336,7 @@ def emote():
         sio.emit('chat', {'text': f':emo-{random.randint(0, 29):02}:'})
 
     t = random.randint(2, 7)
-    debug_print(f"Random action: emote ({t})")
+    debug_print_act(f"Random action: emote ({t})")
     time.sleep(t)
 
 def amb_line():
@@ -342,31 +347,31 @@ def amb_line():
         sio.emit('chat', {'text': line})
         ll = (len(line)//10)+1
         t = random.randint(int(ll*1), int(ll*3))
-        debug_print("Random action: ambient line - " + line + f" ({t})")
+        debug_print_act("Random action: ambient line - " + line + f" ({t})")
         time.sleep(t)
         return
 
 def move_to_rand_pos():
     # move to a random position in the area
     new_pos = randomAreaPos(avatar['area'])
-    debug_print(f"Random action: move to random position {new_pos}")
+    debug_print_act(f"Random action: move to random position {new_pos}")
     sio.emit('move', {'position': new_pos})
     time.sleep(random.randint(1, 5))
     return
 
 def move_to_rand_avatar():
-    debug_print("Random action: move to another avatar")
+    debug_print_act("Random action: move to another avatar")
     # move near another avatar
     if all_avatars:
         target_avatar = random.choice(list(all_avatars.values()))
         if target_avatar['id'] != avatar['id']:
-            debug_print(f"Random action: move to another avatar - {target_avatar['id']}")
+            debug_print_act(f"Random action: move to another avatar - {target_avatar['id']}")
             sio.emit('moveToPlayer', {'targetId': target_avatar['id']})
     time.sleep(random.randint(1, 5))
     return
 
 def goto_base():
-    debug_print(f"Random action: return to base area {base_area}")
+    debug_print_act(f"Random action: return to base area {base_area}")
     avatar['area'] = base_area
     sio.emit('changeArea', {'area': base_area, 'position': randomAreaPos(base_area)})
     print2Dash()
@@ -374,15 +379,16 @@ def goto_base():
 
 def goto_new_area():
     new_area = random.choice(list(boundaries.keys()))
-    debug_print(f"Random action: change area to {new_area}")
+    debug_print_act(f"Random action: change area to {new_area}")
     avatar['area'] = new_area
     sio.emit('changeArea', {'area': new_area, 'position': randomAreaPos(new_area)})
     print2Dash()
     return
 
 def idle():
+    sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
     t = random.randint(2,8)
-    debug_print(f"Random action: idle ({t})")
+    debug_print_act(f"Random action: idle ({t})")
     time.sleep(t)
     return
 
@@ -513,12 +519,16 @@ def create_seq():
 
 def act():
     ''' Performs series of behaviors based on generated sequence from grammar and production rules '''
+    if not in_game:
+        return
+
+
     # create a new behavior sequence
     bseq = create_seq()
     debug_print(f"+++++ SEQUENCE: {bseq} +++++")
 
     for s in bseq:
-        if variant == 3 and random.random() < 0.2:
+        if (not in_game) or (variant == 3 and random.random() < 0.2):
             break
 
         # perform action

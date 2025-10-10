@@ -38,7 +38,7 @@ all_avatars = {}
         "name": "???",
         "area": "plaza/tavern/market/blacksmith/apothecary/library/training_ground/butcher/bakery",
         "position": {"x": 000, "y": 000},
-        "role": "NPP-AI-[BTree/RAND]",
+        "role": "NPP-AI-[BTree/RAND/GRAMMAR]",
         "race": "nord/elf/lizard/beastman/orc/chuck",
         "occ": "baker/butcher/blacksmith/general_goods/apothecary/
                 knight_trainer/librarian/barmaid/gossip/mercenary/
@@ -278,7 +278,7 @@ def act():
             print2Dash()
             
             time.sleep(random.randint(3, 7))  # wait for a random time before acting again
-            
+
     elif variant == 4:          # emote only
         p = random.random()
         if p < 0.2:
