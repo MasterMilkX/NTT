@@ -8,7 +8,7 @@
 
     Variations:
         - 1 : no variation
-        - 2 : chance for misspelling in dialogue lines and change case
+        - 2 : chance for misspelling in dialogue lines and all lowercase
         - 3 : same as 2 + chance to not respond at all or choose random line
 
 '''
@@ -26,6 +26,7 @@ sio = socketio.Client()
 
 # GLOBAL VARIABLES
 
+DEBUG = False
 in_game = False
 char_dat = None
 avatar = None
@@ -52,8 +53,9 @@ GAME_SERVER = 'http://localhost:4000'
 last_text = {}   # socket id: last text received within last update check
 variant = 1      # behavior variant (1, 2, 3)
 last_text_check = time.time()
-text_rate = 3
+text_rate = 1
 convo_char = None   # current avatar id in conversation with
+last_convo_char_msg = ""    # last message said by the current conversing avatar
 base_area = 'plaza'   # area to return to when changing area
 
 # ---- AREA BOUNDARY DEFINITIONS ---- #
@@ -118,6 +120,17 @@ def randomAreaPos(area):
 
     return randomPos()
 
+def debug_print(msg):
+    if DEBUG:
+        print(msg)
+
+def print2Dash():
+    d = {
+        'bot_name':avatar['name'],
+        'role':avatar['raceType'] + "-" + avatar['classType'],
+        'location':avatar['area']
+    }
+    print("DASHBOARD "+json.dumps(d)+"\n",flush=True)
 
 
 # --- SOCKET.IO EVENTS --- #
@@ -138,7 +151,7 @@ def disconnect():
 @sio.event
 def getAvatar():
     # request the server to assign an avatar
-    sio.emit('assign-role', 'NPP-AI-BTree')       # bots are always NPP
+    sio.emit('assign-role', 'NPP-AI-BTree-v' + str(variant))       # bots are always NPP
 
 
 @sio.on('role-assigned')
@@ -155,9 +168,17 @@ def avatar_assigned(data):
     global avatar, base_area
     if data['status'] == 'accept':
         avatar = data['avatar']
+        print("=== Avatar Successfully Assigned ===")
         print(f"Avatar assigned: {avatar}")
+        print(f"BASE AREA: {char_dat.get('area', 'plaza')}")
+        print("====================================")
+
+        
 
         base_area = char_dat.get('area', 'plaza')
+
+        # print for the dashboard
+        print2Dash()
 
         # goto the game area (center)
         sio.emit('move', {'position': randomAreaPos(avatar['area'])})
@@ -169,13 +190,20 @@ def avatar_assigned(data):
 
 # --- GAME EVENTS --- #
 
+def talk_to(id):
+    ''' Move to and talk to the avatar with the given id '''
+    if not in_game:
+        return
+
+    
+
 @sio.event
 def act():
     # don't act if not available
     if not in_game:
         return
     
-    global convo_char
+    global convo_char, last_convo_char_msg
 
     role_words = role_dialog[avatar['classType']].get('role_keywords', {})
     emote_reacts = role_dialog[avatar['classType']].get('emote_reacts', {})
@@ -184,6 +212,9 @@ def act():
     if not role_words and not emote_reacts:
         random_act()
         return
+
+    # maintain a list of valid targets to respond to (id: response)
+    valid_targets = []
 
     for id, text in last_text.items():
         if id == avatar['id']:
@@ -195,13 +226,14 @@ def act():
                 # apply variant modifications
                 if variant >= 2:
                     # chance to misspell or change case
-                    if random.random() < 0.3:
+                    if random.random() < 0.7:
                         response = response.lower()
-                    if random.random() < 0.2:
+                    if random.random() < 0.4:
                         # introduce a random typo
                         if len(response) > 1:
-                            idx = random.randint(0, len(response) - 1)
-                            response = response[:idx] + random.choice('abcdefghijklmnopqrstuvwxyz') + response[idx + 1:]
+                            for _ in range(random.randint(1, 5)):
+                                idx = random.randint(0, len(response) - 1)
+                                response = response[:idx] + random.choice('abcdefghijklmnopqrstuvwxyz') + response[idx + 1:]
 
                 if variant == 3:
                     # chance to not respond or choose a random line
@@ -209,73 +241,111 @@ def act():
                     if p < 0.3:
                         return  # do not respond
 
-                # move to the avatar
-                sio.emit('moveToPlayer', {'targetId': id})
-                convo_char = id  # set current conversation character
-                
-                # respond with the appropriate line
-                sio.emit('chat', {'text': response})
-                time.sleep(random.randint(5, 15))
-                return   # only respond to one message at a time
+                # add to the possible targets
+                if text != last_convo_char_msg and id != convo_char:  # only respond if new message
+                    valid_targets.append((id, response))
+
             
         # check for emotes
         for emote, response in emote_reacts.items():
             if emote == text:
-                # move to the avatar
-                sio.emit('moveToPlayer', {'targetId': id})
-                convo_char = id  # set current conversation character
-                
-                # respond with the appropriate emote
-                sio.emit('chat', {'text': response})
-                time.sleep(random.randint(5, 15))
-                return
+                valid_targets.append((id, response))
 
+        
+    # randomize the valid targets and pick one to respond to
+    if valid_targets:
+        debug_print(f"Valid targets found: {valid_targets}")
+        if convo_char and convo_char in [t[0] for t in valid_targets]:
+            # prioritize continuing conversation with current convo_char
+            valid_targets = [t for t in valid_targets if t[0] == convo_char]
+        else:
+            # otherwise pick a random target
+            random.shuffle(valid_targets)
 
-    # if no keywords detected, do a random action
-    random_act()
+        id, response = valid_targets[0]
+
+        # move to the avatar
+        sio.emit('moveToPlayer', {'targetId': id})
+        convo_char = id  # set current conversation character
+        last_convo_char_msg = last_text.get(id, "")
+        
+        # respond with the appropriate response
+        sio.emit('chat', {'text': response})
+        time.sleep(random.randint(4, 7))
+        return
+    else:
+        # if no keywords detected or valid targets, do a random action
+        random_act()
 
     
 def random_act():
+    global avatar
+
     ''' Perform a random action '''
     if not in_game:
         return
 
     convo_char = None
 
+    sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})       # reset emote
+
     p = random.random()
-    if p < 0.3:
-        # say an ambient line
-        ambient_lines = role_dialog[avatar['classType']].get('ambient_lines', role_dialog['all_ambient_lines'])
-        if ambient_lines:
-            line = random.choice(ambient_lines)
-            sio.emit('chat', {'text': line})
-        time.sleep(random.randint(5, 15))
+    if p < 0.4:
+        # say an ambient line (70% chance) or do an emote (30% chance)
+        if random.random() < 0.3:
+            if random.random() < 0.5:
+                # wave or dance
+                sio.emit('animate', {'cur_anim': 'wave' if random.random() < 0.5 else 'dance', 'frame': 0})
+            else:
+                # emote
+                sio.emit('chat', {'text': f':emo-{random.randint(0, 29):02}:'})
+            time.sleep(random.randint(5, 10))
+        else:
+            # ambient line
+            ambient_lines = role_dialog[avatar['classType']].get('ambient_lines', role_dialog['all_ambient_lines'])
+            if ambient_lines:
+                line = random.choice(ambient_lines)
+                debug_print("Random action: ambient line - " + line)
+                sio.emit('chat', {'text': line})
+                time.sleep(random.randint(5, 15))
+        return
     elif p < 0.6:
         # move to a random position in the area
         new_pos = randomAreaPos(avatar['area'])
+        debug_print(f"Random action: move to random position {new_pos}")
         sio.emit('move', {'position': new_pos})
         time.sleep(random.randint(1, 5))
-    elif p < 0.9:
+        return
+    elif p < 0.85:
+        debug_print("Random action: move to another avatar")
         # move near another avatar
         if all_avatars:
             target_avatar = random.choice(list(all_avatars.values()))
             if target_avatar['id'] != avatar['id']:
+                debug_print(f"Random action: move to another avatar - {target_avatar['id']}")
                 sio.emit('moveToPlayer', {'targetId': target_avatar['id']})
         time.sleep(random.randint(1, 5))
-
+        return
     else:
         # change location to a different area (go to random if in base area, otherwise go to base area)
         if avatar['area'] == base_area:
             new_area = random.choice(list(boundaries.keys()))
+            debug_print(f"Random action: change area to {new_area}")
+            avatar['area'] = new_area
             sio.emit('changeArea', {'area': new_area, 'position': randomAreaPos(new_area)})
         else:
+            debug_print(f"Random action: return to base area {base_area}")
+            avatar['area'] = base_area
             sio.emit('changeArea', {'area': base_area, 'position': randomAreaPos(base_area)})
+
+        # print for the dashboard
+        print2Dash()
 
 
 @sio.on('updateAvatars')
 def update_avatars(data):
     # Update the local avatar data with the information from the server
-    global all_avatars, last_text, last_text_check
+    global all_avatars, last_text, last_text_check, convo_char, last_convo_char_msg
     all_avatars = data['avatars']
 
     # Check for new messages from other avatars every x seconds
@@ -291,10 +361,21 @@ def update_avatars(data):
                     del last_text[avatar_id]
                 continue
 
+            
+            # if the last convo character has moved away or kept the same text, reset convo_char
+            if convo_char and convo_char == avatar_id:
+                if avatar_data['text'] == last_convo_char_msg or avatar_data['area'] != avatar['area']:
+                    convo_char = None
+                    last_convo_char_msg = ""
+
             # if new text received, update last_text
             if avatar_data['text'] != last_text.get(avatar_id) and avatar_data['text']:
                 last_text[avatar_id] = avatar_data['text']
 
+                debug_print(f"New text from {avatar_data['name']} ({avatar_id}): {avatar_data['text']}")
+
+        if last_text:
+            debug_print(f"TEXT: {last_text}")
 
 
 
@@ -304,16 +385,10 @@ def update_avatars(data):
 
 
 if __name__ == '__main__': 
-    # set variant from command line argument
-    if len(sys.argv) > 1:
-        try:
-            v = int(sys.argv[1])
-            if v in [1, 2, 3]:
-                variant = v
-            else:
-                print("Invalid variant specified. Using default (1).")
-        except ValueError:
-            print("Invalid variant specified. Using default (1).")
+    # set variant based on random chance
+    variant = 1 + min(2, max(0, int(random.gauss(1.5, 0.75))))
+    print(f"=== Behavior Variant Set To: {variant} ===")
+    
 
 
     while True:

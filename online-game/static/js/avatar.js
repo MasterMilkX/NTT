@@ -22,6 +22,11 @@ function randomRace(){
     return races[Math.floor(Math.random() * races.length)];
 }
 
+function randomNonChuckRace(){
+    let races = Object.keys(AVATAR_RACE).filter(race => race !== 'chuck');
+    return races[Math.floor(Math.random() * races.length)];
+}
+
 // for use with offline testing only
 function randomChar(role){
     let r = randomRace();
@@ -109,5 +114,9 @@ module.exports = {
     AVATAR_CLASS : AVATAR_CLASS,
     AVATAR_RACE : AVATAR_RACE,
     AVATAR_AREAS : AVATAR_AREAS,
-    randomRace : randomRace
+    randomRace : randomRace,
+    randomNonChuckRace : randomNonChuckRace,
+    randomClass : randomClass,
+    randomPos : randomPos,
+    randomChar : randomChar
 };

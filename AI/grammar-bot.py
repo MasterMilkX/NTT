@@ -1,8 +1,7 @@
 '''
-    >>>> RANDOM BOT <<<<
+    >>>> GRAMMAR BOT <<<<
 
-    A simple random bot that connects to the game server,
-    requests a role assignment, and then moves and chats randomly.
+    A bot that behaves based on a grammar structure of actions.
 
 '''
 
@@ -20,6 +19,7 @@ sio = socketio.Client()
 
 # GLOBAL VARIABLES
 
+DEBUG = True
 in_game = False
 char_dat = None
 avatar = None
@@ -44,6 +44,9 @@ all_avatars = {}
 
 FULL_AREA_WIDTH = 800
 FULL_AREA_HEIGHT = 450
+
+base_area = 'plaza'   # area to return to when changing area
+
 
 boundaries = {}
 with open('../online-game/static/data/area_boundaries.json', 'r') as f:
@@ -95,13 +98,10 @@ def randomAreaPos(area):
     return randomPos()
 
 
-def print2Dash():
-    d = {
-        'bot_name':avatar['name'],
-        'role':avatar['raceType'] + "-" + avatar['classType'],
-        'location':avatar['area']
-    }
-    print("DASHBOARD "+json.dumps(d)+"\n",flush=True)
+def debug_print(msg):
+    if DEBUG:
+        print(msg)
+
 
 # --- SOCKET.IO EVENTS --- #
 
@@ -140,9 +140,6 @@ def avatar_assigned(data):
         avatar = data['avatar']
         print(f"Avatar assigned: {avatar}")
 
-        # print for the dashboard
-        print2Dash()
-
         # goto the game area (center)
         sio.emit('move', {'position': randomAreaPos(avatar['area'])})
 
@@ -155,8 +152,6 @@ def avatar_assigned(data):
 
 @sio.event
 def act():
-    global avatar
-
     # don't act if not available
     if not in_game:
         return
@@ -214,13 +209,11 @@ def act():
         time.sleep(random.randint(5, 15))  # wait for a random time before acting again
     elif p < 0.75:
         # move to a random position in the area
-        sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
         new_pos = randomAreaPos(avatar['area'])
         sio.emit('move', {'position': new_pos})
         time.sleep(random.randint(1, 5))  # wait for a random time before acting again
     elif p < 0.9:
         # move near another avatar
-        sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
         if all_avatars:
             target_avatar = random.choice(list(all_avatars.values()))
             if target_avatar['id'] != avatar['id']:
@@ -229,13 +222,8 @@ def act():
 
     else:
         # change location to a different area
-        sio.emit('animate', {'cur_anim': 'idle', 'frame': 0})
         new_area = random.choice(list(boundaries.keys()))
-        avatar['area'] = new_area
         sio.emit('changeArea', {'area': new_area, 'position': randomAreaPos(new_area)})
-
-        # print for the dashboard
-        print2Dash()
 
     
 
@@ -245,6 +233,7 @@ def update_avatars(data):
     # Update the local avatar data with the information from the server
     global all_avatars
     all_avatars = data['avatars']
+
 
 
 

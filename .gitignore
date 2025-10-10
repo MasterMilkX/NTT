@@ -5,3 +5,5 @@ online-game/static/data/*log.txt
 AI/startbots.sh
 AI/killbots.sh
 AI/run_ai_OUT.log
+npc-tt/
+AI/bots_all.log

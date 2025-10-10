@@ -85,7 +85,7 @@ function newChar(role){
 
     // change race if chuck limit reached
     if(race == "chuck" && chuck_ct >= 3 && occ != "chuck"){
-        race = Object.keys(AVATAR_RACE)[Math.floor(Math.random() * Object.keys(AVATAR_RACE).length-1)]; // pick a random race
+        race = playerjs.randomNonChuckRace(); // pick a random race
     }
 
     //console.log("Assigned occupation: " + occ + " and race: " + race + " for role: " + role);
@@ -139,7 +139,7 @@ io.on('connection', function(socket) {
         players[socket.id].tasks = char_data.tasks; // set the tasks for the player
         players[socket.id].show = true; // set the avatar to be shown
         
-        console.log(players[socket.id].name + '(' + players[socket.id].raceType + ' ' + players[socket.id].classType + ') joined! [ID: ' + socket.id + ']'); ;
+        console.log(players[socket.id].name + ' (' + players[socket.id].raceType + ' ' + players[socket.id].classType + ') joined! [ID: ' + socket.id + ']'); ;
         socket.emit('message', {'status':'accept','avatar': players[socket.id]}); // send the player data to the client
         io.emit('playerNum', {'cur_num':Object.keys(players).length,'max_num':MAX_PLAYERS});
         logDat(players[socket.id], '[JOIN SERVER]');  
@@ -179,7 +179,7 @@ io.on('connection', function(socket) {
             players[socket.id].area = data.area;
             players[socket.id].position = data.position; // update position when changing area
             players[socket.id].show = true; // set the avatar to be shown
-            logDat(players[socket.id], '[CHANGE_AREA]' + data.area);
+            logDat(players[socket.id], '[CHANGE_AREA] ' + data.area);
         }
     });
 
@@ -191,7 +191,7 @@ io.on('connection', function(socket) {
             txt = txt.substring(0, 75); // limit text length to 75 characters
             players[socket.id].setText(txt);
             textTimeout(players[socket.id], socket.id);
-            logDat(players[socket.id], '[CHAT]: ' + txt); // log the chat message
+            logDat(players[socket.id], '[CHAT] ' + txt); // log the chat message
             //io.emit('updatePlayers', players);
         }
     });
@@ -203,7 +203,7 @@ io.on('connection', function(socket) {
             players[socket.id].sprite.cur_animation = data.cur_anim; // set the current animation
             players[socket.id].sprite.frame = data.frame; // set the current frame 
             players[socket.id].sprite.frameInterval = 250; // reset the frame interval
-            logDat(players[socket.id], '[' + data.cur_anim + ']');
+            logDat(players[socket.id], '[ANIM] ' + data.cur_anim);
         }
     });
 
@@ -354,7 +354,7 @@ function totalRoles(){
 
 function showNumRoles(){
     let total = totalRoles();
-    console.log("### Total roles: " + total + "/" + (MAX_ROLES * Object.keys(player_role_ct).length) + " (+" + hero_ct + ") ###");
+    console.log("### Total roles: " + total + "/" + (MAX_ROLES * Object.keys(player_role_ct).length) + " (+" + hero_ct + " AP players) ###");
 }
 
 

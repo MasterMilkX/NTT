@@ -4,22 +4,19 @@ import random
 import time
 import os
 import signal
+import yaml
 
-# Number of instances
-INSTANCE_COUNT = 7
-# Path to the script
-SCRIPT_PATH = "testbot.py"
 
 # Store process references
-processes = [None] * INSTANCE_COUNT
+processes = [None]
 
-def start_instance(i):
-    processes[i] = subprocess.Popen(["python3", SCRIPT_PATH])
+def start_instance(i,script_path):
+    processes[i] = subprocess.Popen(["python3", script_path])
     print(f"Started instance {i} with PID {processes[i].pid}")
 
 def kill_and_restart_loop(i):
     while True:
-        wait_time = random.randint(300, 600)  # 5 to 10 minutes in seconds
+        wait_time = random.randint(600, 900)  # 10 to 15 minutes in seconds
         time.sleep(wait_time)
         
         proc = processes[i]
@@ -34,21 +31,50 @@ def kill_and_restart_loop(i):
         print(f"Restarting instance {i}")
         start_instance(i)
 
-# Start all instances initially
-for i in range(INSTANCE_COUNT):
-    start_instance(i)
 
-# Start a thread for each instance to manage killing and restarting
-for i in range(INSTANCE_COUNT):
-    t = threading.Thread(target=kill_and_restart_loop, args=(i,), daemon=True)
-    t.start()
+def start_bots():
 
-# Keep the main thread alive
-try:
-    while True:
-        time.sleep(60)
-except KeyboardInterrupt:
-    print("Shutting down...")
-    for proc in processes:
-        if proc:
-            proc.terminate()
+    # read in the yaml file
+    with open("data/ai-config.yaml", 'r') as f:
+        config = yaml.safe_load(f)
+
+    # import the data
+    bots = config.get("bots", [])
+    scripts = []
+    all_instances = 0
+    for bot in bots:
+        instances = bot.get('instances', 3)
+        all_instances += instances
+        for _ in range(instances):
+            scripts.append(bot.get('script', "random_bot.py"))
+
+        print(f"% Configured [ {instances} ] instances of [ {bot.get('script', 'random_bot.py')} ]")
+    
+    print("===-- TOTAL PROCESSES TO RUN:", all_instances, "--===")
+
+    # set the processes
+    global processes
+    processes = [None] * all_instances
+
+    # Start all instances initially
+    for i in range(all_instances):
+        start_instance(i,scripts[i])
+
+    # Start a thread for each instance to manage killing and restarting
+    for i in range(all_instances):
+        t = threading.Thread(target=kill_and_restart_loop, args=(i,), daemon=True)
+        t.start()
+
+    # Keep the main thread alive
+    try:
+        while True:
+            time.sleep(60)
+    except KeyboardInterrupt:
+        print("Shutting down...")
+        for proc in processes:
+            if proc:
+                proc.terminate()
+
+
+if __name__ == "__main__":
+    start_bots()
