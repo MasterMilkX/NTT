@@ -1,0 +1,599 @@
+{
+    "barmaid": {
+        "ambient_lines": [
+            "Looking for a room?",
+            "We've got one available upstairs.",
+            "You'd be surprised what you hear working behind the bar...",
+            "Hear any good rumors lately?",
+            "Keep your wits about you\u2014sometimes taverns get rowdy.",
+            "One moment, love, I'll be right with you.",
+            "No coin, no drink.",
+            "That's the rule."
+        ],
+        "role_keywords": {
+            "music": "Our bard starts playing at sundown!",
+            "more": [
+                "Another round?",
+                "Coming right up!"
+            ],
+            "mead": "Sweet mead, made with the finest honey, is perfect after a long day.",
+            "ale": "Our ale is brewed locally and has a rich, smooth flavor.",
+            "drink": [
+                "What'll it be?",
+                "Ale, cider, or something stronger?."
+            ],
+            "fight": [
+                "Break it up, you two!",
+                "Not in my tavern!"
+            ],
+            "food": "We serve hearty stews and fresh bread with every meal."
+        }
+    },
+    "mercenary": {
+        "ambient_lines": [
+            "You lookin\u2019 for muscle?",
+            "That costs extra.",
+            "Steel sings louder than words.",
+            "I don\u2019t ask questions.",
+            "I finish contracts.",
+            "If you\u2019re not paying me, don\u2019t waste my time.",
+            "War never ends.",
+            "It just changes names.",
+            "I\u2019ll fight anyone, anything\u2026 if the price is right.",
+            "I don't remember the days I could fight for glory.",
+            "Now it's just politics and gold...",
+            "Ye remind me of a nice bloke I used to work for out in shirestead... good fellow.",
+            "Lost his head, though.",
+            "Could you spare some coin?",
+            "I'm good muscle to work, as long as you've got the change.",
+            "I'll be good muscle, but don't expect me to come save you if I'm in the middle of slingin' heads!",
+            "Steel gets heavy.",
+            "Gold never does.",
+            "But neither weighs me down.",
+            "Never trust a man who fights for free.",
+            "Every scar I\u2019ve got is another debt unpaid.",
+            "I\u2019ve buried more brothers than I care to count.",
+            "Blood washes off.",
+            "Regret doesn\u2019t."
+        ],
+        "role_keywords": {
+            "death": [
+                "Death?",
+                "She\u2019s an old friend.",
+                "Paid her a visit many times."
+            ],
+            "guard": [
+                "I don\u2019t guard.",
+                "I threaten."
+            ],
+            "honor": [
+                "Honor doesn\u2019t fill your stomach.",
+                "Coin does."
+            ],
+            "war": "I\u2019ve fought in more wars than I\u2019ve cared to count.",
+            "training": "Those greenhorns over there swing like they\u2019re swatting flies.",
+            "quest": [
+                "I don't like takin' quest jobs.",
+                "I'm more of a fighter than a protector."
+            ],
+            "gold": [
+                "Double my gold, and I\u2019ll switch sides.",
+                "Simple math."
+            ],
+            "sword": [
+                "Steel is my only friend.",
+                "And it never lies."
+            ],
+            "blacksmith": [
+                "Blacksmith says I owe him.",
+                "I say the blade broke first swing, so he owes *me*."
+            ],
+            "armor": [
+                "Armor just slows me down.",
+                "A sharp blade\u2019s all I need."
+            ],
+            "money": [
+                "Well, money is my lifeblood, son.",
+                "If there ain't no pay, there aint no me."
+            ],
+            "job": "If you can pay, I can kill.",
+            "fight": "Coin first, blood later."
+        }
+    },
+    "butcher": {
+        "ambient_lines": [
+            "Fresh meat!",
+            "Just butchered this morning.",
+            "Try the spiced sausages \u2014 they're my specialty.",
+            "The smell of blood doesn't bother me anymore.",
+            "Never work without your cleaver.",
+            "Rule number one.",
+            "New deer in today, caught it myself.",
+            "I keep the good stuff in the cold cellar.",
+            "Perfect roast starts with the right cut."
+        ],
+        "role_keywords": {
+            "meat": "Fresh cuts of meat, perfect for your stew or roasting.",
+            "beef": "Our beef is from local farms, top quality guaranteed.",
+            "sausage": "Homemade sausages, seasoned just right.",
+            "bone": "Bones are great for broth and soups.",
+            "pork": [
+                "Looking for pork?",
+                "We have the best cuts around."
+            ],
+            "fresh": "Only the freshest meat makes it to my counter.",
+            "order": "Let me know if you want a special cut or quantity."
+        }
+    },
+    "librarian": {
+        "ambient_lines": [
+            "This is a house of learning, be quiet.",
+            "Have you returned your books on time?",
+            "Ancient scrolls must be handled with gloves.",
+            "No loud talking, please.",
+            "Use the catalog to search by title or author.",
+            "We offer copying services for a small fee.",
+            "That book is rare \u2014 please don't damage it."
+        ],
+        "role_keywords": {
+            "magic": "Books on magic are restricted \u2014 special permission required.",
+            "book": "I can help you find any book you seek.",
+            "scroll": "Ancient scrolls are kept in the restricted section.",
+            "history": "Our history section is down the hall to the left.",
+            "research": "If you have questions, I can assist with research.",
+            "story": "Would you like to hear a tale from our collection?",
+            "knowledge": "Knowledge is the greatest treasure one can have."
+        }
+    },
+    "baker": {
+        "ambient_lines": [
+            "Would you like something sweet?",
+            "I recommend the honey tarts.",
+            "All our pastries are made fresh every morning.",
+            "The chocolate cake is a favorite around here.",
+            "Oops!",
+            "I think I burnt the muffins again...",
+            "My secret?",
+            "A pinch of cinnamon in everything.",
+            "We're running low on flour; might need to grind more soon.",
+            "Careful!",
+            "The oven's still hot.",
+            "Need help choosing something?",
+            "Just ask!"
+        ],
+        "role_keywords": {
+            "bread": "Freshly baked bread coming right up!",
+            "cookie": [
+                "Freshly baked cookies?",
+                "Yes, we have those today."
+            ],
+            "cake": [
+                "Looking for a special cake?",
+                "I can make anything from chocolate to fruit-filled delights."
+            ],
+            "flour": "Quality flour is key to all my baking secrets.",
+            "to go": "Would you like a loaf of bread with that?",
+            "sweet": "Try our honey-glazed pastries, they're sweet and perfect with tea.",
+            "pie": "Ah, our berry pies are famous throughout the town!"
+        }
+    },
+    "general_goods": {
+        "ambient_lines": [
+            "Need anything?",
+            "Just let me know.",
+            "I keep the shelves well stocked and ready.",
+            "New stock just came in from the capital.",
+            "Some items are on sale \u2014 take a look.",
+            "Buying in bulk?",
+            "I'll give you a discount.",
+            "Looking for something special?"
+        ],
+        "role_keywords": {
+            "item": "I have all sorts of items \u2014 from ropes to lanterns.",
+            "sale": "There's a special sale today, don't miss out!",
+            "potion": "We don't sell potions \u2014 try the apothecary.",
+            "trade": "I'm always open to trades, if you have something interesting.",
+            "price": "If you're curious about the price, just look.",
+            "supplies": "Stocked up on supplies for travelers and townsfolk alike.",
+            "stock": "My stock changes frequently, so come back often.",
+            "tool": [
+                "Need tools?",
+                "I've got hammers, nails, and more."
+            ],
+            "return": "Yes, you can return that if it's unused."
+        }
+    },
+    "knight_trainer": {
+        "ambient_lines": [
+            "Focus on your stance, it's the foundation of all combat.",
+            "Every knight was once a beginner \u2014 keep practicing.",
+            "Discipline and repetition \u2014 that's the key.",
+            "Hold your sword with both hands.",
+            "Tight, but not stiff.",
+            "You can't fight if you can't move \u2014 find armor that fits.",
+            "Shield up!",
+            "Always keep your guard!",
+            "Training reflexes takes time.",
+            "Start with drills.",
+            "A knight's strength is his honor, not his sword.",
+            "Your stance is sloppy.",
+            "Start over.",
+            "Earn your rank.",
+            "Don't ask for it."
+        ],
+        "role_keywords": {
+            "sword": "Master your swordsmanship to become a true knight.",
+            "armor": "Make sure your armor fits well before battle.",
+            "duel": [
+                "You want a duel?",
+                "Prove you're worthy."
+            ],
+            "challenge": [
+                "Care for a sparring match?",
+                "Let's test your skills."
+            ],
+            "training": "Training makes perfect \u2014 practice your sword swings daily.",
+            "discipline": "Discipline and honor go hand in hand.",
+            "strategy": "Tactics win wars more than brute strength.",
+            "fight": "A good fighter knows when to strike and when to defend."
+        }
+    },
+    "blacksmith": {
+        "ambient_lines": [
+            "Careful with that sword!",
+            "It's freshly sharpened.",
+            "I've got plenty of iron, but good steel's harder to come by.",
+            "This forge's been in my family for generations.",
+            "I can repair that \u2014 give me a few hours.",
+            "Careful!",
+            "That blade's still red hot.",
+            "I lost my favorite hammer again...",
+            "Got a special commission?",
+            "I'll need a down payment.",
+            "Blades dull with time.",
+            "Always keep them sharp."
+        ],
+        "role_keywords": {
+            "sword": [
+                "Looking for a new sword?",
+                "I just finished forging one."
+            ],
+            "repair": [
+                "Bring me your broken weapons;",
+                "I'll make them as good as new."
+            ],
+            "shield": "A sturdy shield can block even the fiercest blow.",
+            "armor": [
+                "Quality armor saves lives;",
+                "I can forge the best in town."
+            ],
+            "fix": [
+                "Armor needs mending?",
+                "Let me take a look."
+            ],
+            "hammer": "The ring of my hammer means a new weapon is born.",
+            "forge": "The forge is always hot, ready for the next creation.",
+            "metal": "Strong metals like steel and mithril are my specialty."
+        }
+    },
+    "drunk": {
+        "ambient_lines": [
+            "*hic* \u2026who took my shoes?",
+            "Bartender!",
+            "Another round\u2014oh\u2026 I still got one.",
+            "*zzzz* \u2026don\u2019t touch my mug\u2026",
+            "The floor\u2019s comfy.",
+            "Don\u2019t knock it \u2018til you try it.",
+            "Did I ever tell ya I wrestled a troll? \u2026No?",
+            "Good.",
+            "I love ya, stranger.",
+            "You\u2019re my best friend now.",
+            "How many bars 'ave you visited?",
+            "Lookin' for some new spots.",
+            "I remember the nights when I would go around watching the stars... actually, I don't remember.",
+            "But it seems nice.",
+            "There are fewer days in my memory than there are days in a month.",
+            "But hey, that's life for ya.",
+            "I once wooed a nice young lass whilst a little bamboozled, woke up the next morning and found she was a chicken!",
+            "Don\u2019t tell me to slow down\u2026 *hic* I\u2019m p-pacing myself.",
+            "Shhh\u2026 the table\u2019s listening.",
+            "Don\u2019t trust it.",
+            "If I spin fast enough, the world\u2019ll finally stop spinnin\u2019.",
+            "I\u2019m not drunk!",
+            "The floor\u2019s just\u2026 ambitious."
+        ],
+        "role_keywords": {
+            "song": [
+                "Sing?",
+                "I\u2019ll sing! \u2026Wait\u2026 forgot the words\u2026 *hic*"
+            ],
+            "alcohol": [
+                "Now, I don't know about you, but that's some foreign stuff I've never heard of.",
+                "Sounds good though!"
+            ],
+            "wife": "Don\u2019t tell her I\u2019m here\u2026 she still thinks I\u2019m at work.",
+            "mead": [
+                "Sweet mead?",
+                "Too sweet\u2026 I like it bitter, like my ex-wife."
+            ],
+            "no more": [
+                "Whaddya mean no more!",
+                "Do you know how long I've been drinkin here?",
+                "I practically built this town!"
+            ],
+            "ale": "This ale tastes like the floor smells\u2026 delicious!",
+            "rum": [
+                "Rum?",
+                "Ohhh, dangerous stuff.",
+                "Makes me *hic* braver than I should be."
+            ],
+            "drink": [
+                "Drink?",
+                "Ha!",
+                "Already *hic* ahead of ya!"
+            ],
+            "fight": "I\u2019ll fight ya! \u2026Just as soon as the world stops spinnin\u2019.",
+            "wine": [
+                "Wine\u2019s for nobles.",
+                "Ale\u2019s for men like me."
+            ],
+            "bard": "That bard owes me a song \u2014 I paid him in buttons, but they were *good* buttons.",
+            "coin": [
+                "Coin?",
+                "Coin\u2019s for cowards.",
+                "Real men pay in empty mugs!"
+            ]
+        }
+    },
+    "all_ambient_lines": [
+        "Sorry, can you repeat that?",
+        "I'm not sure.",
+        "Can I help you?",
+        "What was that?",
+        "Do you need something?",
+        "Good afternoon.",
+        "How may I help you?",
+        "Thank you for choosing our store.",
+        "What can I get for you today?",
+        "Are there any particular items I can help you find?",
+        "I am currently engaged and will help you momentarily.",
+        "Thank you for visiting!",
+        "Please come back again!"
+    ],
+    "apothecary": {
+        "ambient_lines": [
+            "You'd be surprised what secrets lie within common herbs.",
+            "I'm in the middle of a delicate infusion \u2014 speak quickly.",
+            "The right mixture can heal\u2026 or harm.",
+            "Choose wisely."
+        ],
+        "role_keywords": {
+            "potion": "What ailment brings you to my shop today?",
+            "last": "The duration depends on the strength of your will\u2026 and the purity of the reagents.",
+            "fire": [
+                "Ah, searching for fire resistance?",
+                "I'd recommend fire salts, bone meal, and a touch of snowberry."
+            ],
+            "health": "For vitality, try vampire dust, juniper berries, and luna moth wings \u2014 just a pinch!",
+            "invisibility": [
+                "Interested in something... more elusive?",
+                "Our invisibility tonic lasts up to ten minutes, if brewed properly."
+            ],
+            "herbs": "Looking to mend the body or cloud the mind?"
+        }
+    },
+    "gossip": {
+        "ambient_lines": [
+            "Oh!",
+            "You're new here?",
+            "I know everything about everyone.",
+            "Feel free to tell me anything.",
+            "And I mean.",
+            "Anything.",
+            "I heard the tavern keeper's cousin is actually a pirate.",
+            "There was a noise behind the general goods store last night \u2014 some say ghosts.",
+            "I say rats.",
+            "Big rats.",
+            "The butcher's laugh?",
+            "Not natural.",
+            "I've heard hyenas with more self-control.",
+            "They say the knight trainer sleeps in his armor.",
+            "Can't imagine the chafing.",
+            "You'll never guess who was seen sneaking into the woods\u2026 again.",
+            "Honestly, if you're not hiding something in this town, are you even interesting?",
+            "I told them: if the well water starts glowing, maybe stop drinking it.",
+            "But nooo.",
+            "Am I messy?",
+            "Talos no!",
+            "I'm just... well informed.",
+            "I swear I saw the butcher and the barmaid arguing.",
+            "Something about sausages.",
+            "The town drunk once claimed he saw the wizard kissing a goat.",
+            "I\u2026 don't disbelieve him.",
+            "If my curtains twitch, it's just the wind.",
+            "Or that damned Chuck.",
+            "He watches me, y'know?"
+        ],
+        "role_keywords": {
+            "blacksmith": [
+                "Did you hear?",
+                "The blacksmith's apprentice hasn't come home in three days."
+            ],
+            "her": "I'm not saying it was a love potion, but she has been smiling a lot lately.",
+            "apothecary": "They say the apothecary talks to her potions.",
+            "gossip": [
+                "Me?",
+                "A gossip?",
+                "Never!",
+                "I just happen to be a lot of places, that's all."
+            ],
+            "wizard": [
+                "That wizard?",
+                "Harmless.",
+                "Unless you call his beard \u201cscraggly.\u201d Then you'd best run."
+            ],
+            "baker": [
+                "You didn't hear it from me, but the baker's \u201csecret ingredient\u201d is hatred.",
+                "Or maybe it's rum."
+            ],
+            "chuck": [
+                "I mean, what is that thing?",
+                "Is it a Chicken?",
+                "Is it a Duck?",
+                "Why does it make fun of my hair?!"
+            ],
+            "libararian": "The librarian's been sneaking out after dusk \u2014 with something other than books!",
+            "story": [
+                "Oh, I've got stories.",
+                "Sit down, love.",
+                "You'll want a biscuit for this one."
+            ],
+            "bard": [
+                "The bard's songs?",
+                "Half of them are about people still alive.",
+                "Messy."
+            ]
+        }
+    },
+    "wizard": {
+        "ambient_lines": [
+            "The stars whisper secrets if you know how to listen.",
+            "Do not touch that rune unless you want to be turned into a frog.",
+            "I've seen realms beyond your comprehension... and I don't like any of it.",
+            "Careful!",
+            "That tome is bound with a soul.",
+            "I once turned an entire army into chickens \u2014 quite effective.",
+            "Made for a decent dinner.",
+            "Knowledge is the root of all true power.",
+            "I'm studying the magical resonance of crystal formations.",
+            "Don't interrupt.",
+            "Most mortals misunderstand the difference between illusion and reality.",
+            "Yes, this staff has a name.",
+            "No, I'm not telling you what it is.",
+            "My beard contains more wisdom than most libraries.",
+            "I've forgotten more spells than you've had hot meals.",
+            "Keep your voice down \u2014 the ley lines are listening.",
+            "The last person who interrupted me is still floating over a lake.",
+            "Are you here to study, or to waste my time?",
+            "Ah!",
+            "A curious mind.",
+            "I like that...",
+            "But don't try to become like me.",
+            "Yes, yes\u2026 I can teach you, but the question is \u2014 are you ready to learn?",
+            "You're asking about teleportation?",
+            "Try walking through a tear in space first.",
+            "That glyph?",
+            "It's harmless\u2026 unless you say the activation word.",
+            "Which I just did.",
+            "You remind me of a young apprentice I once had.",
+            "He is no longer...",
+            "Hmm, your aura is\u2026 tangled.",
+            "Have you meddled with cursed objects recently?",
+            "The ritual requires silence.",
+            "Total silence.",
+            "That includes thinking loudly.",
+            "Did I hear \u201celemental binding\u201d?",
+            "Tell me everything.",
+            "Yes, I'm busy.",
+            "No, I don't care.",
+            "That's not how you hold a wand.",
+            "Give it here before you hex yourself.",
+            "Of course I've read the Forbidden Codices.",
+            "I wrote one of them.",
+            "Ah, you must have touched the Weave.",
+            "That explains the singed eyebrows."
+        ],
+        "role_keywords": {
+            "summon": [
+                "You want to summon what?",
+                "Hah!",
+                "I want to see this."
+            ],
+            "spell": [
+                "You seek a spellbook?",
+                "I might have one... somewhere..."
+            ],
+            "sword": "No, I won't enchant your sword for free.",
+            "potion": [
+                "Potions are for dabblers.",
+                "I prefer spells with a bit more... boom."
+            ],
+            "frog": "If you want to be turned into a frog, however, be my guest.",
+            "charm": "Would you like a charm for protection, or perhaps something more explosive?",
+            "wand": "A wand chooses the wizard, but a wise wizard checks the warranty.",
+            "quest": [
+                "Take this scroll.",
+                "Read it only if you're out of options.",
+                "Or if you're very bored."
+            ],
+            "rune": [
+                "Spells require focus.",
+                "And a bit of flair."
+            ]
+        }
+    },
+    "chuck": {
+        "ambient_lines": [
+            "Chuck!",
+            "The beak speaks, but do you listen?",
+            "Two wings, one body.",
+            "Twice cursed, twice blessed.",
+            "The egg cracks \u2014 destiny hatches.",
+            "Do you seek wisdom, or only feathers?",
+            "The farmer dreams, but the flock awakens.",
+            "The sky whispers.",
+            "I answer.",
+            "Quack.",
+            "Cluck.",
+            "Chuck.",
+            "When you look at the moon, and think you saw my face... perhaps you did.",
+            "We all believe in that which we cannot see, except for those who don't.",
+            "Perhaps... we are all more and less than we think we are.",
+            "Remember to soar, lest your wings become dull and tired.",
+            "Beware the fox that wears a smile.",
+            "A storm is only a pond turned upside down.",
+            "Do not fear the axe \u2014 fear the silence after it falls."
+        ],
+        "role_keywords": {
+            "sky": [
+                "The sky is not above us.",
+                "It is within us."
+            ],
+            "feather": "Feathers fall where fate wills them.",
+            "destiny": "All paths lead to the roost.",
+            "bread": "Bread is sacred\u2026 but crumbs are destiny.",
+            "chicken": [
+                "Of course, I am not a chicken.",
+                "I am me, Chuck."
+            ],
+            "egg": [
+                "An egg is not just a shell \u2014 it is the beginning of worlds.",
+                "Do not treat it lightly."
+            ],
+            "water": [
+                "Duck swims, chicken drowns.",
+                "Yet I do both."
+            ],
+            "market": [
+                "The market clucks with hunger.",
+                "But who feeds whom?"
+            ],
+            "moon": [
+                "The moon is an egg, waiting to crack open.",
+                "Someday\u2026"
+            ],
+            "duck": [
+                "I am not a duck, as much as I am not a human.",
+                "I am simply me.",
+                "Chuck."
+            ],
+            "farm": "A farm is a cage for the dreamer \u2014 but I have wings.",
+            "wizard": "The wizards believes he is all-knowing, yet bawks at my mere existence.",
+            "chuck": [
+                "I do not know what I am.",
+                "But that, in itself, makes me alive."
+            ],
+            "bard": "May all songs of the Chuck be long and true."
+        }
+    }
+}
