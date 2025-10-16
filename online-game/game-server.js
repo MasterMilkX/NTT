@@ -42,13 +42,20 @@ var hero_ct = 0; // count of heroes
 var nameDat = require('./static/data/names.json');
 var roleDat = require('./static/data/roles.json');
 
+
 // handle player game state
 var players = {};
 var playerRoles = {};
 var playerTxtTime = {};
 var chuck_ct = 0; // count of chuck characters
+var ghostDat = {};      // data stored of actions for the ghost characters (based on humans)
+
+
+
 const MAX_PLAYERS = 50;
 const FPS_I = 60;
+
+
 
 
 // creates a player with a random role (as needed) and class
@@ -101,6 +108,13 @@ function newChar(role){
 
     return {'race': race, 'occ': occ, 'name': name, 'desc': desc, 'tasks': tasks, 'role': role};
 }
+
+
+
+function makeGhostDat(){
+    
+}
+
 
 
 //newChar('NPP')

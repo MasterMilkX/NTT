@@ -7,3 +7,5 @@ AI/killbots.sh
 AI/run_ai_OUT.log
 npc-tt/
 AI/bots_all.log
+online-game/static/data/LOG.txt
+online-game/static/data/VOTE_DATA.txt
