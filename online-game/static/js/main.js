@@ -437,12 +437,14 @@ function clickAvatar(e){
         if(avatar.id == getAvatar().id)
             continue; // skip the current user's avatar
 
-        if (getAvatar().roletype == "AP" && avatarClicked(avatar, x, y)) { 
+        if ((getAvatar().roletype == "AP" || getAvatar().roletype == "MOD") && avatarClicked(avatar, x, y)) { 
             // handle avatar click
             console.log("Avatar clicked:", avatar.name);
-            highlight_avatar = avatar.id // add the clicked avatar to the highlight list
-            voteChar(avatar.name); // open the vote UI with the clicked avatar's username
-            return true;
+            if((getAvatar().roletype == "MOD") || (avatar.roleType.includes("NPP"))){
+                highlight_avatar = avatar.id // add the clicked avatar to the highlight list
+                voteChar(avatar.name); // open the vote UI with the clicked avatar's username
+                return true;
+            }
         }
     }
     //hideVoteUI(); // hide the vote UI if no avatar was clicked
@@ -479,7 +481,7 @@ function sendMessage(){
     let msg = document.getElementById('chat-input').value;
     if (msg && msg.trim() !== '' && in_game) {
         // check if the message starts with a backslash for commands
-        if(msg.startsWith('\\')){
+        if(msg.startsWith('\/')){
             // handle key commands
             let cmd = msg.slice(1).trim(); // get the command without the backslash
             if(cmd === 'dance'){

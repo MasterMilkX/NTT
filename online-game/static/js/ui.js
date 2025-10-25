@@ -86,9 +86,15 @@ function selectRole(role){
     if(role_type !== ""){ // if the role is already selected, do nothing
         return;
     }
+    let ap_socket_id = "";
+
+    if(role == "NPP-Human"){
+        // ask for the socket id from the user to pass along
+        ap_socket_id = prompt("Enter the SocketID you used as an AP user");
+    }
 
     role_type = role; // set the role type to the selected role
-    socket.emit('assign-role',role); // send the selected role to the server
+    socket.emit('assign-role',{'role':role, 'ap_id':ap_socket_id}); // send the selected role to the server
     
     console.log("Selected role: " + role + "\n Sending to server~!"); // log the selected role
 

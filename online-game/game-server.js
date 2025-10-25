@@ -31,7 +31,7 @@ server.listen(app.get('port'), function() {
 
 
 // set up the role associations
-var MAX_ROLES = 3;
+var MAX_ROLES = 5;
 var player_role_ct = {};
 for(let occ in playerjs.AVATAR_CLASS) {
     player_role_ct[occ] = 0; // initialize the role count to 0
@@ -47,14 +47,28 @@ var roleDat = require('./static/data/roles.json');
 var players = {};
 var playerRoles = {};
 var playerTxtTime = {};
-var chuck_ct = 0; // count of chuck characters
-var ghostDat = {};      // data stored of actions for the ghost characters (based on humans)
 
+var chuck_ct = 0; // count of chuck characters
+var human_ct = 0;
+var npph_ct = 0;
+
+var ghostDat = {};      // data stored of actions for the ghost characters (based on humans)
 
 
 const MAX_PLAYERS = 50;
 const FPS_I = 60;
 
+var apid_list = [];
+
+// import latest list of ap ids
+fs.readFile('./static/data/APID_DATA.txt', 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading file:', err);
+    return;
+  }
+
+  apid_list = data.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+});
 
 
 
@@ -67,10 +81,7 @@ function newChar(role){
     let occ = "";
     if(role === 'AP'){
         occ = "hero"  // all players in AP are heroes
-        hero_ct++;
-    }else if(race == "chuck" && chuck_ct < 3){
-        occ = "chuck";
-        chuck_ct++;
+        race = playerjs.randomNonChuckRace();
     }else{
         // if more roles than players, recount
         let rolesCt = totalRoles();
@@ -93,6 +104,8 @@ function newChar(role){
     // change race if chuck limit reached
     if(race == "chuck" && chuck_ct >= 3 && occ != "chuck"){
         race = playerjs.randomNonChuckRace(); // pick a random race
+    }else if(race == "chuck" && chuck_ct < 3){      // chuck's job is chuck
+        occ = "chuck";
     }
 
     //console.log("Assigned occupation: " + occ + " and race: " + race + " for role: " + role);
@@ -122,10 +135,21 @@ function makeGhostDat(){
 
 io.on('connection', function(socket) {
     // handle role assignment
-    socket.on('assign-role', function(play_type){
+    socket.on('assign-role', function(dat){
+        let play_type = dat.role;
+        let sid = dat.ap_id;
         if (Object.keys(players).length >= MAX_PLAYERS) {
             socket.emit('message', {'status':'reject','avatar':null});
             return;
+        }
+
+        // check if the ap_id added matches the saved socket ids file
+        if(play_type == "NPP-Human" && !wasAP(sid)){
+            console.log("Invalid NPP-Human request for socket ID: " + sid);
+            socket.emit('message', {'status':'reject', 'avatar':null, 'msg':'Invalid AP Socket ID! \nPlay the game as the AP role first before you can play as an NPP!'}); // send reject message if character creation failed
+            return;
+        }else{
+            console.log("Successful NPP-Human validation AP:[" + sid + "] -> NPP:[" + socket.id + "]")
         }
 
         let char_dat = newChar(play_type);      // AP or NPP
@@ -157,7 +181,14 @@ io.on('connection', function(socket) {
         socket.emit('message', {'status':'accept','avatar': players[socket.id]}); // send the player data to the client
         io.emit('playerNum', {'cur_num':Object.keys(players).length,'max_num':MAX_PLAYERS});
         logDat(players[socket.id], '[JOIN SERVER]');  
-        showNumRoles(); // show the total roles assigned  
+        recountRoles(); // count the roles assigned
+        if(char_data.role == "AP"){  // add to the list of APs if human
+            addAPID(socket.id);
+        }
+        if(char_data.role == "AP" || char_data.role == "NPP-Human"){
+            addHumanCt();
+        }
+
         // send the updated player list to all clients
         //io.emit('updatePlayers', players);
     });
@@ -235,20 +266,28 @@ io.on('connection', function(socket) {
     // handle disconnection
     socket.on('disconnect', function() {
         console.log('User disconnected: ' + socket.id);
-        if(players[socket.id]) // if player does not exist, do nothing
+        if(players[socket.id]){ // if player does not exist, do nothing
+            console.log("Leaving player:" + players[socket.id]);
+        
             logDat(players[socket.id], '[DISCONNECT]');
+            let was_human = players[socket.id].roleType == "AP" || players[socket.id].roleType == "NPP-Human";
             freeOcc(socket.id); // free the occupation of the player
-            showNumRoles();
             if (playerTxtTime[socket.id]) {
                 clearTimeout(playerTxtTime[socket.id]); // clear the text timeout
             }
             delete players[socket.id];
             delete playerRoles[socket.id]; // remove the character data for the player
             delete playerTxtTime[socket.id]; // remove the text timeout
+            
+            recountRoles();
+            if(was_human){
+                addHumanCt();
+            }
             console.log('Current players: ' + Object.keys(players).length);
             io.emit('playerNum', {'cur_num':Object.keys(players).length,'max_num':MAX_PLAYERS});
         
-        //io.emit('updatePlayers', players);
+        //io.emit('updatePlayers', players)
+        }
     });
 });
 
@@ -319,6 +358,33 @@ function addVote(player,candidate,vote,confidence){
     voteLog.end();
 }
 
+// saves the AP id to a file for retrieval later
+function addAPID(ap_id){
+    var apLog = fs.createWriteStream('./static/data/APID_DATA.txt', { flags: 'a'});
+    apLog.write(ap_id+"\n");
+    apLog.end();
+    apid_list.push(ap_id)
+}
+
+// returns whether or not this user was previously an AP avatar
+function wasAP(id){
+    return apid_list.includes(id);
+}
+
+
+// adds the number of current humans with the timestamp
+function addHumanCt(){
+    var humanLog = fs.createWriteStream('./static/data/humanCt.txt', { flags: 'a'});
+    let dat = {
+        'time':"["+new Date().toISOString() + ']',
+        'total_humans': human_ct,
+        'ap': hero_ct,
+        'npp': npph_ct
+    }
+    humanLog.write(JSON.stringify(dat)+"\n");
+    humanLog.end();
+}
+
 function cleanClose(){
     let ids = Object.keys(players);
     for (var id in ids) {
@@ -360,8 +426,6 @@ function freeOcc(id) {
     if( !players[id]) return; // if player does not exist, do nothing
     let occ = players[id].classType; // get the occupation of the player
 
-    if (occ == "hero") { hero_ct--; return; } // skip heroes, they are not counted
-
     if (player_role_ct[occ] && player_role_ct[occ] > 0) {
         player_role_ct[occ]--; // decrement the role count for the occupation
         //console.log("Decremented role count for occupation: " + occ + " to " + player_role_ct[occ]);
@@ -370,17 +434,32 @@ function freeOcc(id) {
 
 function recountRoles() {
     console.log("Recounting roles...");
-    showNumRoles(); // show the total roles assigned
     player_role_ct = {};
+    hero_ct = 0;
+    human_ct = 0;
+    npph_ct = 0;
+    chuck_ct = 0;
+
     for (let occ in playerjs.AVATAR_CLASS) {
         player_role_ct[occ] = 0; // reset the role count to 0
     }
     for (let id in players) {
         if (players[id]) {
             let occ = players[id].classType; // get the occupation of the player
-            if (occ == "hero") continue; // skip heroes, they are not counted
+            if (occ == "hero") {
+                hero_ct++; 
+                human_ct++;
+            }
+            else if (players[id].roleType == "NPP-Human"){
+                npph_ct++;
+                human_ct++;
+            }
             if (player_role_ct[occ] !== undefined) {
                 player_role_ct[occ]++; // increment the role count for the occupation
+            }
+
+            if(occ == "chuck"){
+                chuck_ct++;
             }
         }
     }
@@ -398,6 +477,7 @@ function totalRoles(){
 function showNumRoles(){
     let total = totalRoles();
     console.log("### Total roles: " + total + "/" + (MAX_ROLES * Object.keys(player_role_ct).length) + " (+" + hero_ct + " AP players) ###");
+    console.log(`     Humans: ${human_ct} | AI: ${total-npph_ct} -- AP: ${hero_ct} | NPP: ${total}`)
 }
 
 

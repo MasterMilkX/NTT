@@ -21,7 +21,12 @@ socket.on('message', function(data) {
     //console.log(data);
 
     if(data.status === 'reject'){
-        alert("Server is full. Try again later.");
+        if(data.msg){
+            alert(data.msg)
+        }else{
+            alert("Server is full. Try again later.");
+        }
+        showPopup('role-rej')
         in_game = false;
         return;
     }else if(data.status === 'accept'){
