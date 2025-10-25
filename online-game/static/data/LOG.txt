@@ -15690,3 +15690,18 @@
 [2025-10-25T19:20:04.366Z] {"id":"fW6t0pE0K9OmEx6gAAAF","name":"Qelthir Fengil","area":"plaza","classType":"bard","raceType":"lizard","role":"NPP-Human","position":{"x":631,"y":289},"status":"[MOVE]"}
 [2025-10-25T19:20:10.549Z] {"id":"fW6t0pE0K9OmEx6gAAAF","name":"Qelthir Fengil","area":"plaza","classType":"bard","raceType":"lizard","role":"NPP-Human","position":{"x":631,"y":289},"status":"[DISCONNECT]"}
 [2025-10-25T19:20:14.603Z] {"id":"ffqT7w7X0XqBLy0xAAAD","name":"Frethe Xenoforth","area":"plaza","classType":"hero","raceType":"nord","role":"AP","position":{"x":555,"y":345},"status":"[DISCONNECT]"}
+[2025-10-25T20:09:21.335Z] {"id":"L9rkwjhNsQSJ73v5AAAH","name":"Uevareth Keybalar","area":"plaza","classType":"hero","raceType":"elf","role":"AP","position":{"x":0,"y":0},"status":"[JOIN SERVER]"}
+[2025-10-25T20:09:21.340Z] {"id":"L9rkwjhNsQSJ73v5AAAH","name":"Uevareth Keybalar","area":"plaza","classType":"hero","raceType":"elf","role":"AP","position":{"x":400,"y":337.5},"status":"[MOVE]"}
+[2025-10-25T20:09:21.340Z] {"id":"L9rkwjhNsQSJ73v5AAAH","name":"Uevareth Keybalar","area":"plaza","classType":"hero","raceType":"elf","role":"AP","position":{"x":400,"y":337.5},"status":"[CHANGE_AREA] plaza"}
+[2025-10-25T20:19:16.434Z] {"id":"L9rkwjhNsQSJ73v5AAAH","name":"Uevareth Keybalar","area":"plaza","classType":"hero","raceType":"elf","role":"AP","position":{"x":400,"y":337.5},"status":"[DISCONNECT]"}
+[2025-10-25T20:22:03.437Z] {"id":"k176dXSzpbqYvkz6AAAT","name":"Fogugh Nogugh","area":"plaza","classType":"hero","raceType":"orc","role":"AP","position":{"x":0,"y":0},"status":"[JOIN SERVER]"}
+[2025-10-25T20:22:03.441Z] {"id":"k176dXSzpbqYvkz6AAAT","name":"Fogugh Nogugh","area":"plaza","classType":"hero","raceType":"orc","role":"AP","position":{"x":400,"y":337.5},"status":"[MOVE]"}
+[2025-10-25T20:22:03.443Z] {"id":"k176dXSzpbqYvkz6AAAT","name":"Fogugh Nogugh","area":"plaza","classType":"hero","raceType":"orc","role":"AP","position":{"x":400,"y":337.5},"status":"[CHANGE_AREA] plaza"}
+[2025-10-25T20:22:04.182Z] {"id":"k176dXSzpbqYvkz6AAAT","name":"Fogugh Nogugh","area":"plaza","classType":"hero","raceType":"orc","role":"AP","position":{"x":400,"y":337.5},"status":"[ANIM] idle"}
+[2025-10-25T20:22:04.183Z] {"id":"k176dXSzpbqYvkz6AAAT","name":"Fogugh Nogugh","area":"plaza","classType":"hero","raceType":"orc","role":"AP","position":{"x":563,"y":288},"status":"[MOVE]"}
+[2025-10-25T20:23:10.737Z] {"id":"j9WF5bGc9hlxPUNkAAAB","name":"Rurbag Jukha","area":"plaza","classType":"hero","raceType":"orc","role":"AP","position":{"x":0,"y":0},"status":"[JOIN SERVER]"}
+[2025-10-25T20:23:10.749Z] {"id":"j9WF5bGc9hlxPUNkAAAB","name":"Rurbag Jukha","area":"plaza","classType":"hero","raceType":"orc","role":"AP","position":{"x":400,"y":337.5},"status":"[MOVE]"}
+[2025-10-25T20:23:10.750Z] {"id":"j9WF5bGc9hlxPUNkAAAB","name":"Rurbag Jukha","area":"plaza","classType":"hero","raceType":"orc","role":"AP","position":{"x":400,"y":337.5},"status":"[CHANGE_AREA] plaza"}
+[2025-10-25T20:23:11.676Z] {"id":"j9WF5bGc9hlxPUNkAAAB","name":"Rurbag Jukha","area":"plaza","classType":"hero","raceType":"orc","role":"AP","position":{"x":400,"y":337.5},"status":"[ANIM] idle"}
+[2025-10-25T20:23:11.676Z] {"id":"j9WF5bGc9hlxPUNkAAAB","name":"Rurbag Jukha","area":"plaza","classType":"hero","raceType":"orc","role":"AP","position":{"x":549,"y":312},"status":"[MOVE]"}
+[2025-10-25T20:23:26.119Z] {"id":"j9WF5bGc9hlxPUNkAAAB","name":"Rurbag Jukha","area":"plaza","classType":"hero","raceType":"orc","role":"AP","position":{"x":549,"y":312},"status":"[DISCONNECT]"}

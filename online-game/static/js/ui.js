@@ -432,6 +432,16 @@ function voteChar(name="???"){
     vote_window.querySelector("#vote-user").innerHTML = name; // set the voted user name
 }
 
+
+function kickChar(avatar){
+    var kick_window = document.getElementById("kick-ui");
+    kick_window.style.display = "block"; // show the vote UI
+    kick_window.querySelector("#kick-user").innerHTML = avatar.name; // set the voted user name
+    document.getElementById("kick-yea").onclick = function(){
+        socket.emit('kick',avatar.id)
+    };
+}
+
 function hideVoteUI(){
     var vote_window = document.getElementById("vote-ui");
     vote_window.style.display = "none"; // hide the vote UI
@@ -441,6 +451,18 @@ function hideVoteUI(){
 function closeVoteUI(){
     var vote_window = document.getElementById("vote-ui");
     vote_window.style.display = "none"; // hide the vote UI
+}
+
+
+function hideKickUI(){
+    var kick_window = document.getElementById("kick-ui");
+    kick_window.style.display = "none"; // hide the kick UI
+    document.getElementById("kick-user").innerHTML = "???"; // reset the kicked user name
+}
+
+function closeKickUI(){
+    var kick_window = document.getElementById("kick-ui");
+    kick_window.style.display = "none"; // hide the kick UI
 }
 
 

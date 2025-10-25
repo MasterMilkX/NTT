@@ -160,6 +160,13 @@ function voteChar(username="???"){
     vote_window.querySelector("#vote-user").innerHTML = username; // set the voted user name
 }
 
+function kickChar(avatar){
+    var kick_window = document.getElementById("kick-ui");
+    kick_window.style.display = "block"; // show the vote UI
+    kick_window.querySelector("#kick-user").innerHTML = avatar.name; // set the voted user name
+    document.getElementById("")
+}
+
 function hideVoteUI(){
     var vote_window = document.getElementById("vote-ui");
     vote_window.style.display = "none"; // hide the vote UI
@@ -171,6 +178,17 @@ function closeVoteUI(){
     vote_window.style.display = "none"; // hide the vote UI
 }
 
+
+function hideKickUI(){
+    var kick_window = document.getElementById("kick-ui");
+    kick_window.style.display = "none"; // hide the kick UI
+    document.getElementById("kick-user").innerHTML = "???"; // reset the kicked user name
+}
+
+function closeKickUI(){
+    var kick_window = document.getElementById("kick-ui");
+    kick_window.style.display = "none"; // hide the kick UI
+}
 
 // show the start up screen to select role again
 function resetGame(){

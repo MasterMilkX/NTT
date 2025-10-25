@@ -31,6 +31,17 @@ socket.on('message', function(data) {
         return;
     }else if(data.status === 'accept'){
         console.log("Joined successfully!");
+
+        // admin mode
+        if(data.admin){
+            in_game = true;
+            startGame('plaza');
+            cur_location = 'plaza';
+            socket_avatar = null;
+            IS_ADMIN = true;
+            return;
+        }
+
         socket_avatar = data.avatar; // store the avatar data
         cur_location = data.avatar.area; // set the current location to the avatar's area
         socket.emit('move',{'position':{x:canvas.width/2, y:canvas.height*0.75}}); // set a random position for the avatar in the area
@@ -87,4 +98,10 @@ socket.on('vote-accepted', function(data){
         document.getElementById('vote-yea').disabled = false;
         document.getElementById('vote-nay').disabled = false;
     }, 3000);
+})
+
+socket.on('kick', function(){
+    alert("YOU'VE BEEN KICKED FROM THE GAME!");
+    in_game = false;
+    showPopup('goodbye');
 })

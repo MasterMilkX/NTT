@@ -29,3 +29,8 @@
 {"time":"[2025-10-25T19:20:01.348Z]","total_humans":3,"ap":2,"npp":1}
 {"time":"[2025-10-25T19:20:10.550Z]","total_humans":2,"ap":2,"npp":0}
 {"time":"[2025-10-25T19:20:14.604Z]","total_humans":1,"ap":1,"npp":0}
+{"time":"[2025-10-25T20:09:21.337Z]","total_humans":1,"ap":1,"npp":0}
+{"time":"[2025-10-25T20:19:16.435Z]","total_humans":0,"ap":0,"npp":0}
+{"time":"[2025-10-25T20:22:03.438Z]","total_humans":1,"ap":1,"npp":0}
+{"time":"[2025-10-25T20:23:10.742Z]","total_humans":1,"ap":1,"npp":0}
+{"time":"[2025-10-25T20:23:26.120Z]","total_humans":0,"ap":0,"npp":0}

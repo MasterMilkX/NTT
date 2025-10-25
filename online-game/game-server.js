@@ -53,7 +53,7 @@ var human_ct = 0;
 var npph_ct = 0;
 
 var ghostDat = {};      // data stored of actions for the ghost characters (based on humans)
-
+var valid_admins = [];
 
 const MAX_PLAYERS = 50;
 const FPS_I = 60;
@@ -164,6 +164,15 @@ io.on('connection', function(socket) {
         }
     })
 
+    socket.on('admin', function(password){
+        if(password == "2drunk_M3RCS!"){
+            valid_admins.push(socket.id);
+            socket.emit('message', {'status':'accept','avatar': null, 'admin':true});
+        }else{
+            socket.emit('message', {'status':'reject', 'avatar':null, 'msg':'Incorrect password!'})
+        }
+    })
+
     // handle player joining the game
     socket.on('join', function() {
         let char_data = playerRoles[socket.id]; // get the character data for the player
@@ -262,6 +271,20 @@ io.on('connection', function(socket) {
         }
     })
 
+    // kick players
+    socket.on('kick', function(other_id){
+        if(valid_admins.indexOf(socket.id) != -1){
+            const otherSocket = io.sockets.sockets.get(other_id);
+            if (otherSocket){
+                otherSocket.emit('kick')
+                otherSocket.disconnect(true);
+                console.log("!! ADMIN KICKED USER " + other_id);
+            }
+        }else{
+            console.log("!! INVALID ADMIN: [" + socket.id + "] tried to kick [" + other_id + "]")
+        }
+    })
+
 
     // handle disconnection
     socket.on('disconnect', function() {
@@ -287,6 +310,11 @@ io.on('connection', function(socket) {
             io.emit('playerNum', {'cur_num':Object.keys(players).length,'max_num':MAX_PLAYERS});
         
         //io.emit('updatePlayers', players)
+        }
+
+        // remove the admin
+        if(valid_admins.indexOf(socket.id) != -1){
+            valid_admins.pop(valid_admins.indexOf(socket.id));
         }
     });
 });

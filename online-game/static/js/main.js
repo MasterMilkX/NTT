@@ -15,6 +15,7 @@ var avatar_name = "";
 var socket_avatar = null;
 var highlight_avatar = null;
 var AVATAR_SCALE = 1;
+var IS_ADMIN = true;
 
 var last_vote_time = null;      // last time the player submitted a vote on a character
 
@@ -390,6 +391,9 @@ function gameClick(e){
     }else if (document.getElementById("vote-ui").style.display === "block") {
         hideVoteUI(); // hide the vote UI if it is open and no avatar was clicked
         return; // do not proceed further if the vote UI is open
+    }else if (document.getElementById("kick-ui").style.display === "block") {
+        hideKickUI(); // hide the vote UI if it is open and no avatar was clicked
+        return; // do not proceed further if the vote UI is open
     }
     let curs = getCursorPos(e); // get the cursor offset
     let x = curs.offx;
@@ -434,15 +438,19 @@ function clickAvatar(e){
     }
     for (var i = 0; i < avatar_list.length; i++) {
         var avatar = avatar_list[i];
-        if(avatar.id == getAvatar().id)
+        if(!IS_ADMIN && avatar.id == getAvatar().id)
             continue; // skip the current user's avatar
 
-        if ((getAvatar().roletype == "AP" || getAvatar().roletype == "MOD") && avatarClicked(avatar, x, y)) { 
+        if ((IS_ADMIN || getAvatar().roletype == "AP") && avatarClicked(avatar, x, y)) { 
             // handle avatar click
             console.log("Avatar clicked:", avatar.name);
-            if((getAvatar().roletype == "MOD") || (avatar.roleType.includes("NPP"))){
+            if((IS_ADMIN) || (avatar.roleType.includes("NPP"))){
                 highlight_avatar = avatar.id // add the clicked avatar to the highlight list
-                voteChar(avatar.name); // open the vote UI with the clicked avatar's username
+                if (IS_ADMIN){
+                    kickChar(avatar);
+                }else{
+                    voteChar(avatar.name); // open the vote UI with the clicked avatar's username
+                }
                 return true;
             }
         }
@@ -468,6 +476,7 @@ function showClickPos(e){
 
     // hide the vote UI if the click is not on the game UI
     hideVoteUI();
+    hideKickUI();
 }
 
 
@@ -561,7 +570,6 @@ function submitVoteMain(vote){
 }
 
 
-
 ////////////////////////   EVENT LISTENERS ////////////////////////////////
 
 
@@ -584,8 +592,10 @@ window.onkeydown = function(e) {
         if(e.key == 't'){
             toggleTasks(); // toggle the task list when T is pressed
         }else if(e.key == 'Escape'){
-            if(document.getElementById("vote-ui").style.display === "block")
+            if(document.getElementById("vote-ui").style.display === "block"){
                 hideVoteUI(); // hide the vote UI when Escape is pressed
+                hideKickUI();
+            }
         }
         else if(e.key == 'm'){
             if(document.getElementById("map-popup").style.display !== "none")
@@ -640,6 +650,39 @@ window.onbeforeunload = function() {
     }
     return "You will not be able to return as the same character. Once you leave, the experiment is over<br>Do you wish to leave?";
 }
+
+
+function activateKonamiCode() {
+  const konamiCode = [
+    'ArrowUp', 'ArrowUp',
+    'ArrowDown', 'ArrowDown',
+    'ArrowLeft', 'ArrowRight',
+    'ArrowLeft', 'ArrowRight',
+    'b', 'a'
+  ];
+
+  let currentIndex = 0;
+
+  document.addEventListener('keydown', (event) => {
+    // Normalize input to lowercase for letters
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+
+    if (key === konamiCode[currentIndex]) {
+      currentIndex++;
+      if (currentIndex === konamiCode.length) {
+        let admin_pass = prompt("[ADMIN MODE] Type in the password:")
+        socket.emit('admin',admin_pass);
+        currentIndex = 0; // reset after success
+      }
+    } else {
+      currentIndex = 0; // reset if sequence breaks
+    }
+  });
+}
+
+// Call the function to start listening
+activateKonamiCode();
+
 
 /*
 // MAIN GAME LOOP
