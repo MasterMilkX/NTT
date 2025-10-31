@@ -65,6 +65,19 @@ def start_bots():
         t = threading.Thread(target=kill_and_restart_loop, args=(i,), daemon=True)
         t.start()
 
+    # check for terminated processes and restart them
+    def monitor_processes():
+        while True:
+            for i in range(all_instances):
+                proc = processes[i]
+                if proc and proc.poll() is not None:  # process has terminated
+                    print(f"Process {i} (PID {proc.pid}) terminated unexpectedly. Restarting...")
+                    start_instance(i,scripts[i])
+            time.sleep(10)  # check every 10 seconds
+
+    monitor_thread = threading.Thread(target=monitor_processes, daemon=True)
+    monitor_thread.start()
+
     # Keep the main thread alive
     try:
         while True:

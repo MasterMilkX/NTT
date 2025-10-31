@@ -136,7 +136,7 @@ function makeGhostDat(){
 io.on('connection', function(socket) {
     // handle role assignment
     socket.on('assign-role', function(dat){
-        let play_type = dat.role;
+        let play_type = dat.role ? (dat.role) : dat; // grab full data structure or string
         let sid = dat.ap_id;
         if (Object.keys(players).length >= MAX_PLAYERS) {
             socket.emit('message', {'status':'reject','avatar':null});
@@ -182,6 +182,7 @@ io.on('connection', function(socket) {
             char_data.occ, char_data.race,
             char_data.role
         );
+        players[socket.id].roleType = char_data.role; // set the role type
         players[socket.id].area = playerjs.AVATAR_AREAS[char_data.occ] || 'plaza'; // set the area based on the occupation
         players[socket.id].tasks = char_data.tasks; // set the tasks for the player
         players[socket.id].show = true; // set the avatar to be shown
@@ -266,7 +267,7 @@ io.on('connection', function(socket) {
     socket.on('vote', function(data){
         if(players[socket.id]){
             addVote(socket.id, data.avatar, data.dec, data.conf);
-            console.log(":: AP [" + socket.id + "] voted " + data.dec.toUpperCase() + " on [" + data.avatar + "] (" + players[data.avatar].roletype + ") ::")
+            console.log(":: AP [" + socket.id + "] voted " + data.dec.toUpperCase() + " on [" + data.avatar + "] (" + players[data.avatar].roleType + ") ::")
             io.emit('vote-accepted',{});
         }
     })
@@ -333,6 +334,13 @@ process.on('SIGTERM', function() {
 });
 
 
+process.on('uncaughtException', function(err) {
+    console.error('Uncaught Exception:', err);
+    // reset the server state
+    cleanClose();
+    process.exit(1);
+});
+
 
 
 
@@ -358,7 +366,7 @@ function logDat(player, status){
         'area': player.area,
         'classType': player.classType,
         'raceType': player.raceType,
-        'role': player.roletype,
+        'roleType': player.roleType,
         'position': player.position,
         'status': status
     };
@@ -376,7 +384,7 @@ function addVote(player,candidate,vote,confidence){
         'correct-vote': (isAI(candidate) && vote=='ai') || (!isAI(candidate) && vote=='human'),
         'ap-id': player,
         'npc-id': candidate,
-        'npc-actual': players[candidate].roletype,
+        'npc-actual': players[candidate].roleType,
         'npc-job': players[candidate].raceType+' '+players[candidate].classType,
         'vote':vote,
         'confidence':confidence,

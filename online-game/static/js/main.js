@@ -15,7 +15,7 @@ var avatar_name = "";
 var socket_avatar = null;
 var highlight_avatar = null;
 var AVATAR_SCALE = 1;
-var IS_ADMIN = true;
+var IS_ADMIN = false;
 
 var last_vote_time = null;      // last time the player submitted a vote on a character
 
@@ -441,10 +441,11 @@ function clickAvatar(e){
         if(!IS_ADMIN && avatar.id == getAvatar().id)
             continue; // skip the current user's avatar
 
-        if ((IS_ADMIN || getAvatar().roletype == "AP") && avatarClicked(avatar, x, y)) { 
+        if ((IS_ADMIN || getAvatar().roleType == "AP") && avatarClicked(avatar, x, y)) {
+
             // handle avatar click
-            console.log("Avatar clicked:", avatar.name);
-            if((IS_ADMIN) || (avatar.roleType.includes("NPP"))){
+            console.log("Full details:", avatar);
+            if ((IS_ADMIN) || (avatar && avatar.classType != 'hero' && getAvatar().roleType == "AP")) {
                 highlight_avatar = avatar.id // add the clicked avatar to the highlight list
                 if (IS_ADMIN){
                     kickChar(avatar);

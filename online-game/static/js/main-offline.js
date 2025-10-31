@@ -470,7 +470,7 @@ function clickAvatar(e){
         if(avatar.id == getAvatar().id)
             continue; // skip the current user's avatar
 
-        if (getAvatar().roletype == "AP" && avatarClicked(avatar, x, y)) { 
+        if (getAvatar().roleType == "AP" && avatarClicked(avatar, x, y)) { 
             // handle avatar click
             console.log("Avatar clicked:", avatar.name);
             highlight_avatar = avatar.id // add the clicked avatar to the highlight list
@@ -647,7 +647,7 @@ function init(){
         name: socket_avatar.name,
         occ: socket_avatar.classType,
         race: socket_avatar.raceType,
-        role: socket_avatar.roletype,
+        role: socket_avatar.roleType,
         id: socket_avatar.id
     }, true)
     // set tasks

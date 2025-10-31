@@ -128,7 +128,7 @@ def disconnect():
 @sio.event
 def getAvatar():
     # request the server to assign an avatar
-    sio.emit('assign-role', 'NPP-AI-RAND-v' + str(variant))       # bots are always NPP
+    sio.emit('assign-role', {'role': 'NPP-AI-RAND-v' + str(variant)})       # bots are always NPP
 
 
 @sio.on('role-assigned')
@@ -313,6 +313,8 @@ if __name__ == '__main__':
     # lean heavily towards variant 1 but allow 1-4
     variant = random.choices([1, 2, 3, 4], weights=[0.5, 0.2, 0.15, 0.15], k=1)[0]
     print(f"=== Behavior Variant Set To: {variant} ===")
+
+    conn_tries = 0
     
     while True:
         # retry connecting to the server until successful
@@ -323,6 +325,10 @@ if __name__ == '__main__':
                 print("Connected to the game server")
                 in_game = True
             except socketio.exceptions.ConnectionError:
+                conn_tries += 1
+                if conn_tries > 3:
+                    print("Failed to connect after 3 attempts, exiting...")
+                    exit(1)
                 print("Connection failed, retrying in 15 seconds...")
                 time.sleep(15)
 

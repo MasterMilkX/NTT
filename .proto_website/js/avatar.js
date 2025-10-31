@@ -8,7 +8,7 @@ class Avatar{
         this.username = username; // the username of the avatar
         this.classType = classType; // the class of the avatar (e.g., "warrior", "mage")
         this.occupation = occupation; // the occupation of the avatar (e.g., "blacksmith", "farmer")
-        this.roletype = roletype; // the role type of the avatar (e.g., "impostor", "crewmate")
+        this.roleType = roletype; // the role type of the avatar (e.g., "impostor", "crewmate")
 
         // other properties
         this.position = { x: 0, y: 0 }; // the position of the avatar on the map
