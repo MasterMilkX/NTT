@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-run_ai.py — Launch and supervise game bot processes with a live "top"-style dashboard.
+ai-dashboard.py — Launch and supervise game bot processes with a live "top"-style dashboard.
 
 Now with live columns for each bot's in‑game name, role, and current location.
 For best results, have your bots print a single JSON line whenever these values are set/changed, e.g.:
@@ -10,7 +10,7 @@ For best results, have your bots print a single JSON line whenever these values 
 The optional prefix "DASHBOARD " helps ignore unrelated output. Raw JSON lines without the prefix also work.
 
 Usage:
-  python3 run_ai.py path/to/config.yaml
+  python3 ai-dashboard.py path/to/config.yaml
 
 YAML formats supported (any one of these):
   1) Simple list of scripts:

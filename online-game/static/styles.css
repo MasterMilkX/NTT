@@ -214,6 +214,7 @@ body {
     font-size: min(1.5em,1.5vmin);
     color: #0022e0;
     margin-top:0.5vw;
+    display:none;
 }
 .av-info-label{
     font-weight: bold;

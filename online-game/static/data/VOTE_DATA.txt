@@ -4,3 +4,6 @@
 {"correct-vote":false,"ap-id":"y7LZ6aI6MvrBZwVOAAAJ","npc-id":"DL_olYtH4GYy2AB7AAAL","npc-actual":"NPP-Human","npc-job":"nord barmaid","vote":"ai","confidence":"3","time":"[2025-10-25T18:53:52.695Z]"}
 {"correct-vote":false,"ap-id":"y7LZ6aI6MvrBZwVOAAAJ","npc-id":"DL_olYtH4GYy2AB7AAAL","npc-actual":"NPP-Human","npc-job":"nord barmaid","vote":"ai","confidence":"5","time":"[2025-10-25T18:54:03.536Z]"}
 {"correct-vote":false,"ap-id":"TQzOKwrmM5h4_jJeAAAD","npc-id":"t1rYCapSLBsBL4vxAAAB","npc-actual":"NPP-AI-RAND-v2","npc-job":"nord librarian","vote":"human","confidence":"3","time":"[2025-10-31T02:21:05.505Z]"}
+{"correct-vote":false,"ap-id":"Fm95qEn7lGPFMcZBAAAN","npc-id":"ZO2ey5gts6DDaJXTAAAR","npc-actual":"NPP-AI-BTree-v2","npc-job":"beastman gossip","vote":"human","confidence":"3","time":"[2025-10-31T03:07:01.399Z]"}
+{"correct-vote":true,"ap-id":"Fm95qEn7lGPFMcZBAAAN","npc-id":"kqwGF29hBfWFdsJmAAAV","npc-actual":"NPP-AI-GRAMMAR-v2","npc-job":"lizard butcher","vote":"ai","confidence":"3","time":"[2025-10-31T03:07:04.928Z]"}
+{"correct-vote":true,"ap-id":"Fm95qEn7lGPFMcZBAAAN","npc-id":"IWehavriAeZZtKrpAAAS","npc-actual":"NPP-AI-RAND-v2","npc-job":"elf gossip","vote":"ai","confidence":"3","time":"[2025-10-31T03:07:09.289Z]"}

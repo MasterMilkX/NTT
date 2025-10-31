@@ -13,3 +13,4 @@ online-game/static/data/LOG.txt
 online-game/static/data/VOTE_DATA.txt
 online-game/static/data/APID_DATA.txt
 online-game/static/data/humanCt.txt
+online-game/static/data/*.txt

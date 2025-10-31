@@ -41,12 +41,14 @@ var hero_ct = 0; // count of heroes
 // import class/role data
 var nameDat = require('./static/data/names.json');
 var roleDat = require('./static/data/roles.json');
+var badWords = require('./static/data/badwords.json');
 
 
 // handle player game state
 var players = {};
 var playerRoles = {};
 var playerTxtTime = {};
+var strike_list = {};
 
 var chuck_ct = 0; // count of chuck characters
 var human_ct = 0;
@@ -192,9 +194,7 @@ io.on('connection', function(socket) {
         io.emit('playerNum', {'cur_num':Object.keys(players).length,'max_num':MAX_PLAYERS});
         logDat(players[socket.id], '[JOIN SERVER]');  
         recountRoles(); // count the roles assigned
-        if(char_data.role == "AP"){  // add to the list of APs if human
-            addAPID(socket.id);
-        }
+
         if(char_data.role == "AP" || char_data.role == "NPP-Human"){
             addHumanCt();
         }
@@ -244,6 +244,33 @@ io.on('connection', function(socket) {
             var txt = data.text.trim();
             if (txt.length === 0) return; // ignore empty messages
             txt = txt.substring(0, 75); // limit text length to 75 characters
+
+            // check for bad words
+            if(guardDog(txt)){
+                
+                // add strike to the player
+                if(!strike_list[socket.id]){
+                    strike_list[socket.id] = 1;
+                }else{
+                    strike_list[socket.id] += 1;
+                }
+
+                logDat(players[socket.id], '[CHAT BLOCKED] ' + data.text + " (Strike " + strike_list[socket.id] + ")");
+                socket.emit('alert', {'msg':'Your message was blocked due to inappropriate language. Strike ' + strike_list[socket.id] + ' of 3.'});
+
+                // check if player has reached 3 strikes
+                if(strike_list[socket.id] >= 3){
+                    const otherSocket = io.sockets.sockets.get(socket.id);
+                    if (otherSocket){
+                        otherSocket.emit('kick')
+                        otherSocket.disconnect(true);
+                        console.log("!! KICKED USER " + socket.id + " FOR 3 CHAT STRIKES");
+                    }
+                }
+                return;
+            }
+
+
             players[socket.id].setText(txt);
             textTimeout(players[socket.id], socket.id);
             logDat(players[socket.id], '[CHAT] ' + txt); // log the chat message
@@ -267,6 +294,7 @@ io.on('connection', function(socket) {
     socket.on('vote', function(data){
         if(players[socket.id]){
             addVote(socket.id, data.avatar, data.dec, data.conf);
+            addAPID(socket.id);
             console.log(":: AP [" + socket.id + "] voted " + data.dec.toUpperCase() + " on [" + data.avatar + "] (" + players[data.avatar].roleType + ") ::")
             io.emit('vote-accepted',{});
         }
@@ -302,6 +330,7 @@ io.on('connection', function(socket) {
             delete players[socket.id];
             delete playerRoles[socket.id]; // remove the character data for the player
             delete playerTxtTime[socket.id]; // remove the text timeout
+            delete strike_list[socket.id];
             
             recountRoles();
             if(was_human){
@@ -396,6 +425,9 @@ function addVote(player,candidate,vote,confidence){
 
 // saves the AP id to a file for retrieval later
 function addAPID(ap_id){
+    if (wasAP(ap_id)){
+        return; // already recorded
+    }
     var apLog = fs.createWriteStream('./static/data/APID_DATA.txt', { flags: 'a'});
     apLog.write(ap_id+"\n");
     apLog.end();
@@ -515,6 +547,21 @@ function showNumRoles(){
     console.log("### Total roles: " + total + "/" + (MAX_ROLES * Object.keys(player_role_ct).length) + " (+" + hero_ct + " AP players) ###");
     console.log(`     Humans: ${human_ct} | AI: ${total-npph_ct} -- AP: ${hero_ct} | NPP: ${total}`)
 }
+
+// simple text filter to check for bad words
+function guardDog(text){
+    let lowered = text.toLowerCase();
+    let bwords = badWords['bad_words'];
+    for(let i=0;i<bwords.length;i++){
+        if(lowered.includes(bwords[i])){
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
 
 
 

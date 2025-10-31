@@ -105,3 +105,7 @@ socket.on('kick', function(){
     in_game = false;
     showPopup('goodbye');
 })
+
+socket.on('alert', function(data){
+    alert(data.msg);
+})

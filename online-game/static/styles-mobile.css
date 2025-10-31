@@ -169,7 +169,7 @@
     #task-list {
         margin-top: 5px;
         font-size: 1.5vw;
-        overflow-y: auto;
+        overflow-y: scroll;
         max-height: 15vw; /* Limit height for scrolling */
     }
 
@@ -467,6 +467,7 @@
         font-size: 1.5vw;
         color: #0022e0;
         margin-top:0.5vw;
+        display:none;
     }
     .av-info-label{
         font-weight: bold;

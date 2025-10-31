@@ -484,14 +484,68 @@ function closeKickUI(){
 //     document.getElementById("role-confirmation").style.display = "block"; // show the role confirmation screen
 //     //removeAvatar(); // remove all avatars from the game
 // }
+function exitGame() {
+  if (in_game) {
+    socket.disconnect();
+    in_game = false;
+  }
+  closePopups();
+  document.getElementById("game-ui").style.display = "none";
 
-function exitGame(){
-    if(in_game){ // if the player has joined the game
-        socket.disconnect(); // notify the server about exit
-        in_game = false; // set in_game to false
+  const p = document.getElementById("socket-id-bye");
+  // Clear existing children safely
+  while (p.firstChild) p.removeChild(p.firstChild);
+
+  // "Socket ID: "
+  const label = document.createTextNode("Socket ID: ");
+  p.appendChild(label);
+
+  // Clickable span
+  const span = document.createElement("span");
+  span.style.cursor = "pointer";
+  span.style.textDecoration = "underline";
+  span.setAttribute("role", "button");
+  span.setAttribute("tabindex", "0");
+  span.textContent = socket_avatar.id;  // safer than innerHTML
+  p.appendChild(span);
+
+  // Line break + note (all via DOM, no innerHTML)
+  p.appendChild(document.createElement("br"));
+  const note = document.createTextNode(
+    "If you voted on a character, use this ID to play again as a NPP and for the survey!"
+  );
+  p.appendChild(note);
+
+  // Copy handler (with fallback)
+  async function copyId() {
+    const text = span.textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      console.log("Text copied to clipboard!");
+      highlight(span);
+    } catch (err) {
+      // Fallback for non-secure origins/older browsers
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        console.log("Text copied (fallback).");
+        highlight(span);
+      } catch (e) {
+        console.error("Failed to copy text:", e);
+      } finally {
+        document.body.removeChild(ta);
+      }
     }
-    closePopups(); // close all current popups`
-    document.getElementById("game-ui").style.display = "none"; // hide the game screen
-    showPopup('goodbye'); // show the goodbye popup
-}
+  }
+  span.addEventListener("click", copyId);
+  span.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); copyId(); }
+  });
 
+  showPopup("goodbye"); // assuming this maps to #goodbye-popup
+}
