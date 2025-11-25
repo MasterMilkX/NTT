@@ -549,3 +549,7 @@ function exitGame() {
 
   showPopup("goodbye"); // assuming this maps to #goodbye-popup
 }
+
+function tutorial(){
+    window.open('https://1drv.ms/v/c/3cfe52d0836b2872/ERkcWhAdbVlLkPgeIw2i0u0BcTr7jmtlp_LEgBwoPTb__w?e=qD71zs', '_blank');
+}
