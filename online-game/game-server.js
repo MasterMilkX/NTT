@@ -146,12 +146,14 @@ io.on('connection', function(socket) {
         }
 
         // check if the ap_id added matches the saved socket ids file
-        if(play_type == "NPP-Human" && !wasAP(sid)){
-            console.log("Invalid NPP-Human request for socket ID: " + sid);
-            socket.emit('message', {'status':'reject', 'avatar':null, 'msg':'Invalid AP Socket ID! \nPlay the game as the AP role first before you can play as an NPP!'}); // send reject message if character creation failed
-            return;
-        }else{
-            console.log("Successful NPP-Human validation AP:[" + sid + "] -> NPP:[" + socket.id + "]")
+        if(play_type == "NPP-Human"){
+            if(!wasAP(sid)){
+                console.log("Invalid NPP-Human request for socket ID: " + sid);
+                socket.emit('message', {'status':'reject', 'avatar':null, 'msg':'Invalid AP Socket ID! \nPlay the game as the AP role first before you can play as an NPP!'}); // send reject message if character creation failed
+                return;
+            }else{
+                console.log("Successful NPP-Human validation AP:[" + sid + "] -> NPP:[" + socket.id + "]")
+            }
         }
 
         let char_dat = newChar(play_type);      // AP or NPP
@@ -319,7 +321,7 @@ io.on('connection', function(socket) {
     socket.on('disconnect', function() {
         console.log('User disconnected: ' + socket.id);
         if(players[socket.id]){ // if player does not exist, do nothing
-            console.log("Leaving player:" + players[socket.id]);
+            console.log("Leaving player:" + socket.id + " (" + players[socket.id].roleType + ")");
         
             logDat(players[socket.id], '[DISCONNECT]');
             let was_human = players[socket.id].roleType == "AP" || players[socket.id].roleType == "NPP-Human";
