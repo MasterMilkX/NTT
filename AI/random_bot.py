@@ -19,7 +19,9 @@ import time
 import json
 import random
 
-GAME_SERVER = 'http://localhost:4000'
+
+GAME_SERVER = 'http://192.168.10.2:4000/' # Flynn's Arcade
+#GAME_SERVER = "http://localhost:4000"   # AWS
 
 sio = socketio.Client()
 
@@ -300,6 +302,7 @@ def update_avatars(data):
     # Update the local avatar data with the information from the server
     global all_avatars
     all_avatars = data['avatars']
+    avatar = data['avatars'][avatar['id']]
 
 
 

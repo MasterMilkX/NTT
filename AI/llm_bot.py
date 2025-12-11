@@ -19,6 +19,10 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import random
 import threading
+import traceback
+from datetime import datetime
+import os
+import psutil
 
 GAME_SERVER = 'http://localhost:4000'
 DEBUG = True
@@ -53,11 +57,36 @@ all_avatars = {}
 
 tokenizer = None
 llm_model = None
+MODEL_PATH = "../../../tiny_llama_npc/llama_npctt-v1/"
 
 
 # LLM threading control
 llm_lock = threading.Lock()
 llm_busy = False   # prevent overlapping generations
+
+
+last_llm_start = 0.0
+last_llm_end = 0.0
+last_prompt_preview = ""
+
+def log_llm(msg):
+    now = datetime.now().strftime("%H:%M:%S")
+    tname = threading.current_thread().name
+    print(f"[{now}][{tname}][LLM] {msg}", flush=True)
+
+
+proc = psutil.Process(os.getpid())
+def log_resources(tag: str):
+    # CPU percent is "since last call", so the first call may show 0.0
+    cpu = proc.cpu_percent(interval=None)
+    mem = proc.memory_info().rss / (1024 * 1024) # MB
+    thr = proc.num_threads()
+    tname = threading.current_thread().name
+    print(f"[RES][{tname}] {tag}: CPU={cpu:.1f}%  MEM={mem:.1f}MB  threads={thr}", flush=True)
+
+
+# ----- OTHER GAME DETAILS ----- #
+
 
 EMOTE_LIST = [
     "001-cry",
@@ -129,7 +158,6 @@ FULL_INSTRUCTIONS = lambda npc_role: ("Pretend you are human player role-playing
 def importModel():
     global llm_model, tokenizer
     ''' Loads in the LLM llm_model for prompting '''
-    MODEL_PATH = "../../llama_npctt-v1/llama_npctt-v1/"   
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, use_fast=True)
     if tokenizer.pad_token is None:
@@ -140,6 +168,10 @@ def importModel():
         torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
         device_map="auto"
     )
+
+
+    torch.set_num_threads(2)
+    torch.set_num_interop_threads(1)
 
 
 # ------------------------------
@@ -164,6 +196,11 @@ def build_prompt(system_message: str, user_json: dict) -> str:
 #  -> use multiprocessing to keep the connection live
 # ------------------------------
 def generate_npc_response(prompt: str, max_new_tokens: int = 128) -> str:
+    global last_llm_start, last_llm_end
+
+    last_llm_start = time.time()
+    log_llm(f"CALL START (len(prompt)={len(prompt)})")
+
     enc = tokenizer(prompt, return_tensors="pt").to(llm_model.device)
     with torch.no_grad():
         out = llm_model.generate(
@@ -174,6 +211,11 @@ def generate_npc_response(prompt: str, max_new_tokens: int = 128) -> str:
             top_p=0.9,
             eos_token_id=tokenizer.eos_token_id,
         )
+
+    last_llm_end = time.time()
+    log_llm(f"CALL END, duration={last_llm_end - last_llm_start:.2f}s")
+
+
     text = tokenizer.decode(out[0], skip_special_tokens=True)
     return text[len(prompt):].strip()   # return ONLY the assistant completion
 
@@ -296,6 +338,10 @@ def debug_print(msg):
     if DEBUG:
         print(msg)
 
+def dprint2(msg):
+    if DEBUG:
+        print(msg, end='', flush=True)
+
 def print2Dash():
     d = {
         'bot_name':avatar['name'],
@@ -379,9 +425,18 @@ def llm_act_worker(prompt: str):
     ''' Worker function to handle LLM response generation and action emission '''
     global can_act, llm_busy
 
+    log_llm("Worker: starting generation")
+    log_resources("before generate")
+
     try:
+        t0 = time.time()
         output = generate_npc_response(prompt)
+        dt = time.time() - t0
+        log_llm("Worker: generation finished")
+
+        log_resources("after generate")
         extr_out = safe_extract_json(output)
+
 
         debug_print(f"Extracted output (llm worker act): {extr_out}")
 
@@ -397,12 +452,16 @@ def llm_act_worker(prompt: str):
                 sio.emit('chat', {'text': extr_out["emote"]})
 
     except Exception as e:
+        log_llm(f"Worker: EXCEPTION: {e}")
         debug_print(f"Error in llm_act_worker: {e}")
+        traceback.print_exc()
     finally:
         # Allow future actions
         with llm_lock:
             llm_busy = False
         can_act = False
+        log_llm("Worker: cleared llm_busy and can_act")
+
 
 @sio.event
 def act():
@@ -415,17 +474,23 @@ def act():
 
     game_input = transGameData()
     if len(game_input['others']) == 0:
-        debug_print("no one here")
+        dprint2(" (no one here) ")
         can_act = False
         return
  
     # Only start a new LLM job if one isn't already running
     with llm_lock:
         if llm_busy:
-            debug_print("LLM already busy, skipping act()")
+            # inspect how long it's been busy for
+            if last_llm_start > 0:
+                busy_for = time.time() - last_llm_start
+                log_llm(f"act(): LLM already busy for {busy_for:.1f}s, skipping")
+            else:
+                log_llm("act(): LLM already busy (no timestamp), skipping")
             can_act = False
             return
         llm_busy = True
+        log_llm("act(): marked llm_busy=True, starting worker")
 
     
     prompt = build_prompt(FULL_INSTRUCTIONS(avatar['classType']), game_input)
@@ -448,7 +513,7 @@ def update_avatars(data):
     # act only every 3 seconds
     if time.time() - last_act_time > act_timeout:
         form_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()))
-        debug_print(f"Acting: {form_time}")
+        dprint2(f".")
         all_avatars = data['avatars']
         last_act_time = time.time()
         can_act = True
