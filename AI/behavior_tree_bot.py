@@ -49,8 +49,8 @@ all_avatars = {}        # socket id: avatar data
     }
 '''
 
-GAME_SERVER = 'http://192.168.10.2:4000/' # Flynn's Arcade
-#GAME_SERVER = "http://localhost:4000"   # AWS
+# GAME_SERVER = 'http://192.168.10.2:4000/' # Flynn's Arcade
+GAME_SERVER = "http://localhost:4000"   # AWS
 
 
 last_text = {}   # socket id: last text received within last update check
@@ -384,9 +384,6 @@ def update_avatars(data):
         avatar = data['avatars'][avatar['id']]
     elif game_id:
         avatar = data['avatars'][game_id]
-    else:
-        print("ERROR: Cannot retrieve avatar data... exiting")
-        exit(1)
 
 
 

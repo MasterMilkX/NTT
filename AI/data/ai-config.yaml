@@ -1,7 +1,8 @@
 bots : [
-  {script: "random_bot.py", instances: 3},
-  {script: "behavior_tree_bot.py", instances: 3},
-  {script: "grammar-bot.py", instances: 3}
+  {script: "random_bot.py", instances: 1},
+  {script: "behavior_tree_bot.py", instances: 1},
+  {script: "grammar-bot.py", instances: 1},
+  {script: "llm_proc_bot.py", instances: 1}
 ]
 
-kill_range : (10,30)
+kill_range : [10,30]

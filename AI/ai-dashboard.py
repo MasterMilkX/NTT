@@ -67,6 +67,7 @@ import subprocess
 import sys
 import threading
 import re
+import traceback
 import time
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
@@ -84,8 +85,9 @@ except Exception as e:  # pragma: no cover
 DEBUG_MSG = "<< DEBUG GOES HERE >>"
 LOG_BOTS = False
 KILL_RANGE = ()
-LOTTERY_TIME = None         # time elapsed to wait before next lottery
+LOTTERY_TIME = 10         # time elapsed to wait before next lottery
 LAST_LOTTO_TIME = None      # last time since lottery played
+LAST_IDX_WINNER = -1        # last index of bot that won lottery
 
 
 def debug_log(t):
@@ -391,26 +393,7 @@ class Supervisor:
                 except Exception:
                     pass
 
-    def play_lottery(self):
-        ''' Kills the longest living player '''
-        global LAST_LOTTO_TIME, LOTTERY_TIME
-        longest_time = -1
-        longest_player = -1
-        for i in range(len(self.procs)):
-            if longest_time == -1 or self.procs[i].uptime() > longest_time:
-                longest_time = self.procs[i].uptime()
-                longest_player = i
-
-        # kill an npc at random 
-        if longest_time == -1:
-            self.kill(random.choice(range(len(self.procs))))
-        else:
-            self.kill(longest_player)
-
-        # set a new lottery time
-        LAST_LOTTO_TIME = time.perf_counter()
-        LOTTERY_TIME = random.randint(KILL_RANGE[0],KILL_RANGE[1])
-
+    
 
     def _reaper_loop(self):
         # monitor processes and restart if they exit
@@ -492,6 +475,48 @@ class Dashboard:
         self.sup = sup
         self.selected = 0
         self.running = True
+        self.offset = 6
+
+    def play_lottery(self):
+        ''' Kills a player at random; weighted towards longest living player '''
+        global LAST_LOTTO_TIME, LOTTERY_TIME, LAST_IDX_WINNER
+        with self.sup.lock:
+            # gather alive players
+            alive_players = []
+            for i, pinfo in enumerate(self.sup.procs):
+                if pinfo.process and pinfo.process.poll() is None:
+                    alive_players.append((i, pinfo.uptime()))
+
+            if not alive_players:
+                # no players alive
+                return
+
+            # find the longest living player
+            longest_player = max(alive_players, key=lambda x: x[1])[0]
+
+            # weighted random choice: longer living players have higher chance
+            total_uptime = sum(uptime for idx, uptime in alive_players)
+            if total_uptime == 0:
+                # all players have zero uptime; choose randomly
+                winner_idx = random.choice([idx for idx, uptime in alive_players])
+            else:
+                pick = random.uniform(0, total_uptime)
+                cumulative = 0.0
+                winner_idx = alive_players[0][0]  # default
+                for idx, uptime in alive_players:
+                    cumulative += uptime
+                    if pick <= cumulative:
+                        winner_idx = idx
+                        break
+
+            # kill the winner
+            self.sup.kill(winner_idx)
+
+            # set a new lottery time
+            LAST_LOTTO_TIME = time.perf_counter()
+            LOTTERY_TIME = random.randint(KILL_RANGE[0],KILL_RANGE[1])*60    # convert to seconds
+            LAST_IDX_WINNER = winner_idx
+
 
     def draw(self, stdscr):
         curses.curs_set(0)
@@ -500,14 +525,14 @@ class Dashboard:
         while self.running:
             # play the lottery
             if (time.perf_counter() - LAST_LOTTO_TIME) >= LOTTERY_TIME:
-                self.sup.play_lottery()
+                self.play_lottery()
 
             stdscr.erase()
             stdscr.addstr(0, 0, "BOT SUPERVISOR — q:quit  r:restart  R:restart all  k:kill  ENTER:toggle autorestart  ↑/↓:select")
-            stdscr.addstr(1, 0, "IDX   PID      BOT                     INGAME              ROLE               LOC              STATE            UP      RST  EXIT")
-            stdscr.addstr(2, 0, f"Countdown to next lottery: {int((LOTTERY_TIME)-(time.perf_counter() - LAST_LOTTO_TIME))}")
-            stdscr.addstr(3, 0, DEBUG_MSG)
-            stdscr.hline(4, 0, ord('-'), max(80, curses.COLS))
+            stdscr.addstr(self.offset-2, 0, "IDX   PID      BOT                     INGAME              ROLE               LOC              STATE            UP      RST  EXIT")
+            stdscr.addstr(1, 0, f"Countdown to next lottery: {int((LOTTERY_TIME)-(time.perf_counter() - LAST_LOTTO_TIME))}\t\tLAST WINNER: {LAST_IDX_WINNER}")
+            stdscr.addstr(2, 0, DEBUG_MSG)
+            stdscr.hline(self.offset-1, 0, ord('-'), max(80, curses.COLS))
 
             with self.sup.lock:
                 for i, pinfo in enumerate(self.sup.procs):
@@ -523,10 +548,10 @@ class Dashboard:
                     line = f"{i:>3}   {str(pid):>6}   {bot:<18}   {ingame:<18}   {role:<18}   {loc}  {state}     {up:>8}  {pinfo.restarts:>3}  {exitc:<6}"
                     if i == self.selected:
                         stdscr.attron(curses.A_REVERSE)
-                        stdscr.addstr(5 + i, 0, line[: curses.COLS - 1])
+                        stdscr.addstr(self.offset + i, 0, line[: curses.COLS - 1])
                         stdscr.attroff(curses.A_REVERSE)
                     else:
-                        stdscr.addstr(5 + i, 0, line[: curses.COLS - 1])
+                        stdscr.addstr(self.offset + i, 0, line[: curses.COLS - 1])
 
             try:
                 ch = stdscr.getch()
@@ -551,20 +576,22 @@ class Dashboard:
                 self.sup.kill(self.selected)
 
 
-            # randomly kill off a bot if they've outlived their time
-
-
     def run(self):
         try:
             curses.wrapper(self.draw)
         except Exception:
-            self._fallback_loop()
+            # print the error
+            traceback.print_exc()
+
+        # if self.running:
+        #     # fallback to non-curses mode
+        #     self._fallback_loop()
 
     def _fallback_loop(self):
         try:
             while self.running:
                 os.system('clear' if os.name != 'nt' else 'cls')
-                print("IDX  PID    BOT                 INGAME              ROLE                STATE        UP      RST  EXIT  LOC")
+                print("IDX   PID      BOT                     INGAME              ROLE               LOC              STATE            UP      RST  EXIT")
                 print("-" * 120)
                 with self.sup.lock:
                     for i, pinfo in enumerate(self.sup.procs):
@@ -596,6 +623,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
 
 
 def main(argv: List[str] | None = None):
+    global LAST_LOTTO_TIME, LOTTERY_TIME, LAST_IDX_WINNER
     args = parse_args(argv or sys.argv[1:])
 
     specs = load_config(args.config)
@@ -611,7 +639,8 @@ def main(argv: List[str] | None = None):
 
     signal.signal(signal.SIGINT, _sig_handler)
     signal.signal(signal.SIGTERM, _sig_handler)
-
+    LAST_LOTTO_TIME = time.perf_counter()
+    LOTTERY_TIME = random.randint(KILL_RANGE[0],KILL_RANGE[1])*60    # convert to seconds
     sup.start_all()
 
     ui = Dashboard(sup)

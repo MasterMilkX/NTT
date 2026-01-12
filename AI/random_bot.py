@@ -20,8 +20,8 @@ import json
 import random
 
 
-GAME_SERVER = 'http://192.168.10.2:4000/' # Flynn's Arcade
-#GAME_SERVER = "http://localhost:4000"   # AWS
+# GAME_SERVER = 'http://192.168.10.2:4000/' # Flynn's Arcade
+GAME_SERVER = "http://localhost:4000"   # AWS
 
 sio = socketio.Client()
 
@@ -309,15 +309,12 @@ def act():
 @sio.on('updateAvatars')
 def update_avatars(data):
     # Update the local avatar data with the information from the server
-    global all_avatars, avatar
+    global all_avatars, avatar, in_game
     all_avatars = data['avatars']
     if avatar:
         avatar = data['avatars'][avatar['id']]
     elif game_id:
         avatar = data['avatars'][game_id]
-    else:
-        print("ERROR: Cannot retrieve avatar data... exiting")
-        exit(1)
 
 
 
