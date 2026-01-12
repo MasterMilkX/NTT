@@ -62,6 +62,7 @@ import curses
 import json
 import os
 import signal
+import random
 import subprocess
 import sys
 import threading
@@ -82,6 +83,9 @@ except Exception as e:  # pragma: no cover
 
 DEBUG_MSG = "<< DEBUG GOES HERE >>"
 LOG_BOTS = False
+KILL_RANGE = ()
+LOTTERY_TIME = None         # time elapsed to wait before next lottery
+LAST_LOTTO_TIME = None      # last time since lottery played
 
 
 def debug_log(t):
@@ -124,6 +128,7 @@ class ProcInfo:
 # ------------------------------
 
 def load_config(path: str) -> List[BotSpec]:
+    global KILL_RANGE
     with open(path, 'r') as fp:
         data = yaml.safe_load(fp)
 
@@ -154,6 +159,13 @@ def load_config(path: str) -> List[BotSpec]:
                 raise ValueError("Unsupported bot entry format.")
     else:
         raise ValueError("'bots'/'scripts' must be a list.")
+    
+
+    # set the kill range
+    if 'kill_range' in data:
+        KILL_RANGE = data['kill_range']
+    else:
+        KILL_RANGE = (5,30)        # bots live for 5-30 minutes for lottery time
 
     return specs
 
@@ -379,6 +391,27 @@ class Supervisor:
                 except Exception:
                     pass
 
+    def play_lottery(self):
+        ''' Kills the longest living player '''
+        global LAST_LOTTO_TIME, LOTTERY_TIME
+        longest_time = -1
+        longest_player = -1
+        for i in range(len(self.procs)):
+            if longest_time == -1 or self.procs[i].uptime() > longest_time:
+                longest_time = self.procs[i].uptime()
+                longest_player = i
+
+        # kill an npc at random 
+        if longest_time == -1:
+            self.kill(random.choice(range(len(self.procs))))
+        else:
+            self.kill(longest_player)
+
+        # set a new lottery time
+        LAST_LOTTO_TIME = time.perf_counter()
+        LOTTERY_TIME = random.randint(KILL_RANGE[0],KILL_RANGE[1])
+
+
     def _reaper_loop(self):
         # monitor processes and restart if they exit
         while not self._stop.is_set():
@@ -465,11 +498,16 @@ class Dashboard:
         stdscr.nodelay(True)
         stdscr.timeout(200)
         while self.running:
+            # play the lottery
+            if (time.perf_counter() - LAST_LOTTO_TIME) >= LOTTERY_TIME:
+                self.sup.play_lottery()
+
             stdscr.erase()
             stdscr.addstr(0, 0, "BOT SUPERVISOR — q:quit  r:restart  R:restart all  k:kill  ENTER:toggle autorestart  ↑/↓:select")
             stdscr.addstr(1, 0, "IDX   PID      BOT                     INGAME              ROLE               LOC              STATE            UP      RST  EXIT")
-            stdscr.addstr(30, 0, DEBUG_MSG)
-            stdscr.hline(2, 0, ord('-'), max(80, curses.COLS))
+            stdscr.addstr(2, 0, f"Countdown to next lottery: {int((LOTTERY_TIME)-(time.perf_counter() - LAST_LOTTO_TIME))}")
+            stdscr.addstr(3, 0, DEBUG_MSG)
+            stdscr.hline(4, 0, ord('-'), max(80, curses.COLS))
 
             with self.sup.lock:
                 for i, pinfo in enumerate(self.sup.procs):
@@ -485,10 +523,10 @@ class Dashboard:
                     line = f"{i:>3}   {str(pid):>6}   {bot:<18}   {ingame:<18}   {role:<18}   {loc}  {state}     {up:>8}  {pinfo.restarts:>3}  {exitc:<6}"
                     if i == self.selected:
                         stdscr.attron(curses.A_REVERSE)
-                        stdscr.addstr(3 + i, 0, line[: curses.COLS - 1])
+                        stdscr.addstr(5 + i, 0, line[: curses.COLS - 1])
                         stdscr.attroff(curses.A_REVERSE)
                     else:
-                        stdscr.addstr(3 + i, 0, line[: curses.COLS - 1])
+                        stdscr.addstr(5 + i, 0, line[: curses.COLS - 1])
 
             try:
                 ch = stdscr.getch()
@@ -511,6 +549,10 @@ class Dashboard:
                 self.sup.toggle_autorestart(self.selected)
             elif ch in (ord('k'), ord('K')):
                 self.sup.kill(self.selected)
+
+
+            # randomly kill off a bot if they've outlived their time
+
 
     def run(self):
         try:

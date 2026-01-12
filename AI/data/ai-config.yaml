@@ -3,3 +3,5 @@ bots : [
   {script: "behavior_tree_bot.py", instances: 3},
   {script: "grammar-bot.py", instances: 3}
 ]
+
+kill_range : (10,30)

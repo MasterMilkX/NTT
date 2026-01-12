@@ -230,7 +230,8 @@ def safe_extract_json(s: str):
         return {"error": "Invalid JSON returned", "raw": s}
     
 def simpleName(name):
-    fname, lname = name.split(" ")
+    names = name.split(" ")
+    fname, lname = names[0], names[-1]
     return fname[0].upper() + " " + lname[0].upper()
 
 def transGameData():
@@ -336,11 +337,16 @@ def poll_llm_responses():
 
     if "move" in extr_out:
         p = extr_out["move"].split(',')
-        position = {'x': int(p[0]), 'y': int(p[1])}
-        sio.emit('move', {'position': position})    
-    elif "teleport" in extr_out and (not last_teleport or (time.perf_counter() - last_teleport) >= 10):
-        sio.emit('changeArea', {'area': extr_out["teleport"], 'position': randomAreaPos(extr_out["teleport"])})
-        last_teleport = time.perf_counter()
+        try:
+            position = {'x': int(p[0]), 'y': int(p[1])}
+            if in_zone(position, boundaries.get(avatar['area'])):
+                sio.emit('move', {'position': position})    
+        except Exception:
+            debug_print("Error with moving")
+    elif "teleport" in extr_out:
+        if (not last_teleport or (time.perf_counter() - last_teleport) >= 10):
+            sio.emit('changeArea', {'area': extr_out["teleport"], 'position': randomAreaPos(extr_out["teleport"])})
+            last_teleport = time.perf_counter()
     elif "emote" in extr_out:
         emo = extr_out["emote"]
         if emo in EMOTE_LIST:
@@ -352,7 +358,7 @@ def poll_llm_responses():
         if 'teleport' not in extr_out:
             debug_print(f"? Unknown LLM output -- {extr_out}")
         else:
-            print(f"Can't teleport yet: {(last_teleport - time.perf_counter())}")
+            debug_print(f"Can't teleport yet: {(time.perf_counter() - last_teleport)}")
 
 
     can_act = False
@@ -524,7 +530,6 @@ def act():
         can_act = False
         return
     
-    print(game_input)
  
     prompt = build_prompt(FULL_INSTRUCTIONS(avatar['classType']), game_input)
     
