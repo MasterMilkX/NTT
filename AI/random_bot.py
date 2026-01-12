@@ -32,6 +32,7 @@ variant = 1             # behavior variant (1, 2, 3. 4)
 in_game = False
 char_dat = None
 avatar = None
+game_id = None
 all_avatars = {}
 '''
     Avatar Data:
@@ -144,10 +145,18 @@ def role_assigned(data):
 
 @sio.on('message')
 def avatar_assigned(data):
-    global avatar
+    global avatar, base_area, in_game, game_id
     if data['status'] == 'accept':
         avatar = data['avatar']
+        game_id = data['avatar']['id']
+        print("=== Avatar Successfully Assigned ===")
         print(f"Avatar assigned: {avatar}")
+        print(f"BASE AREA: {char_dat.get('area', 'plaza')}")
+        print("====================================")
+
+        
+
+        base_area = char_dat.get('area', 'plaza')
 
         # print for the dashboard
         print2Dash()
@@ -300,9 +309,16 @@ def act():
 @sio.on('updateAvatars')
 def update_avatars(data):
     # Update the local avatar data with the information from the server
-    global all_avatars
+    global all_avatars, avatar
     all_avatars = data['avatars']
-    avatar = data['avatars'][avatar['id']]
+    if avatar:
+        avatar = data['avatars'][avatar['id']]
+    elif game_id:
+        avatar = data['avatars'][game_id]
+    else:
+        print("ERROR: Cannot retrieve avatar data... exiting")
+        exit(1)
+
 
 
 
@@ -351,7 +367,7 @@ if __name__ == '__main__':
                 in_game = False
                 break
 
-        if avatar:
+        if avatar and in_game:
             act()
             
 

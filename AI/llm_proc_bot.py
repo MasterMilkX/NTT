@@ -30,6 +30,7 @@ from queue import Empty  # for non-blocking Queue reads
 
 GAME_SERVER = 'http://192.168.10.2:4000/' # Flynn's Arcade
 #GAME_SERVER = "http://localhost:4000"   # AWS
+
 DEBUG = True
 
 sio = socketio.Client()
@@ -41,6 +42,7 @@ variant = 1             # behavior variant (1, 2, 3)
 in_game = False
 char_dat = None
 avatar = None
+game_id = None
 all_avatars = {}
 '''
     Avatar Data:
@@ -74,6 +76,8 @@ last_llm_start = 0.0
 last_llm_end = 0.0
 last_prompt_preview = ""
 
+
+last_teleport = None
 
 # ----- OTHER GAME DETAILS ----- #
 
@@ -221,13 +225,19 @@ def safe_extract_json(s: str):
         end = s.rindex("}") + 1
         return json.loads(s[start:end])
     except Exception:
+        if isinstance(s, str):
+            return {"text": s}
         return {"error": "Invalid JSON returned", "raw": s}
+    
+def simpleName(name):
+    fname, lname = name.split(" ")
+    return fname[0].upper() + " " + lname[0].upper()
 
 def transGameData():
     ''' Translates the current game data into LLM parsable info '''
     # this avatar's data
     me_data = {
-        "name": avatar['name'],
+        "name": simpleName(avatar['name']),
         "pos": [avatar['position']['x'], avatar['position']['y']],
         "role": avatar['classType'],
         "loc": avatar['area']
@@ -241,7 +251,7 @@ def transGameData():
             continue
 
         new_avatar = {
-            "name": a['name'],
+            "name": simpleName(a['name']),
             "pos": [a['position']['x'], a['position']['y']]
         }
 
@@ -260,10 +270,10 @@ def transGameData():
         # add to the overall user data
         USER_DATA.append(new_avatar)
 
-    if len(USER_DATA) == 0:
-        debug_print(f"\tMe: {avatar['area']}\n\tOther locations: {[a['area'] for i, a in all_avatars.items() if i != avatar['id']]}")
-    else:
-        debug_print("FRIEND!")
+    # if len(USER_DATA) == 0:
+    #     debug_print(f"\tMe: {avatar['area']}\n\tOther locations: {[a['area'] for i, a in all_avatars.items() if i != avatar['id']]}")
+    # else:
+    #     debug_print("FRIEND!")
 
     return {
         "me": me_data,
@@ -297,7 +307,7 @@ def llm_worker_main(request_q, response_q):
 
 def poll_llm_responses():
     ''' Check if the LLM worker has finished a job then parse it to a game action '''
-    global pending_job_id, can_act
+    global pending_job_id, can_act, last_teleport
 
     if pending_job_id is None or llm_response_q is None:
         return
@@ -328,17 +338,21 @@ def poll_llm_responses():
         p = extr_out["move"].split(',')
         position = {'x': int(p[0]), 'y': int(p[1])}
         sio.emit('move', {'position': position})    
-    elif "teleport" in extr_out:
+    elif "teleport" in extr_out and (not last_teleport or (time.perf_counter() - last_teleport) >= 10):
         sio.emit('changeArea', {'area': extr_out["teleport"], 'position': randomAreaPos(extr_out["teleport"])})
+        last_teleport = time.perf_counter()
     elif "emote" in extr_out:
         emo = extr_out["emote"]
         if emo in EMOTE_LIST:
-            sio.emit('chat', {'text': extr_out["emote"]})
-    elif "talk" in extr_out:
-        msg = extr_out['talk']
+            sio.emit('chat', {'text': "emo-"+emo.split("-")[0]})
+    elif "text" in extr_out:
+        msg = extr_out['text']
         sio.emit('chat', {'text':msg})
     else:
-        debug_print(f"? Unknown LLM output -- {extr_out}")
+        if 'teleport' not in extr_out:
+            debug_print(f"? Unknown LLM output -- {extr_out}")
+        else:
+            print(f"Can't teleport yet: {(last_teleport - time.perf_counter())}")
 
 
     can_act = False
@@ -462,10 +476,16 @@ def role_assigned(data):
 
 @sio.on('message')
 def avatar_assigned(data):
-    global avatar
+    global avatar, base_area, in_game, game_id
     if data['status'] == 'accept':
         avatar = data['avatar']
+        game_id = data['avatar']['id']
+        print("=== Avatar Successfully Assigned ===")
         print(f"Avatar assigned: {avatar}")
+        print(f"BASE AREA: {char_dat.get('area', 'plaza')}")
+        print("====================================")
+
+        base_area = char_dat.get('area', 'plaza')
 
         # print for the dashboard
         print2Dash()
@@ -503,6 +523,8 @@ def act():
         #dprint2(" (no one here) ")
         can_act = False
         return
+    
+    print(game_input)
  
     prompt = build_prompt(FULL_INSTRUCTIONS(avatar['classType']), game_input)
     
@@ -525,6 +547,15 @@ def act():
 def update_avatars(data):
     # Update the local avatar data with the information from the server
     global all_avatars, avatar, can_act, last_act_time
+    all_avatars = data['avatars']
+    if avatar:
+        avatar = data['avatars'][avatar['id']]
+    elif game_id:
+        avatar = data['avatars'][game_id]
+    else:
+        print("ERROR: Cannot retrieve avatar data... exiting")
+        exit(1)
+
 
     # act only every 3 seconds
     if time.time() - last_act_time > act_timeout:
