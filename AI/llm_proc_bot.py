@@ -353,7 +353,9 @@ def poll_llm_responses():
             sio.emit('chat', {'text': "emo-"+emo.split("-")[0]})
     elif "text" in extr_out:
         msg = extr_out['text']
+        time.sleep(min(random.random()*min(len(msg)//8,3),1))  # slight delay before talking
         sio.emit('chat', {'text':msg})
+        time.sleep(random.random()*2)  # slight delay after talking
     else:
         if 'teleport' not in extr_out:
             debug_print(f"? Unknown LLM output -- {extr_out}")
