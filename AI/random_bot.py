@@ -18,6 +18,7 @@ import socketio
 import time
 import json
 import random
+import sys
 
 
 # GAME_SERVER = 'http://192.168.10.2:4000/' # Flynn's Arcade
@@ -329,6 +330,13 @@ if __name__ == '__main__':
     # lean heavily towards variant 1 but allow 1-4
     variant = random.choices([1, 2, 3, 4], weights=[0.5, 0.2, 0.15, 0.15], k=1)[0]
     print(f"=== Behavior Variant Set To: {variant} ===")
+
+
+    # connect to a specific server
+    if len(sys.argv) > 1:
+        GAME_SERVER = sys.argv[1]
+    print(f">> CONNECTING TO: {GAME_SERVER} <<")
+
 
     conn_tries = 0
     

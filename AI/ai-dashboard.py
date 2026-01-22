@@ -88,7 +88,7 @@ KILL_RANGE = ()
 LOTTERY_TIME = 10         # time elapsed to wait before next lottery
 LAST_LOTTO_TIME = None      # last time since lottery played
 LAST_IDX_WINNER = -1        # last index of bot that won lottery
-
+IP_ADDR = ""
 
 def debug_log(t):
     global DEBUG_MSG
@@ -130,9 +130,11 @@ class ProcInfo:
 # ------------------------------
 
 def load_config(path: str) -> List[BotSpec]:
-    global KILL_RANGE
+    global KILL_RANGE, IP_ADDR
     with open(path, 'r') as fp:
         data = yaml.safe_load(fp)
+
+    IP_ADDR = data["ip_addr"]
 
     if isinstance(data, list):
         # list of script paths
@@ -208,7 +210,7 @@ class Supervisor:
             try:
                 env = dict(os.environ, PYTHONUNBUFFERED="1")
                 p = subprocess.Popen(
-                    [self.python, "-u", pinfo.script],     # <-- add "-u"
+                    [self.python, "-u", pinfo.script, IP_ADDR],     # <-- add "-u"
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     bufsize=1,                             # line buffered in text mode

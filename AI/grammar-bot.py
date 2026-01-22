@@ -597,6 +597,11 @@ if __name__ == '__main__':
     variant = 1 + min(2, max(0, int(random.gauss(1.5, 0.75))))
     print(f"=== Behavior Variant Set To: {variant} ===")
     
+    # connect to a specific server
+    if len(sys.argv) > 1:
+        GAME_SERVER = sys.argv[1]
+    print(f">> CONNECTING TO: {GAME_SERVER} <<")
+
     conn_tries = 0
     
     while True:

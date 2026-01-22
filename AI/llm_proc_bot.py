@@ -24,12 +24,14 @@ from datetime import datetime
 import os
 import psutil
 import traceback
+import sys
 
 import multiprocessing as mp
 from queue import Empty  # for non-blocking Queue reads
 
 # GAME_SERVER = 'http://192.168.10.2:4000/' # Flynn's Arcade
-GAME_SERVER = "http://localhost:4000"   # AWS
+# GAME_SERVER = "http://localhost:4000"   # AWS
+GAME_SERVER = "http://18.188.51.215:4000/"
 
 DEBUG = True
 
@@ -78,6 +80,7 @@ last_prompt_preview = ""
 
 
 last_teleport = None
+TELEPORT_TIMEOUT = 20
 
 # ----- OTHER GAME DETAILS ----- #
 
@@ -344,13 +347,18 @@ def poll_llm_responses():
         except Exception:
             debug_print("Error with moving")
     elif "teleport" in extr_out:
-        if (not last_teleport or (time.perf_counter() - last_teleport) >= 10):
+        if (not last_teleport or (time.perf_counter() - last_teleport) >= TELEPORT_TIMEOUT):
             sio.emit('changeArea', {'area': extr_out["teleport"], 'position': randomAreaPos(extr_out["teleport"])})
             last_teleport = time.perf_counter()
+
+        # try again
+        else:
+            can_act = True
+            return
     elif "emote" in extr_out:
         emo = extr_out["emote"]
         if emo in EMOTE_LIST:
-            sio.emit('chat', {'text': "emo-"+emo.split("-")[0]})
+            sio.emit('chat', {'text': ":emo-"+emo.split("-")[0]}+":")
     elif "text" in extr_out:
         msg = extr_out['text']
         time.sleep(min(random.random()*min(len(msg)//8,3),1))  # slight delay before talking
@@ -565,8 +573,8 @@ def update_avatars(data):
     if time.time() - last_act_time > act_timeout:
         form_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()))
         #dprint2(f".")
-        all_avatars = data['avatars']
-        avatar = data['avatars'][avatar['id']]
+        # all_avatars = data['avatars']
+        # avatar = data['avatars'][avatar['id']]
         last_act_time = time.time()
         can_act = True
     
@@ -582,6 +590,12 @@ if __name__ == '__main__':
     # lean heavily towards variant 1 but allow 1-4
     variant = random.choices([1, 2, 3], weights=[0.5, 0.25, 0.25], k=1)[0]
     print(f"=== Behavior Variant Set To: {variant} ===")
+
+
+    # connect to a specific server
+    if len(sys.argv) > 1:
+        GAME_SERVER = sys.argv[1]
+    print(f">> CONNECTING TO: {GAME_SERVER} <<")
 
 
     # start the LLM worker process
