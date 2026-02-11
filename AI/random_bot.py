@@ -123,6 +123,7 @@ def connect():
 
 @sio.event
 def disconnect():
+    global in_game
     print("Disconnected from the game server")
     print("Exiting the script...")
 
