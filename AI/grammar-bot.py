@@ -578,6 +578,11 @@ def update_avatars(data):
         avatar = data['avatars'][avatar['id']]
     elif game_id:
         avatar = data['avatars'][game_id]
+    else:
+        print("Warning: avatar not found in updateAvatars")
+        print("Disconnecting and retrying...")
+        sio.disconnect()
+        return
 
 
     # Check for new messages from other avatars every x seconds
