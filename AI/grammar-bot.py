@@ -169,7 +169,7 @@ def disconnect():
 
     if in_game:
         in_game = False
-    if heart:
+    if heart is not None:
         heart.terminate()  # terminate heartbeat process
 
     exit(0)  # exit the script when disconnected
