@@ -572,6 +572,12 @@ function guardDog(text){
 // CONSTANTLY update the players
 setInterval(function() {
     if(human_ct > 0){	// only update if there are humans playing
-	io.emit('updateAvatars', {avatars:players});
+	    io.emit('updateAvatars', {avatars:players});
     }
 }, 1000 / FPS_I); // frames to update the players (e.g., 60 FPS = 1000/60 = 16.67 ms per frame)
+
+
+// Send a heartbeat signal to all clients every 30 seconds to keep connections alive
+setInterval(function() {
+    io.emit('heartbeat', {alive: 1});
+}, 30000); // 30 seconds
