@@ -482,9 +482,10 @@ def connect():
     print("Connected to the game server")
 
 @sio.event
-def disconnect(sid):
+def disconnect(args):
     global in_game
-    print(f"Disconnected from the game server [{sid}]")
+    print("**Disconnected from the game server**")
+    print(f"   [REASON] args={args}", flush=True)
     print("Exiting the script...")
     
     # cleanup the LLM worker process and kill everything
@@ -494,7 +495,8 @@ def disconnect(sid):
         in_game = False
     if heart is not None:
         heart.terminate()  # terminate heartbeat process
-    exit(0)  # exit the script when disconnected
+    
+    raise SystemExit(0)
 
 
 

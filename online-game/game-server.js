@@ -318,8 +318,8 @@ io.on('connection', function(socket) {
 
 
     // handle disconnection
-    socket.on('disconnect', function() {
-        console.log('User disconnected: ' + socket.id);
+    socket.on('disconnect', (reason) => {
+        console.log(`User disconnected: ${socket.id} reason=${reason}`);
         if(players[socket.id]){ // if player does not exist, do nothing
             console.log("Leaving player:" + socket.id + " (" + players[socket.id].roleType + ")");
         
