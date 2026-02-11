@@ -595,7 +595,7 @@ def update_avatars(data):
         avatar = data['avatars'][avatar['id']]
     elif game_id:
         avatar = data['avatars'][game_id]
-    else:
+    elif in_game:
         print("Warning: avatar not found in updateAvatars")
         print("Disconnecting and retrying...")
         sio.disconnect()
