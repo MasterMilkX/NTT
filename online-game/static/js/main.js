@@ -308,8 +308,10 @@ function makeChatBox(avatar){
         let emo_id = avatar.text.replace(':emo-', '').replace(':', ''); // get the emoticon id
         let emo_img = document.getElementById('emo-' + emo_id); // get the emoticon image
         let img = document.createElement('img'); // create an image element
-        img.src = emo_img.src; // set the image source to the emoticon image
-        chatBox.appendChild(img); // add the image to the chat box
+        if(emo_img){
+	    img.src = emo_img.src; // set the image source to the emoticon image
+            chatBox.appendChild(img); // add the image to the chat box
+	}
     }
     // normal text chat
     else

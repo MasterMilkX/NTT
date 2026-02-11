@@ -571,5 +571,7 @@ function guardDog(text){
 
 // CONSTANTLY update the players
 setInterval(function() {
-    io.emit('updateAvatars', {avatars:players});
+    if(human_ct > 0){	// only update if there are humans playing
+	io.emit('updateAvatars', {avatars:players});
+    }
 }, 1000 / FPS_I); // frames to update the players (e.g., 60 FPS = 1000/60 = 16.67 ms per frame)
