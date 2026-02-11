@@ -7,7 +7,10 @@ var fs = require('fs');
 
 var app = express();
 var server = http.createServer(app);
-var io = socketIO(server);
+var io = socketIO(server, { // ping timeout increase
+  pingInterval: 25000,
+  pingTimeout: 60000
+});
 var port = 4000;
 
 

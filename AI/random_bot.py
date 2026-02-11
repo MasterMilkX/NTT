@@ -373,7 +373,7 @@ if __name__ == '__main__':
         while not in_game:
             try:
                 # connect to the server
-                sio.connect(GAME_SERVER)
+                sio.connect(GAME_SERVER, transports=["websocket"], wait_timeout=30)
                 print("Connected to the game server")
                 in_game = True
 
