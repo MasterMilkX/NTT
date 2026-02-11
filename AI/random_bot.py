@@ -19,6 +19,7 @@ import time
 import json
 import random
 import sys
+import multiprocessing as mp
 
 
 # GAME_SERVER = 'http://192.168.10.2:4000/' # Flynn's Arcade
@@ -124,7 +125,29 @@ def connect():
 def disconnect():
     print("Disconnected from the game server")
     print("Exiting the script...")
+
+    # cleanup and exit
+    if in_game:
+        in_game = False
+    if heart:
+        heart.terminate()  # terminate heartbeat process
     exit(0)  # exit the script when disconnected
+
+
+heart = None  # global variable for the heartbeat process
+
+@sio.event
+def heartbeat_loop():
+    """Send a lightweight event every 10 seconds so the server sees us as alive."""
+    while True:
+        try:
+            # Use an event name your server either handles or harmlessly ignores
+            sio.emit('bot_heartbeat', {'ts': time.time()})
+        except Exception as e:
+            print(f"heartbeat error: {e}")
+            # if we're disconnected, just break; main loop will reconnect
+            break
+        time.sleep(10)
 
 
 # --- ROLE ASSIGNMENTS --- #
@@ -348,6 +371,12 @@ if __name__ == '__main__':
                 sio.connect(GAME_SERVER)
                 print("Connected to the game server")
                 in_game = True
+
+                # start the heartbeat process
+                if heart:
+                    heart.terminate()  # terminate existing heartbeat if it exists
+                heart = mp.Process(target=heartbeat_loop, daemon=True)
+                heart.start()
             except socketio.exceptions.ConnectionError:
                 conn_tries += 1
                 if conn_tries > 3:

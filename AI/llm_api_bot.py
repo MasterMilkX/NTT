@@ -25,26 +25,17 @@ import os
 import psutil
 import traceback
 import sys
+import requests
 
 import multiprocessing as mp
 from queue import Empty  # for non-blocking Queue reads
 
 
 
-# --- hard cap threadpools (must be before importing torch/transformers) ---
-os.environ.setdefault("OMP_NUM_THREADS", "2")
-os.environ.setdefault("MKL_NUM_THREADS", "2")
-os.environ.setdefault("OPENBLAS_NUM_THREADS", "2")
-os.environ.setdefault("VECLIB_MAXIMUM_THREADS", "2")
-os.environ.setdefault("NUMEXPR_NUM_THREADS", "2")
-os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
-
-
-
-
 # GAME_SERVER = 'http://192.168.10.2:4000/' # Flynn's Arcade
 # GAME_SERVER = "http://localhost:4000"   # AWS
-GAME_SERVER = "http://18.188.51.215:4000/"
+# GAME_SERVER = "http://18.188.51.215:4000/"  # old ip
+GAME_SERVER = "http://npcttmmo.xyz/"
 
 DEBUG = True
 
@@ -80,6 +71,8 @@ all_avatars = {}
 tokenizer = None
 llm_model = None
 MODEL_PATH = "../../llama_npctt-v1/"
+
+LLM_URL = os.environ.get("LLM_URL", "http://127.0.0.1:8008/generate")
 
 llm_request_q = None
 llm_response_q = None
@@ -162,28 +155,6 @@ FULL_INSTRUCTIONS = lambda npc_role: ("Pretend you are human player role-playing
     "\n")
 
 
-# ------------------------------
-# Build prompt for inference
-# ------------------------------
-def importModel():
-    global llm_model, tokenizer
-    ''' Loads in the LLM llm_model for prompting '''
-
-
-    torch.set_num_threads(2)
-    torch.set_num_interop_threads(1)
-
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, use_fast=True)
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-
-    llm_model = AutoModelForCausalLM.from_pretrained(
-        MODEL_PATH,
-        torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-        device_map="auto"
-    )
-
-    
 
 
 # ------------------------------
@@ -208,26 +179,10 @@ def build_prompt(system_message: str, user_json: dict) -> str:
 #  -> use multiprocessing to keep the connection live
 # ------------------------------
 def generate_npc_response(prompt: str, max_new_tokens: int = 128) -> str:
-    global last_llm_start, last_llm_end
-
-    last_llm_start = time.time()
-
-    enc = tokenizer(prompt, return_tensors="pt").to(llm_model.device)
-    with torch.no_grad():
-        out = llm_model.generate(
-            **enc,
-            max_new_tokens=max_new_tokens,
-            do_sample=True,
-            temperature=0.7,
-            top_p=0.9,
-            eos_token_id=tokenizer.eos_token_id,
-        )
-
-    last_llm_end = time.time()
-
-
-    text = tokenizer.decode(out[0], skip_special_tokens=True)
-    return text[len(prompt):].strip()   # return ONLY the assistant completion
+    print("[SENT LLM REQUEST]")
+    r = requests.post(LLM_URL, json={"prompt": prompt, "max_new_tokens": max_new_tokens}, timeout=30)
+    r.raise_for_status()
+    return r.json()["text"]
 
 
 # ------------------------------
@@ -299,57 +254,10 @@ def transGameData():
         "others": USER_DATA
     }
 
+def poll_llm_responses(prompt):
+    global last_teleport
 
-def llm_worker_main(request_q, response_q):
-    ''' Runs in a separate process; it loads the model then loops, processing prompts from request_q, and sending results back via response_q '''
-    print("[LLM PROC] starting up, loading model...")
-    importModel()
-    print("[LLM PROC] model loaded")
-
-    while True:
-        job = request_q.get()
-        if job is None:
-            print("[LLM PROC] shutdown signal received")
-            break
-
-        job_id = job.get("id")
-        prompt = job.get("prompt", "")
-
-        try:
-            output = generate_npc_response(prompt)
-            response_q.put({"id": job_id, "output":output})
-        except Exception as e:
-            traceback.print_exc()
-            response_q.put({"id": job_id, "error": str(e)})
-
-
-
-def poll_llm_responses():
-    ''' Check if the LLM worker has finished a job then parse it to a game action '''
-    global pending_job_id, can_act, last_teleport
-
-    if pending_job_id is None or llm_response_q is None:
-        return
-
-    try:
-        # non-blocking check for a response
-        resp = llm_response_q.get_nowait()
-    except Empty:
-        return
-
-    job_id = resp.get("id")
-    if job_id != pending_job_id:
-        # not mine, so don't worry about it
-        return
-
-    pending_job_id = None
-
-    if "error" in resp:
-        debug_print(f"LLM worker error: {resp['error']}")
-        can_act = False
-        return
-
-    output = resp.get("output", "")
+    output = generate_npc_response(prompt)
     extr_out = safe_extract_json(output)
     debug_print(f"Extracted output (mp worker): {extr_out}")
 
@@ -485,13 +393,7 @@ def connect():
 def disconnect(sid):
     print(f"Disconnected from the game server [{sid}]")
     print("Exiting the script...")
-    
-    # cleanup the LLM worker process and kill everything
-    if llm_proc is not None:
-        llm_proc.terminate()
-    heart.terminate()  # terminate heartbeat process
     exit(0)  # exit the script when disconnected
-
 
 
 # --- ROLE ASSIGNMENTS --- #
@@ -564,22 +466,13 @@ def act():
  
     prompt = build_prompt(FULL_INSTRUCTIONS(avatar['classType']), game_input)
     
-    # create a simple job id using the timestamp
-    job_id = time.time()
-    pending_job_id = job_id
-
-    # send job to LL worker process
-    if llm_request_q is not None:
-        llm_request_q.put({"id": job_id, "prompt": prompt})
-        debug_print("Queued LLM job")
-    else:
-        debug_print("LLM request queue is not initialized!")
+    poll_llm_responses(prompt)
 
     # act() doesn't respond yet until able
     can_act = False
 
     # print for the dashboard
-    #print2Dash()
+    print2Dash()
 
 
 @sio.on('updateAvatars')
@@ -622,23 +515,7 @@ if __name__ == '__main__':
     print(f">> CONNECTING TO: {GAME_SERVER} <<")
 
 
-    # start the LLM worker process
-    llm_request_q = mp.Queue()
-    llm_response_q = mp.Queue()
-    llm_proc = mp.Process(
-        target=llm_worker_main,
-        args=(llm_request_q,llm_response_q),
-        daemon=True
-    )
-    llm_proc.start()
-    print("[MAIN] LLM worker process started")
-
-
-
     conn_tries = 0
-
-    heart = mp.Process(target=heartbeat_loop, daemon=True)
-    heart.start()
     
     while True:
         # retry connecting to the server until successful
@@ -674,7 +551,6 @@ if __name__ == '__main__':
 
         if avatar:
             act()
-            poll_llm_responses()
 
         # sleep to keep from using 100% CPU
         time.sleep(0.01)

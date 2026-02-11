@@ -1,0 +1,22 @@
+ip_addr: "http://npcttmmo.xyz"
+
+kill_range: [10, 30]
+
+llm_server:
+  module: "llm_server:app"
+  host: "127.0.0.1"
+  port: 8008
+  ready_url: "http://127.0.0.1:8008/health"
+  env:
+    OMP_NUM_THREADS: "2"
+    MKL_NUM_THREADS: "2"
+    OPENBLAS_NUM_THREADS: "2"
+    TOKENIZERS_PARALLELISM: "false"
+  startup_timeout_sec: 60
+
+bots: [
+  {script: "random_bot.py", instances: 1},
+  {script: "behavior_tree_bot.py", instances: 0},
+  {script: "grammar-bot.py", instances: 0},
+  {script: "llm_api_bot.py", instances: 4}
+]
