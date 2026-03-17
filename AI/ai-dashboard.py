@@ -83,7 +83,7 @@ except Exception as e:  # pragma: no cover
 # ------------------------------
 
 DEBUG_MSG = "<< DEBUG GOES HERE >>"
-LOG_BOTS = False
+LOG_BOTS = True
 KILL_RANGE = ()
 LOTTERY_TIME = 10         # time elapsed to wait before next lottery
 LAST_LOTTO_TIME = None      # last time since lottery played

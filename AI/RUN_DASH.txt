@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# 0) Load venv
+source ../../npc_tt_env/bin/activate
+
+# 1) Start detached
+tmux new -s bots -d 'python3 -u ai-dashboard.py'
+
+# 2) Later, attach to the live dashboard
+tmux attach -t bots
+
+# 3) Detach without stopping it (inside tmux):
+echo "DETACH: press:  Ctrl-b  then  d"
+echo "STOP: press: Ctrl-C"
+
+sleep 2
+
+# Useful:
+tmux ls                          # list sessions
+tmux send-keys -t bots C-c       # send Ctrl-C to stop cleanly
+tmux kill-session -t bots        # kill the session
+

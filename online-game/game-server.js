@@ -60,7 +60,7 @@ var npph_ct = 0;
 var ghostDat = {};      // data stored of actions for the ghost characters (based on humans)
 var valid_admins = [];
 
-const MAX_PLAYERS = 50;
+const MAX_PLAYERS = 100;
 const FPS_I = 60;
 
 var apid_list = [];
